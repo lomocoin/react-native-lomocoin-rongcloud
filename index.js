@@ -31,5 +31,14 @@ export default {
     },
     sendTextMessage (conversationType, targetId, content) {
         return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, content);
-    }
+    },
+    sendImageMessage (conversationType, targetId, imageUrl) {
+        return RongCloudIMLib.sendImageMessage(conversationType, targetId, imageUrl, '');
+    },
+    sendVoiceMessage (conversationType, targetId, voiceData, duration) {
+        return RongCloudIMLib.sendVoiceMessage(conversationType, targetId, voiceData, duration, '');
+    },
+    disconnect (disconnect) {
+        return RongCloudIMLib.disconnect(disconnect);
+    ,
 };

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A4D8E84C1F25F53400F73692 /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4D8E84B1F25F53400F73692 /* Photos.framework */; };
+		A4D8E84E1F25F53D00F73692 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4D8E84D1F25F53D00F73692 /* SafariServices.framework */; };
 		EF631A971CC22A4600AC9715 /* RCTRongCloudIMLib.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = EF631A961CC22A4600AC9715 /* RCTRongCloudIMLib.h */; };
 		EF631A991CC22A4600AC9715 /* RCTRongCloudIMLib.m in Sources */ = {isa = PBXBuildFile; fileRef = EF631A981CC22A4600AC9715 /* RCTRongCloudIMLib.m */; };
 		EF631B0F1CC28B2500AC9715 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF631B0E1CC28B2500AC9715 /* AssetsLibrary.framework */; };
@@ -41,6 +43,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A4D8E84B1F25F53400F73692 /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
+		A4D8E84D1F25F53D00F73692 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
 		EF631A931CC22A4600AC9715 /* libRCTRongCloudIMLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTRongCloudIMLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF631A961CC22A4600AC9715 /* RCTRongCloudIMLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTRongCloudIMLib.h; sourceTree = "<group>"; };
 		EF631A981CC22A4600AC9715 /* RCTRongCloudIMLib.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTRongCloudIMLib.m; sourceTree = "<group>"; };
@@ -67,6 +71,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A4D8E84E1F25F53D00F73692 /* SafariServices.framework in Frameworks */,
+				A4D8E84C1F25F53400F73692 /* Photos.framework in Frameworks */,
 				EF631B2D1CC28B9800AC9715 /* UIKit.framework in Frameworks */,
 				EF631B2B1CC28B9100AC9715 /* SystemConfiguration.framework in Frameworks */,
 				EF631B291CC28B8A00AC9715 /* QuartzCore.framework in Frameworks */,
@@ -89,6 +95,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A4D8E84A1F25F53400F73692 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A4D8E84D1F25F53D00F73692 /* SafariServices.framework */,
+				A4D8E84B1F25F53400F73692 /* Photos.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		EF631A8A1CC22A4500AC9715 = {
 			isa = PBXGroup;
 			children = (
@@ -110,6 +125,7 @@
 				EF631B0E1CC28B2500AC9715 /* AssetsLibrary.framework */,
 				EF631A951CC22A4600AC9715 /* RCTRongCloudIMLib */,
 				EF631A941CC22A4600AC9715 /* Products */,
+				A4D8E84A1F25F53400F73692 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};

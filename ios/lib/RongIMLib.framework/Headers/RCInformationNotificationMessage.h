@@ -19,10 +19,10 @@
 
 /*!
  通知消息类
- 
+
  @discussion 通知消息类，此消息会进行存储，但不计入未读消息数。
  */
-@interface RCInformationNotificationMessage : RCMessageContent
+@interface RCInformationNotificationMessage : RCMessageContent<NSCoding>
 
 /*!
  通知的内容
@@ -36,7 +36,7 @@
 
 /*!
  初始化通知消息
- 
+
  @param message 通知的内容
  @param extra   通知的附加信息
  @return        通知消息对象

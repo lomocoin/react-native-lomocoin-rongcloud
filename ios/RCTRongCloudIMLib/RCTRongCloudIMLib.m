@@ -95,6 +95,31 @@ RCT_EXPORT_METHOD(sendTextMessage:(NSString *)type
     
 }
 
+RCT_EXPORT_METHOD(sendImageMessage:(NSString *)type
+                  targetId:(NSString *)targetId
+                  content:(NSString *)imageUrl
+                  pushContent:(NSString *) pushContent
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    RCImageMessage *imageMessage = [RCImageMessage messageWithImageURI:imageUrl]
+    [self sendMessage:type targetId:targetId content:imageMessage pushContent:pushContent resolve:resolve reject:reject];
+    
+}
+
+RCT_EXPORT_METHOD(sendVoiceMessage:(NSString *)type
+                  targetId:(NSString *)targetId
+                  content:(NSData *)voiceData
+                  duration:(float )duration
+                  pushContent:(NSString *) pushContent
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    RCVoiceMessage *rcVoiceMessage = [RCVoiceMessage messageWithAudio:voiceData duration:duration]
+    [self sendMessage:type targetId:targetId content:rcVoiceMessage pushContent:pushContent resolve:resolve reject:reject];
+    
+}
+
 RCT_EXPORT_METHOD(getSDKVersion:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     NSString* version = [[self getClient] getSDKVersion];
@@ -120,8 +145,8 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
     if([type isEqualToString:@"PRIVATE"]) {
         conversationType = ConversationType_PRIVATE;
     }
-    else if([type isEqualToString:@"DISCUSSION"]) {
-        conversationType = ConversationType_DISCUSSION;
+    else if([type isEqualToString:@"GROUP"]) {
+        conversationType = ConversationType_GROUP;
     }
     else {
         conversationType = ConversationType_SYSTEM;
