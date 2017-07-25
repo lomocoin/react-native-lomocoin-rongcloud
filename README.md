@@ -9,7 +9,7 @@ https://github.com/lotosbin/react-native-rongcloud-imlib-sample/
 # usage
 ```
 npm install --save https://github.com/haishangshijie/react-native-rongcloud-imlib
-npm link react-native-rongcloud-imlib
+react-native link react-native-rongcloud-imlib
 ```
 
 ## android config
