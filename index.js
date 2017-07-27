@@ -9,7 +9,7 @@ var _onRongCloudMessageReceived = function(resp) {
 
 }
 
-DeviceEventEmitter.addListener('onRongMessageReceived', (resp) => {
+NativeEventEmitter.addListener('onRongMessageReceived', (resp) => {
     typeof(_onRongCloudMessageReceived) === 'function' && _onRongCloudMessageReceived(resp);
 });
 
