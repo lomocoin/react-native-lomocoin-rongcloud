@@ -1,15 +1,16 @@
-import {
-    NativeModules,
-    DeviceEventEmitter
-} from 'react-native';
+'use strict';
+import { NativeEventEmitter,
+    NativeModules }
+from 'react-native';
 
 const RongCloudIMLib = NativeModules.RongCloudIMLibModule;
 
 var _onRongCloudMessageReceived = function(resp) {
 
 }
-DeviceEventEmitter.addListener('onRongCloudMessageReceived', resp => {
-    typeof _onRongCloudMessageReceived === 'function' && _onRongCloudMessageReceived(resp);
+
+DeviceEventEmitter.addListener('onRongMessageReceived', (resp) => {
+    typeof(_onRongCloudMessageReceived) === 'function' && _onRongCloudMessageReceived(resp);
 });
 
 const ConversationType = {
@@ -29,6 +30,12 @@ export default {
     connectWithToken (token) {
         return RongCloudIMLib.connectWithToken(token);
     },
+    getConversationList(){
+        return RongCloudIMLib.getConversationList();
+    },
+    getConversation(targetId){
+        return RongCloudIMLib.getConversation(targetId);
+    },
     sendTextMessage (conversationType, targetId, content) {
         return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, content);
     },
@@ -40,5 +47,5 @@ export default {
     },
     disconnect (disconnect) {
         return RongCloudIMLib.disconnect(disconnect);
-    ,
+    },
 };

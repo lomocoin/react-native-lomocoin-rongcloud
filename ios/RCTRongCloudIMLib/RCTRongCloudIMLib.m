@@ -9,19 +9,20 @@
 #import "RCTRongCloudIMLib.h"
 
 @implementation RCTRongCloudIMLib
-@synthesize bridge = _bridge;
+
 
 RCT_EXPORT_MODULE(RongCloudIMLibModule)
 
-RCT_EXPORT_METHOD(initWithAppKey:(NSString *) appkey) {
+- (NSArray<NSString *> *)supportedEvents
+{
+    return @[@"onRongMessageReceived"];
+}
+
+RCT_EXPORT_METHOD(initWithAppKey:(NSString *)appkey) {
     NSLog(@"initWithAppKey %@", appkey);
     [[self getClient] initWithAppKey:appkey];
     
     [[self getClient] setReceiveMessageDelegate:self object:nil];
-}
-
-RCT_EXPORT_METHOD(setDeviceToken:(NSString *) deviceToken) {
-    [[self getClient] setDeviceToken:deviceToken];
 }
 
 RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
@@ -82,6 +83,62 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
     
 }
 
+RCT_EXPORT_METHOD(getConversationList:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    NSArray *conversationList = [[self getClient] getConversationList:@[@(ConversationType_PRIVATE),
+                                                       @(ConversationType_GROUP),
+                                                       @(ConversationType_SYSTEM),]];
+    if(conversationList){
+        NSMutableArray * array = [NSMutableArray new];
+        for  (RCConversation * conversation in conversationList) {
+            NSMutableDictionary * dict = [NSMutableDictionary new];
+            dict[@"conversationType"] = (unsigned long)conversation.conversationType;
+            dict[@"targetId"] = conversation.targetId;
+            dict[@"conversationTitle"] = conversation.conversationTitle;
+            dict[@"unreadMessageCount"] = conversation.unreadMessageCount;
+            dict[@"receivedTime"] = (long long)conversation.receivedTime;
+            dict[@"sentTime"] = (long long)conversation.sentTime;
+            dict[@"senderUserId"] = conversation.senderUserId;
+            dict[@"lastestMessageId"] = conversation.lastestMessageId;
+            dict[@"lastestMessage"] = [conversation.lastestMessage encode];
+            dict[@"lastestMessageDirection"] = conversation.lastestMessageDirection;
+            dict[@"jsonDict"] = conversation.jsonDict;
+            [array addObject:dict];
+        }
+        resolve(@[[NSNull null], array]);
+    }else{
+        reject(@"读取失败", @"读取失败", nil);
+    }
+}
+
+
+RCT_EXPORT_METHOD(getConversation:(NSString *)targetId
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversation * conversation = [[self getClient] getConversation:ConversationType_PRIVATE
+                                                             targetId:targetId];
+    if(conversation){
+        NSMutableDictionary * dict = [NSMutableDictionary new];
+        dict[@"conversationType"] = (unsigned long)conversation.conversationType;
+        dict[@"targetId"] = conversation.targetId;
+        dict[@"conversationTitle"] = conversation.conversationTitle;
+        dict[@"unreadMessageCount"] = conversation.unreadMessageCount;
+        dict[@"receivedTime"] = (long long)conversation.receivedTime;
+        dict[@"sentTime"] = (long long)conversation.sentTime;
+        dict[@"senderUserId"] = conversation.senderUserId;
+        dict[@"lastestMessageId"] = conversation.lastestMessageId;
+        dict[@"lastestMessage"] = [conversation.lastestMessage encode];
+        dict[@"lastestMessageDirection"] = conversation.lastestMessageDirection;
+        dict[@"jsonDict"] = conversation.jsonDict;
+        
+        resolve(@[[NSNull null], dict]);
+    }else{
+        reject(@"读取失败", @"读取失败", nil);
+    }
+}
+
 RCT_EXPORT_METHOD(sendTextMessage:(NSString *)type
                   targetId:(NSString *)targetId
                   content:(NSString *)content
@@ -92,7 +149,7 @@ RCT_EXPORT_METHOD(sendTextMessage:(NSString *)type
     RCTextMessage *messageContent = [RCTextMessage messageWithContent:content];
     [self sendMessage:type targetId:targetId content:messageContent pushContent:pushContent resolve:resolve reject:reject];
     
-    
+
 }
 
 RCT_EXPORT_METHOD(sendImageMessage:(NSString *)type
@@ -129,6 +186,8 @@ RCT_EXPORT_METHOD(getSDKVersion:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
     [[self getClient] disconnect:isReceivePush];
 }
+
+
 
 -(RCIMClient *) getClient {
     return [RCIMClient sharedRCIMClient];
@@ -199,7 +258,7 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
     body[@"message"] = _message;
     body[@"errcode"] = @"0";
     
-    [self sendEvent:@"onRongCloudMessageReceived" body:body];
+    [self sendEventWithName:@"onRongMessageReceived" body:body];
 }
 
 -(NSMutableDictionary *)getEmptyBody {
@@ -207,9 +266,5 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
     return body;
 }
 
--(void)sendEvent:(NSString *)name body:(NSMutableDictionary *)body {
-    
-    [self.bridge.eventDispatcher sendDeviceEventWithName:name body:body];
-}
 
 @end
