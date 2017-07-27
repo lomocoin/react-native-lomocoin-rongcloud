@@ -93,16 +93,16 @@ RCT_EXPORT_METHOD(getConversationList:(RCTPromiseResolveBlock)resolve
         NSMutableArray * array = [NSMutableArray new];
         for  (RCConversation * conversation in conversationList) {
             NSMutableDictionary * dict = [NSMutableDictionary new];
-            dict[@"conversationType"] = (unsigned long)conversation.conversationType;
+            dict[@"conversationType"] = @((unsigned long)conversation.conversationType);
             dict[@"targetId"] = conversation.targetId;
             dict[@"conversationTitle"] = conversation.conversationTitle;
-            dict[@"unreadMessageCount"] = conversation.unreadMessageCount;
-            dict[@"receivedTime"] = (long long)conversation.receivedTime;
-            dict[@"sentTime"] = (long long)conversation.sentTime;
+            dict[@"unreadMessageCount"] = @(conversation.unreadMessageCount);
+            dict[@"receivedTime"] = @((long long)conversation.receivedTime);
+            dict[@"sentTime"] = @((long long)conversation.sentTime);
             dict[@"senderUserId"] = conversation.senderUserId;
-            dict[@"lastestMessageId"] = conversation.lastestMessageId;
+            dict[@"lastestMessageId"] = @(conversation.lastestMessageId);
             dict[@"lastestMessage"] = [conversation.lastestMessage encode];
-            dict[@"lastestMessageDirection"] = conversation.lastestMessageDirection;
+            dict[@"lastestMessageDirection"] = @(conversation.lastestMessageDirection);
             dict[@"jsonDict"] = conversation.jsonDict;
             [array addObject:dict];
         }
@@ -121,16 +121,16 @@ RCT_EXPORT_METHOD(getConversation:(NSString *)targetId
                                                              targetId:targetId];
     if(conversation){
         NSMutableDictionary * dict = [NSMutableDictionary new];
-        dict[@"conversationType"] = (unsigned long)conversation.conversationType;
+        dict[@"conversationType"] = @((unsigned long)conversation.conversationType);
         dict[@"targetId"] = conversation.targetId;
         dict[@"conversationTitle"] = conversation.conversationTitle;
-        dict[@"unreadMessageCount"] = conversation.unreadMessageCount;
-        dict[@"receivedTime"] = (long long)conversation.receivedTime;
-        dict[@"sentTime"] = (long long)conversation.sentTime;
+        dict[@"unreadMessageCount"] = @(conversation.unreadMessageCount);
+        dict[@"receivedTime"] = @((long long)conversation.receivedTime);
+        dict[@"sentTime"] = @((long long)conversation.sentTime);
         dict[@"senderUserId"] = conversation.senderUserId;
-        dict[@"lastestMessageId"] = conversation.lastestMessageId;
+        dict[@"lastestMessageId"] = @(conversation.lastestMessageId);
         dict[@"lastestMessage"] = [conversation.lastestMessage encode];
-        dict[@"lastestMessageDirection"] = conversation.lastestMessageDirection;
+        dict[@"lastestMessageDirection"] = @(conversation.lastestMessageDirection);
         dict[@"jsonDict"] = conversation.jsonDict;
         
         resolve(@[[NSNull null], dict]);
@@ -159,7 +159,7 @@ RCT_EXPORT_METHOD(sendImageMessage:(NSString *)type
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
-    RCImageMessage *imageMessage = [RCImageMessage messageWithImageURI:imageUrl]
+    RCImageMessage *imageMessage = [RCImageMessage messageWithImageURI:imageUrl];
     [self sendMessage:type targetId:targetId content:imageMessage pushContent:pushContent resolve:resolve reject:reject];
     
 }
@@ -172,7 +172,7 @@ RCT_EXPORT_METHOD(sendVoiceMessage:(NSString *)type
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
-    RCVoiceMessage *rcVoiceMessage = [RCVoiceMessage messageWithAudio:voiceData duration:duration]
+    RCVoiceMessage *rcVoiceMessage = [RCVoiceMessage messageWithAudio:voiceData duration:duration];
     [self sendMessage:type targetId:targetId content:rcVoiceMessage pushContent:pushContent resolve:resolve reject:reject];
     
 }
@@ -268,3 +268,4 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
 
 
 @end
+
