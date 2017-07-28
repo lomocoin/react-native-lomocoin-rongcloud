@@ -222,9 +222,7 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
         reject(nil, nil, nil);
     };
     
-    
-    [[self getClient] sendMessage:conversationType targetId:targetId content:content pushContent:pushContent success:successBlock error:errorBlock];
-    
+    [[self getClient] sendMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:nil success:successBlock error:errorBlock];
 }
 
 -(void)onReceived:(RCMessage *)message
@@ -248,9 +246,6 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
         RCImageMessage *imageMessage = (RCImageMessage *)message.content;
         _message[@"imageUrl"] = imageMessage.imageUrl;
         _message[@"thumbnailImage"] = imageMessage.thumbnailImage;
-    }
-    else if([message.content isMemberOfClass:[RCRichContentMessage class]]) {
-        RCRichContentMessage *richMessage = (RCRichContentMessage *)message.content;
     }
     
     
