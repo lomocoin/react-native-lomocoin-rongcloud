@@ -9,9 +9,9 @@ var _onRongCloudMessageReceived = function(resp) {
 
 }
 
-NativeEventEmitter.addListener('onRongMessageReceived', (resp) => {
-    typeof(_onRongCloudMessageReceived) === 'function' && _onRongCloudMessageReceived(resp);
-});
+// NativeEventEmitter.addListener('onRongMessageReceived', (resp) => {
+//     typeof(_onRongCloudMessageReceived) === 'function' && _onRongCloudMessageReceived(resp);
+// });
 
 const ConversationType = {
     PRIVATE: 'PRIVATE',
@@ -22,7 +22,7 @@ const ConversationType = {
 export default {
     ConversationType: ConversationType,
     onReceived (callback) {
-        _onRongCloudMessageReceived = callback;
+//         _onRongCloudMessageReceived = callback;
     },
     initWithAppKey (appKey) {
         return RongCloudIMLib.initWithAppKey(appKey);
