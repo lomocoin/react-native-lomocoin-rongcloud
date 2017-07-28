@@ -83,7 +83,7 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
     
 }
 
-RCT_EXPORT_METHOD(getConversationList:(NSString *)params
+RCT_REMAP_METHOD(getConversationList,
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
@@ -116,7 +116,8 @@ RCT_EXPORT_METHOD(getConversationList:(NSString *)params
 }
 
 
-RCT_EXPORT_METHOD(getConversation:(NSString *)targetId
+RCT_REMAP_METHOD(getConversation,
+                  targetId:(NSString *)targetId
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
@@ -180,7 +181,8 @@ RCT_EXPORT_METHOD(sendVoiceMessage:(NSString *)type
     
 }
 
-RCT_EXPORT_METHOD(getSDKVersion:(RCTPromiseResolveBlock)resolve
+RCT_REMAP_METHOD(getSDKVersion,
+                  rejecter:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     NSString* version = [[self getClient] getSDKVersion];
     resolve(version);
