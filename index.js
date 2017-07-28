@@ -31,7 +31,7 @@ export default {
         return RongCloudIMLib.connectWithToken(token);
     },
     getConversationList(){
-        return RongCloudIMLib.getConversationList('');
+        return RongCloudIMLib.getConversationList();
     },
     getConversation(targetId){
         return RongCloudIMLib.getConversation(targetId);
