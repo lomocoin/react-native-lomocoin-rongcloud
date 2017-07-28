@@ -72,7 +72,7 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
                 errcode = @"OTHER";
                 break;
         }
-        reject(errcode, errcode, nil);
+        reject(errcode, [NSString stringWithFormat:@"status :%ld  errcode: %@",(long)status,errcode], nil);
     };
     void (^tokenIncorrectBlock)();
     tokenIncorrectBlock = ^() {
@@ -83,13 +83,14 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
     
 }
 
-RCT_EXPORT_METHOD(getConversationList:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(getConversationList:(NSString *)params
+                  resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
     NSArray *conversationList = [[self getClient] getConversationList:@[@(ConversationType_PRIVATE),
                                                        @(ConversationType_GROUP),
                                                        @(ConversationType_SYSTEM),]];
-    if(conversationList){
+    if(conversationList.count > 0){
         NSMutableArray * array = [NSMutableArray new];
         for  (RCConversation * conversation in conversationList) {
             NSMutableDictionary * dict = [NSMutableDictionary new];
@@ -106,8 +107,10 @@ RCT_EXPORT_METHOD(getConversationList:(RCTPromiseResolveBlock)resolve
             dict[@"jsonDict"] = conversation.jsonDict;
             [array addObject:dict];
         }
+        NSLog(@"conversationList === %@",array);
         resolve(array);
     }else{
+        NSLog(@"=== 读取失败 === ");
         reject(@"读取失败", @"读取失败", nil);
     }
 }
@@ -219,7 +222,7 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
     
     void (^errorBlock)(RCErrorCode nErrorCode , long messageId);
     errorBlock = ^(RCErrorCode nErrorCode , long messageId) {
-        reject(nil, nil, nil);
+        reject(@"发送失败", @"发送失败", nil);
     };
     
     [[self getClient] sendMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:nil success:successBlock error:errorBlock];
