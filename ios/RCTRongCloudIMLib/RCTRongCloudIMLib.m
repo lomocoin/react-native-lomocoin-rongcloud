@@ -33,7 +33,7 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
     void (^successBlock)(NSString *userId);
     successBlock = ^(NSString* userId) {
         NSArray *events = [[NSArray alloc] initWithObjects:userId,nil];
-        resolve(@[[NSNull null], events]);
+        resolve(events);
     };
     
     void (^errorBlock)(RCConnectErrorCode status);
@@ -106,7 +106,7 @@ RCT_EXPORT_METHOD(getConversationList:(RCTPromiseResolveBlock)resolve
             dict[@"jsonDict"] = conversation.jsonDict;
             [array addObject:dict];
         }
-        resolve(@[[NSNull null], array]);
+        resolve(array);
     }else{
         reject(@"读取失败", @"读取失败", nil);
     }
@@ -133,7 +133,7 @@ RCT_EXPORT_METHOD(getConversation:(NSString *)targetId
         dict[@"lastestMessageDirection"] = @(conversation.lastestMessageDirection);
         dict[@"jsonDict"] = conversation.jsonDict;
         
-        resolve(@[[NSNull null], dict]);
+        resolve(dict);
     }else{
         reject(@"读取失败", @"读取失败", nil);
     }
@@ -213,8 +213,8 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
     
     void (^successBlock)(long messageId);
     successBlock = ^(long messageId) {
-        NSString* id = [NSString stringWithFormat:@"%ld",messageId];
-        resolve(id);
+        NSString* messageid = [NSString stringWithFormat:@"%ld",messageId];
+        resolve(messageid);
     };
     
     void (^errorBlock)(RCErrorCode nErrorCode , long messageId);
