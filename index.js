@@ -48,4 +48,5 @@ export default {
     disconnect (disconnect) {
         return RongCloudIMLib.disconnect(disconnect);
     },
+    
 };
