@@ -100,9 +100,17 @@ RCT_REMAP_METHOD(getConversationList,
             dict[@"sentTime"] = @((long long)conversation.sentTime);
             dict[@"senderUserId"] = conversation.senderUserId;
             dict[@"lastestMessageId"] = @(conversation.lastestMessageId);
-            dict[@"lastestMessage"] = [conversation.lastestMessage encode];
             dict[@"lastestMessageDirection"] = @(conversation.lastestMessageDirection);
             dict[@"jsonDict"] = conversation.jsonDict;
+            if ([conversation.lastestMessage isKindOfClass:[RCTextMessage class]]) {
+                RCTextMessage *textMsg = (RCTextMessage *)conversation.lastestMessage;
+                dict[@"lastestMessage"] = textMsg.content;
+            } else if ([conversation.lastestMessage isKindOfClass:[RCImageMessage class]]) {
+                dict[@"lastestMessage"] = @"[图片]";
+            } else if ([conversation.lastestMessage isKindOfClass:[RCVoiceMessage class]]) {
+                dict[@"lastestMessage"] = @"[语音]";
+            }
+            
             [array addObject:dict];
         }
         NSLog(@"conversationList === %@",array);
