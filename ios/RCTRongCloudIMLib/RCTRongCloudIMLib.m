@@ -163,11 +163,52 @@ RCT_REMAP_METHOD(getLatestMessages,
             }
             [array addObject:dict];
         }
-        
+        NSLog(@"MessagesList === %@",array);
         resolve(array);
         
     }
     else{
+        reject(@"读取失败", @"读取失败", nil);
+    }
+}
+
+RCT_REMAP_METHOD(searchConversations,
+                 keyword:(NSString *)keyword
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
+    
+    NSArray *SearchResult = [[self getClient] searchConversations:@[@(ConversationType_PRIVATE)] messageType:@[[RCTextMessage getObjectName]] keyword:keyword];
+    
+    
+    if(SearchResult.count > 0){
+        NSMutableArray * array = [NSMutableArray new];
+        for  (RCSearchConversationResult * result in SearchResult) {
+            NSMutableDictionary * dict = [NSMutableDictionary new];
+            dict[@"conversationType"] = @((unsigned long)result.conversation.conversationType);
+            dict[@"targetId"] = result.conversation.targetId;
+            dict[@"conversationTitle"] = result.conversation.conversationTitle;
+            dict[@"unreadMessageCount"] = @(result.conversation.unreadMessageCount);
+            dict[@"receivedTime"] = @((long long)result.conversation.receivedTime);
+            dict[@"sentTime"] = @((long long)result.conversation.sentTime);
+            dict[@"senderUserId"] = result.conversation.senderUserId;
+            dict[@"lastestMessageId"] = @(result.conversation.lastestMessageId);
+            dict[@"lastestMessageDirection"] = @(result.conversation.lastestMessageDirection);
+            dict[@"jsonDict"] = result.conversation.jsonDict;
+            if ([result.conversation.lastestMessage isKindOfClass:[RCTextMessage class]]) {
+                RCTextMessage *textMsg = (RCTextMessage *)result.conversation.lastestMessage;
+                dict[@"lastestMessage"] = textMsg.content;
+            } else if ([result.conversation.lastestMessage isKindOfClass:[RCImageMessage class]]) {
+                dict[@"lastestMessage"] = @"[图片]";
+            } else if ([result.conversation.lastestMessage isKindOfClass:[RCVoiceMessage class]]) {
+                dict[@"lastestMessage"] = @"[语音]";
+            }
+            
+            [array addObject:dict];
+        }
+        NSLog(@"SearchResultList === %@",array);
+        resolve(array);
+    }else{
+        NSLog(@"=== 读取失败 === ");
         reject(@"读取失败", @"读取失败", nil);
     }
 }
