@@ -84,12 +84,10 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
 }
 
 RCT_REMAP_METHOD(getConversationList,
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
     
-    NSArray *conversationList = [[self getClient] getConversationList:@[@(ConversationType_PRIVATE),
-                                                       @(ConversationType_GROUP),
-                                                       @(ConversationType_SYSTEM),]];
+    NSArray *conversationList = [[self getClient] getConversationList:@[@(ConversationType_PRIVATE)]];
     if(conversationList.count > 0){
         NSMutableArray * array = [NSMutableArray new];
         for  (RCConversation * conversation in conversationList) {
@@ -116,29 +114,52 @@ RCT_REMAP_METHOD(getConversationList,
 }
 
 
-RCT_REMAP_METHOD(getConversation,
-                  targetId:(NSString *)targetId
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
+RCT_REMAP_METHOD(getLatestMessages,
+                 targetId:(NSString *)targetId
+                 count:(int)count
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
     
-    RCConversation * conversation = [[self getClient] getConversation:ConversationType_PRIVATE
-                                                             targetId:targetId];
-    if(conversation){
-        NSMutableDictionary * dict = [NSMutableDictionary new];
-        dict[@"conversationType"] = @((unsigned long)conversation.conversationType);
-        dict[@"targetId"] = conversation.targetId;
-        dict[@"conversationTitle"] = conversation.conversationTitle;
-        dict[@"unreadMessageCount"] = @(conversation.unreadMessageCount);
-        dict[@"receivedTime"] = @((long long)conversation.receivedTime);
-        dict[@"sentTime"] = @((long long)conversation.sentTime);
-        dict[@"senderUserId"] = conversation.senderUserId;
-        dict[@"lastestMessageId"] = @(conversation.lastestMessageId);
-        dict[@"lastestMessage"] = [conversation.lastestMessage encode];
-        dict[@"lastestMessageDirection"] = @(conversation.lastestMessageDirection);
-        dict[@"jsonDict"] = conversation.jsonDict;
+    NSArray * messageList = [[self getClient] getLatestMessages:ConversationType_PRIVATE targetId:targetId count:count];
+    if(messageList){
+        NSMutableArray * array = [NSMutableArray new];
+        for (RCMessage * message in messageList) {
+            NSMutableDictionary * dict = [NSMutableDictionary new];
+            dict[@"conversationType"] = @((unsigned long)message.conversationType);
+            dict[@"targetId"] = message.targetId;
+            dict[@"messageId"] = @(message.messageId);
+            dict[@"receivedTime"] = @((long long)message.receivedTime);
+            dict[@"sentTime"] = @((long long)message.sentTime);
+            dict[@"senderUserId"] = message.senderUserId;
+            dict[@"messageUId"] = message.messageUId;
+            dict[@"messageDirection"] = @(message.messageDirection);
+            
+            if([message.content isKindOfClass:[RCTextMessage class]]){
+                RCTextMessage *textMsg = (RCTextMessage *)message.content;
+                dict[@"type"] = @"text";
+                dict[@"content"] = textMsg.content;
+                dict[@"extra"] = textMsg.extra;
+            }
+            else if ([message.content isKindOfClass:[RCImageMessage class]]){
+                RCImageMessage *imageMsg = (RCImageMessage *)message.content;
+                dict[@"type"] = @"image";
+                dict[@"imageUrl"] = imageMsg.imageUrl;
+                dict[@"extra"] = imageMsg.extra;
+            }
+            else if ([message.content isKindOfClass:[RCVoiceMessage class]]){
+                RCVoiceMessage *voiceMsg = (RCVoiceMessage *)message.content;
+                dict[@"type"] = @"voice";
+                dict[@"data"] = voiceMsg.wavAudioData;
+                dict[@"duration"] = @(voiceMsg.duration);
+                dict[@"extra"] = voiceMsg.extra;
+            }
+            [array addObject:dict];
+        }
         
-        resolve(dict);
-    }else{
+        resolve(array);
+        
+    }
+    else{
         reject(@"读取失败", @"读取失败", nil);
     }
 }
@@ -153,7 +174,7 @@ RCT_EXPORT_METHOD(sendTextMessage:(NSString *)type
     RCTextMessage *messageContent = [RCTextMessage messageWithContent:content];
     [self sendMessage:type targetId:targetId content:messageContent pushContent:pushContent resolve:resolve reject:reject];
     
-
+    
 }
 
 RCT_EXPORT_METHOD(sendImageMessage:(NSString *)type
@@ -182,8 +203,8 @@ RCT_EXPORT_METHOD(sendVoiceMessage:(NSString *)type
 }
 
 RCT_REMAP_METHOD(getSDKVersion,
-                  rejecter:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
+                 rejecter:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
     NSString* version = [[self getClient] getSDKVersion];
     resolve(version);
 }
