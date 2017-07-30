@@ -30,6 +30,9 @@ export default {
     connectWithToken (token) {
         return RongCloudIMLib.connectWithToken(token);
     },
+    searchConversations(keyword){
+        return RongCloudIMLib.searchConversations(keyword);
+    },
     getConversationList(){
         return RongCloudIMLib.getConversationList();
     },
