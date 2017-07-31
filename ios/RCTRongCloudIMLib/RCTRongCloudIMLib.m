@@ -87,7 +87,7 @@ RCT_REMAP_METHOD(getConversationList,
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject) {
     
-    NSArray *conversationList = [[self getClient] getConversationList:@[@(ConversationType_PRIVATE)]];
+    NSArray *conversationList = [[self getClient] getConversationList:@[@(ConversationType_PRIVATE),@(ConversationType_GROUP)]];
     if(conversationList.count > 0){
         NSMutableArray * array = [NSMutableArray new];
         for  (RCConversation * conversation in conversationList) {
@@ -123,12 +123,28 @@ RCT_REMAP_METHOD(getConversationList,
 
 
 RCT_REMAP_METHOD(getLatestMessages,
+                 type:(int)type
                  targetId:(NSString *)targetId
                  count:(int)count
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject) {
     
-    NSArray * messageList = [[self getClient] getLatestMessages:ConversationType_PRIVATE targetId:targetId count:count];
+    RCConversationType conversationType;
+    switch (type) {
+        case 1:
+            conversationType = ConversationType_PRIVATE;
+            break;
+        case 3:
+            conversationType = ConversationType_GROUP;
+            break;
+            
+        default:
+            conversationType = ConversationType_PRIVATE;
+            break;
+    }
+    
+    
+    NSArray * messageList = [[self getClient] getLatestMessages:conversationType targetId:targetId count:count];
     if(messageList){
         NSMutableArray * array = [NSMutableArray new];
         for (RCMessage * message in messageList) {
@@ -177,7 +193,7 @@ RCT_REMAP_METHOD(searchConversations,
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject) {
     
-    NSArray *SearchResult = [[self getClient] searchConversations:@[@(ConversationType_PRIVATE)] messageType:@[[RCTextMessage getObjectName]] keyword:keyword];
+    NSArray *SearchResult = [[self getClient] searchConversations:@[@(ConversationType_PRIVATE),@(ConversationType_GROUP)] messageType:@[[RCTextMessage getObjectName]] keyword:keyword];
     
     
     if(SearchResult.count > 0){
@@ -213,7 +229,7 @@ RCT_REMAP_METHOD(searchConversations,
     }
 }
 
-RCT_EXPORT_METHOD(sendTextMessage:(NSString *)type
+RCT_EXPORT_METHOD(sendTextMessage:(int)type
                   targetId:(NSString *)targetId
                   content:(NSString *)content
                   pushContent:(NSString *) pushContent
@@ -226,7 +242,7 @@ RCT_EXPORT_METHOD(sendTextMessage:(NSString *)type
     
 }
 
-RCT_EXPORT_METHOD(sendImageMessage:(NSString *)type
+RCT_EXPORT_METHOD(sendImageMessage:(int)type
                   targetId:(NSString *)targetId
                   content:(NSString *)imageUrl
                   pushContent:(NSString *) pushContent
@@ -238,7 +254,7 @@ RCT_EXPORT_METHOD(sendImageMessage:(NSString *)type
     
 }
 
-RCT_EXPORT_METHOD(sendVoiceMessage:(NSString *)type
+RCT_EXPORT_METHOD(sendVoiceMessage:(int)type
                   targetId:(NSString *)targetId
                   content:(NSData *)voiceData
                   duration:(float )duration
@@ -268,7 +284,7 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
     return [RCIMClient sharedRCIMClient];
 }
 
--(void)sendMessage:(NSString *)type
+-(void)sendMessage:(int)type
           targetId:(NSString *)targetId
            content:(RCMessageContent *)content
        pushContent:(NSString *) pushContent
@@ -276,14 +292,17 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
             reject:(RCTPromiseRejectBlock)reject {
     
     RCConversationType conversationType;
-    if([type isEqualToString:@"PRIVATE"]) {
-        conversationType = ConversationType_PRIVATE;
-    }
-    else if([type isEqualToString:@"GROUP"]) {
-        conversationType = ConversationType_GROUP;
-    }
-    else {
-        conversationType = ConversationType_SYSTEM;
+    switch (type) {
+        case 1:
+            conversationType = ConversationType_PRIVATE;
+            break;
+        case 3:
+            conversationType = ConversationType_GROUP;
+            break;
+            
+        default:
+            conversationType = ConversationType_PRIVATE;
+            break;
     }
     
     void (^successBlock)(long messageId);
@@ -308,10 +327,17 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
     
     NSMutableDictionary *body = [self getEmptyBody];
     NSMutableDictionary *_message = [self getEmptyBody];
+    
     _message[@"targetId"] = message.targetId;
     _message[@"senderUserId"] = message.senderUserId;
     _message[@"messageId"] = [NSString stringWithFormat:@"%ld",message.messageId];
-    _message[@"sentTime"] = [NSString stringWithFormat:@"%lld",message.sentTime];
+    _message[@"sentTime"] = @((long long)message.sentTime);
+    _message[@"receivedTime"] = @((long long)message.receivedTime);
+    _message[@"senderUserId"] = message.senderUserId;
+    _message[@"conversationType"] = @((unsigned long)message.conversationType);
+    _message[@"messageDirection"] = @(message.messageDirection);
+    _message[@"objectName"] = message.objectName;
+    _message[@"extra"] = message.extra;
     
     if ([message.content isMemberOfClass:[RCTextMessage class]]) {
         RCTextMessage *testMessage = (RCTextMessage *)message.content;
