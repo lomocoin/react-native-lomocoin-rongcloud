@@ -1,6 +1,6 @@
 'use strict';
 import {
-    NativeEventEmitter,
+    NativeModules,
     DeviceEventEmitter
 }
     from 'react-native';
