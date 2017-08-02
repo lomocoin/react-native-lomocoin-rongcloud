@@ -11,7 +11,7 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-
+import android.util.Log;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -20,7 +20,10 @@ import io.rong.message.RichContentMessage;
 import io.rong.message.TextMessage;
 
 /**
- * Created by lovebing on 3/25/16.
+ * 融云原生功能模块
+ * 
+ * @author qiaojiayan
+ * @date 17/8/2 下午5:34
  */
 public class RongCloudIMLibModule  extends ReactContextBaseJavaModule {
 
@@ -42,6 +45,7 @@ public class RongCloudIMLibModule  extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void initWithAppKey(String appKey) {
+        Log.e("isme","rong init appkey:"+appKey);
         RongIMClient.init(context, appKey);
     }
 
@@ -79,6 +83,7 @@ public class RongCloudIMLibModule  extends ReactContextBaseJavaModule {
              */
             @Override
             public void onSuccess(String userid) {
+                Log.e("isme","rong 连接融云成功 userid:"+userid);
                 WritableMap map = Arguments.createMap();
                 map.putString("userid", userid);
                 promise.resolve(map);
@@ -90,6 +95,7 @@ public class RongCloudIMLibModule  extends ReactContextBaseJavaModule {
              */
             @Override
             public void onError(RongIMClient.ErrorCode errorCode) {
+                Log.e("isme","rong 连接融云失败 code:"+errorCode.getValue());
                 String code = errorCode.getValue() + "";
                 String msg = errorCode.getMessage();
                 promise.reject(code, msg);
