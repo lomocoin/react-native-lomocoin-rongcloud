@@ -36,8 +36,8 @@ export default {
     getConversationList(){
         return RongCloudIMLib.getConversationList();
     },
-    getLatestMessages(targetId,count){
-        return RongCloudIMLib.getLatestMessages(targetId,count);
+    getLatestMessages(type,targetId,count){
+        return RongCloudIMLib.getLatestMessages(type,targetId,count);
     },
     sendTextMessage (conversationType, targetId, content) {
         return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, content);
