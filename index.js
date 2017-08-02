@@ -1,17 +1,19 @@
 'use strict';
-import { NativeEventEmitter,
-    NativeModules }
-from 'react-native';
+import {
+    NativeEventEmitter,
+    DeviceEventEmitter
+}
+    from 'react-native';
 
 const RongCloudIMLib = NativeModules.RongCloudIMLibModule;
 
-var _onRongCloudMessageReceived = function(resp) {
+var _onRongCloudMessageReceived = function (resp) {
 
 }
 
-// NativeEventEmitter.addListener('onRongMessageReceived', (resp) => {
-//     typeof(_onRongCloudMessageReceived) === 'function' && _onRongCloudMessageReceived(resp);
-// });
+DeviceEventEmitter.addListener('onRongMessageReceived', (resp) => {
+    typeof (_onRongCloudMessageReceived) === 'function' && _onRongCloudMessageReceived(resp);
+});
 
 const ConversationType = {
     PRIVATE: 'PRIVATE',
@@ -21,34 +23,34 @@ const ConversationType = {
 
 export default {
     ConversationType: ConversationType,
-    onReceived (callback) {
-//         _onRongCloudMessageReceived = callback;
+    onReceived(callback) {
+        _onRongCloudMessageReceived = callback;
     },
-    initWithAppKey (appKey) {
+    initWithAppKey(appKey) {
         return RongCloudIMLib.initWithAppKey(appKey);
     },
-    connectWithToken (token) {
+    connectWithToken(token) {
         return RongCloudIMLib.connectWithToken(token);
     },
-    searchConversations(keyword){
+    searchConversations(keyword) {
         return RongCloudIMLib.searchConversations(keyword);
     },
-    getConversationList(){
+    getConversationList() {
         return RongCloudIMLib.getConversationList();
     },
-    getLatestMessages(type,targetId,count){
-        return RongCloudIMLib.getLatestMessages(type,targetId,count);
+    getLatestMessages(type, targetId, count) {
+        return RongCloudIMLib.getLatestMessages(type, targetId, count);
     },
-    sendTextMessage (conversationType, targetId, content) {
+    sendTextMessage(conversationType, targetId, content) {
         return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, content);
     },
-    sendImageMessage (conversationType, targetId, imageUrl) {
+    sendImageMessage(conversationType, targetId, imageUrl) {
         return RongCloudIMLib.sendImageMessage(conversationType, targetId, imageUrl, '');
     },
-    sendVoiceMessage (conversationType, targetId, voiceData, duration) {
+    sendVoiceMessage(conversationType, targetId, voiceData, duration) {
         return RongCloudIMLib.sendVoiceMessage(conversationType, targetId, voiceData, duration, '');
     },
-    disconnect (disconnect) {
+    disconnect(disconnect) {
         return RongCloudIMLib.disconnect(disconnect);
     },
 };
