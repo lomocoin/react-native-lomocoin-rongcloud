@@ -8,7 +8,7 @@ import {
 const RongCloudIMLib = NativeModules.RongCloudIMLibModule;
 
 var _onRongCloudMessageReceived = function (resp) {
-
+    console.log("融云接受消息:" + JSON.stringify(resp));
 }
 
 DeviceEventEmitter.addListener('onRongMessageReceived', (resp) => {
