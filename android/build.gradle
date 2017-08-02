@@ -16,9 +16,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            res.srcDirs = ['src/main/res']
+            jniLibs.srcDirs = ['src/main/jniLibs']
+        }
+    }
+
 }
 
 dependencies {
-    compile "com.facebook.react:react-native:+"
-    compile files('libs/Rong_IMLib_v2_4_11.jar')
+    compile 'com.facebook.react:react-native:+'
+    compile files('libs/Rong_IMLib.jar')
 }
