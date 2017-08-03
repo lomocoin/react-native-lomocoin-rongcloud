@@ -83,6 +83,27 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
     
 }
 
+RCT_EXPORT_METHOD(clearMessagesUnreadStatus:(int)type
+                  targetId:(NSString *)targetId) {
+    
+    RCConversationType conversationType;
+    switch (type) {
+        case 1:
+            conversationType = ConversationType_PRIVATE;
+            break;
+        case 3:
+            conversationType = ConversationType_GROUP;
+            break;
+            
+        default:
+            conversationType = ConversationType_PRIVATE;
+            break;
+    }
+    
+    [[self getClient] clearMessagesUnreadStatus:conversationType targetId:targetId];
+}
+
+
 RCT_REMAP_METHOD(getConversationList,
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject) {
