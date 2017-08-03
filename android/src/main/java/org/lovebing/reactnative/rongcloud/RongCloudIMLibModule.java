@@ -167,9 +167,17 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                         msg.putInt("lastestMessageId", conversation.getLatestMessageId());
                         msg.putInt("lastestMessageId", conversation.getLatestMessageId());
                         msg.putString("lastestMessageDirection", "");
-                        msg.putString("jsonDict", conversation.getLatestMessage().getJsonMentionInfo().toString());
-                        msg.putString("lastestMessage", conversation.getLatestMessage().getMentionedInfo().getMentionedContent());
-
+                        // msg.putString("jsonDict", conversation.getLatestMessage().getJsonMentionInfo().toString());
+                        // msg.putString("lastestMessage", conversation.getLatestMessage().getMentionedInfo().getMentionedContent());
+                        MessageContent message = conversation.getLatestMessage();
+                        if (message instanceof TextMessage) {
+                            TextMessage textMessage = (TextMessage) message;
+                            msg.putString("lastestMessage", textMessage.getContent());
+                        } else if (message instanceof RichContentMessage) {
+                            msg.putString("lastestMessage", "图片");
+                        } else if (message instanceof VoiceMessage) {
+                            msg.putString("lastestMessage", "语音");
+                        }
                         data.pushMap(msg);
                     }
                 }
@@ -199,7 +207,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                         msg.putInt("lastestMessageId", item.getLatestMessageId());
                         msg.putInt("lastestMessageId", item.getLatestMessageId());
                         msg.putString("lastestMessageDirection", "");
-                        msg.putString("jsonDict", item.getLatestMessage().getJsonMentionInfo().toString());
+                        // msg.putString("jsonDict", item.getLatestMessage().getJsonMentionInfo().toString());
 
                         MessageContent message = item.getLatestMessage();
                         if (message instanceof TextMessage) {
@@ -312,7 +320,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         msg.putString("sentTime", message.getSentTime() + "");
         msg.putString("senderUserId", message.getSenderUserId());
         msg.putString("messageUId", "");
-        msg.putString("messageDirection", message.getMessageDirection().toString());
+        msg.putInt("messageDirection", message.getMessageDirection().getValue());
 
         if (message.getContent() instanceof TextMessage) {
             TextMessage textMessage = (TextMessage) message.getContent();
