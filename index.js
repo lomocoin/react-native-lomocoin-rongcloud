@@ -1,7 +1,8 @@
 'use strict';
 import {
     NativeModules,
-    DeviceEventEmitter
+    DeviceEventEmitter,
+    NativeEventEmitter
 }
     from 'react-native';
 
@@ -14,6 +15,16 @@ var _onRongCloudMessageReceived = function (resp) {
 DeviceEventEmitter.addListener('onRongMessageReceived', (resp) => {
     typeof (_onRongCloudMessageReceived) === 'function' && _onRongCloudMessageReceived(resp);
 });
+
+const RongCloudIMLibEmitter = new NativeEventEmitter(RongCloudIMLib);
+
+const subscription = RongCloudIMLibEmitter.addListener(
+    'onRongMessageReceived',
+    (resp) => {
+        typeof (_onRongCloudMessageReceived) === 'function' && _onRongCloudMessageReceived(resp);
+    }
+);
+
 
 const ConversationType = {
     PRIVATE: 'PRIVATE',
@@ -31,6 +42,9 @@ export default {
     },
     connectWithToken(token) {
         return RongCloudIMLib.connectWithToken(token);
+    },
+    clearUnreadMessage(conversationType, targetId){
+        return RongCloudIMLib.clearUnreadMessage(conversationType, targetId);
     },
     searchConversations(keyword) {
         return RongCloudIMLib.searchConversations(keyword);
