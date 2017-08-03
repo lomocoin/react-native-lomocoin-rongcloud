@@ -73,7 +73,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 map.putString("left", "0");
                 map.putString("errcode", "0");
 
-                instance.sendEvent("onRongCloudMessageReceived", map);
+                instance.sendEvent("onRongMessageReceived", map);
                 return true;
             }
         });
