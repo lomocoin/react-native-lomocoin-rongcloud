@@ -10,6 +10,8 @@
 
 @implementation RCTRongCloudIMLib
 
+@synthesize bridge = _bridge;
+
 
 RCT_EXPORT_MODULE(RongCloudIMLibModule)
 
@@ -83,7 +85,7 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
     
 }
 
-RCT_EXPORT_METHOD(clearMessagesUnreadStatus:(int)type
+RCT_EXPORT_METHOD(clearUnreadMessage:(int)type
                   targetId:(NSString *)targetId) {
     
     RCConversationType conversationType;
