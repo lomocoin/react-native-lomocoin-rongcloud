@@ -306,6 +306,13 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         RongIMClient.getInstance().disconnect(isReceivePush);
     }
 
+    @ReactMethod
+    public void clearUnreadMessage(int mType,String targetId,Promise promise) {
+        ConversationType type = formatConversationType(mType);
+        boolean is = RongIMClient.getInstance().clearMessagesUnreadStatus(type,targetId);
+        promise.resolve(is);
+    }
+
 
     /**
      * @param message
