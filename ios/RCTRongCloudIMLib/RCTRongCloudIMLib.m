@@ -8,6 +8,23 @@
 
 #import "RCTRongCloudIMLib.h"
 
+#import <AVFoundation/AVFoundation.h>
+
+@interface RCTRongCloudIMLib ()
+
+{
+    BOOL       _isSend;    //是否已发送
+    NSTimer *  _timer;     //定时器
+    NSTimer *  _longTimer; //60s定时器
+    NSInteger  _duration;  //语音时长
+}
+@property (nonatomic, strong) AVAudioSession *session;
+@property (nonatomic, strong) AVAudioRecorder *recorder;//录音器
+@property (nonatomic, strong) AVPlayer *player; //播放器
+@property (nonatomic, strong) NSURL *recordFileUrl; //语音路径
+
+@end
+
 @implementation RCTRongCloudIMLib
 
 @synthesize bridge = _bridge;
@@ -20,12 +37,16 @@ RCT_EXPORT_MODULE(RongCloudIMLibModule)
     return @[@"onRongMessageReceived"];
 }
 
+#pragma mark RongCloud Init
+
 RCT_EXPORT_METHOD(initWithAppKey:(NSString *)appkey) {
     NSLog(@"initWithAppKey %@", appkey);
     [[self getClient] initWithAppKey:appkey];
     
     [[self getClient] setReceiveMessageDelegate:self object:nil];
 }
+
+#pragma mark RongCloud Connect
 
 RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
                   resolver:(RCTPromiseResolveBlock)resolve
@@ -84,6 +105,8 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
     [[self getClient] connectWithToken:token success:successBlock error:errorBlock tokenIncorrect:tokenIncorrectBlock];
     
 }
+
+#pragma mark  RongCloud  GetMessagesFromLocal
 
 RCT_EXPORT_METHOD(clearUnreadMessage:(int)type
                   targetId:(NSString *)targetId) {
@@ -196,7 +219,7 @@ RCT_REMAP_METHOD(getLatestMessages,
             else if ([message.content isKindOfClass:[RCVoiceMessage class]]){
                 RCVoiceMessage *voiceMsg = (RCVoiceMessage *)message.content;
                 dict[@"type"] = @"voice";
-                dict[@"data"] = voiceMsg.wavAudioData;
+                dict[@"wavAudioData"] = voiceMsg.wavAudioData;
                 dict[@"duration"] = @(voiceMsg.duration);
                 dict[@"extra"] = voiceMsg.extra;
             }
@@ -210,6 +233,8 @@ RCT_REMAP_METHOD(getLatestMessages,
         reject(@"读取失败", @"读取失败", nil);
     }
 }
+
+#pragma mark  RongCloud  SearchMessagesFromLocal
 
 RCT_REMAP_METHOD(searchConversations,
                  keyword:(NSString *)keyword
@@ -252,6 +277,8 @@ RCT_REMAP_METHOD(searchConversations,
     }
 }
 
+#pragma mark  RongCloud  Send Text / Image  Messages
+
 RCT_EXPORT_METHOD(sendTextMessage:(int)type
                   targetId:(NSString *)targetId
                   content:(NSString *)content
@@ -260,7 +287,7 @@ RCT_EXPORT_METHOD(sendTextMessage:(int)type
                   reject:(RCTPromiseRejectBlock)reject) {
     
     RCTextMessage *messageContent = [RCTextMessage messageWithContent:content];
-    [self sendMessage:type targetId:targetId content:messageContent pushContent:pushContent resolve:resolve reject:reject];
+    [self sendMessage:type messageType:@"text" targetId:targetId content:messageContent pushContent:pushContent resolve:resolve reject:reject];
     
     
 }
@@ -273,22 +300,190 @@ RCT_EXPORT_METHOD(sendImageMessage:(int)type
                   reject:(RCTPromiseRejectBlock)reject) {
     
     RCImageMessage *imageMessage = [RCImageMessage messageWithImageURI:imageUrl];
-    [self sendMessage:type targetId:targetId content:imageMessage pushContent:pushContent resolve:resolve reject:reject];
+    [self sendMessage:type messageType:@"image" targetId:targetId content:imageMessage pushContent:pushContent resolve:resolve reject:reject];
     
 }
 
-RCT_EXPORT_METHOD(sendVoiceMessage:(int)type
+
+#pragma mark  RongCloud  Send Voice Messages
+/**
+ *  录音开始
+ */
+RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
                   targetId:(NSString *)targetId
-                  content:(NSData *)voiceData
-                  duration:(float )duration
-                  pushContent:(NSString *) pushContent
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
+    NSLog(@"开始录音");
     
-    RCVoiceMessage *rcVoiceMessage = [RCVoiceMessage messageWithAudio:voiceData duration:duration];
-    [self sendMessage:type targetId:targetId content:rcVoiceMessage pushContent:pushContent resolve:resolve reject:reject];
+    dispatch_async(dispatch_get_main_queue(), ^{
+    
+        AVAudioSession *session =[AVAudioSession sharedInstance];
+        NSError *sessionError;
+        [session setCategory:AVAudioSessionCategoryRecord error:&sessionError];
+        
+        if (session == nil) {
+            NSLog(@"Error creating session: %@",[sessionError description]);
+        }else{
+            [session setActive:YES error:nil];
+        }
+        
+        self.session = session;
+        
+        //1.获取沙盒地址
+        NSString * filePath = [self getSandboxFilePath];
+        
+        //2.获取文件路径
+        self.recordFileUrl = [NSURL fileURLWithPath:filePath];
+        
+        //设置参数
+        //    NSDictionary *recordSetting = [[NSDictionary alloc] initWithObjectsAndKeys:
+        //                                   //采样率  8000/11025/22050/44100/96000（影响音频的质量）
+        //                                   [NSNumber numberWithFloat: 8000.0],AVSampleRateKey,
+        //                                   // 音频格式
+        //                                   [NSNumber numberWithInt: kAudioFormatLinearPCM],AVFormatIDKey,
+        //                                   //采样位数  8、16、24、32 默认为16
+        //                                   [NSNumber numberWithInt:16],AVLinearPCMBitDepthKey,
+        //                                   // 音频通道数 1 或 2
+        //                                   [NSNumber numberWithInt: 1], AVNumberOfChannelsKey,
+        //                                   //录音质量
+        //                                   [NSNumber numberWithInt:AVAudioQualityHigh],AVEncoderAudioQualityKey,
+        //                                   nil];
+        NSDictionary * recordSetting = @{AVFormatIDKey: @(kAudioFormatLinearPCM),
+                                         AVSampleRateKey: @8000.00f,
+                                         AVNumberOfChannelsKey: @1,
+                                         AVLinearPCMBitDepthKey: @16,
+                                         AVLinearPCMIsNonInterleaved: @NO,
+                                         AVLinearPCMIsFloatKey: @NO,
+                                         AVLinearPCMIsBigEndianKey: @NO};   //RongCloud 推荐参数
+        
+        
+        _recorder = [[AVAudioRecorder alloc] initWithURL:self.recordFileUrl settings:recordSetting error:nil];
+        
+        if (_recorder) {
+            
+            _recorder.meteringEnabled = YES;
+            [_recorder prepareToRecord];
+            [_recorder record];
+            
+            _isSend = NO;
+            _duration = 0;
+            [self addTimer];
+            
+            _longTimer = [NSTimer scheduledTimerWithTimeInterval:59.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
+                if(!_isSend){
+                    [self stopRecord:type targetId:targetId resolve:resolve reject:reject];
+                }
+            }];
+    
+        }else{
+            NSLog(@"音频格式和文件存储格式不匹配,无法初始化Recorder");
+        }
+    });
+}
+
+/**
+ *  录音结束
+ */
+RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
+                  targetId:(NSString *)targetId
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+       
+        if(!_isSend){
+            [self stopRecord:type targetId:targetId resolve:resolve reject:reject];
+        }
+    });
+}
+
+- (void)stopRecord:(int)type
+          targetId:(NSString *)targetId
+           resolve:(RCTPromiseResolveBlock)resolve
+            reject:(RCTPromiseRejectBlock)reject{
+    
+    [self removeTimer];
+    NSLog(@"停止录音");
+    
+    if ([self.recorder isRecording]) {
+        [self.recorder stop];
+    }
+    
+    _isSend = YES;
+    
+    NSData * audioData = [NSData dataWithContentsOfURL:self.recordFileUrl];
+    [self sendVoiceMessage:type targetId:targetId content:audioData duration:_duration pushContent:@"语音" resolve:resolve reject:reject];
     
 }
+
+- (NSString *)getSandboxFilePath{
+    
+    NSFileManager * fileManager = [NSFileManager defaultManager];
+    
+    NSString * documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    
+    NSString * directoryPath = [documentPath stringByAppendingString:@"/ChatMessage"];
+    
+    if(![fileManager fileExistsAtPath:directoryPath]){
+        
+        [fileManager createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyyMMddHHmmss"];
+    NSString * timeString = [dateFormatter stringFromDate:[NSDate date]];
+    
+    NSString * filePath = [directoryPath stringByAppendingString:[NSString stringWithFormat:@"/%@.wav",timeString]];
+    
+    [fileManager createFileAtPath:filePath contents:nil attributes:nil];
+    
+    return filePath;
+}
+
+// 添加定时器
+- (void)addTimer
+{
+    _timer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(durationPlus:) userInfo:nil repeats:YES]; // 需要加入手动RunLoop，需要注意的是在NSTimer工作期间self是被强引用的
+    [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes]; // 使用NSRunLoopCommonModes才能保证RunLoop切换模式时，NSTimer能正常工作。
+}
+
+-(void)durationPlus:(NSTimer *)timer{
+    
+    if(_duration == 60){
+        [self removeTimer];
+    }
+    else{
+        _duration = _duration +1;
+        NSLog(@"语音时长 %ld",_duration);
+    }
+}
+
+// 移除定时器
+- (void)removeTimer
+{
+    if(_timer){
+        [_timer invalidate];
+        _timer = nil;
+    }
+    if(_longTimer){
+        [_longTimer invalidate];
+        _longTimer = nil;
+    }
+}
+
+- (void)sendVoiceMessage:(int)type
+                  targetId:(NSString *)targetId
+                  content:(NSData *)voiceData
+                  duration:(NSInteger )duration
+                  pushContent:(NSString *) pushContent
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject {
+    
+    RCVoiceMessage *rcVoiceMessage = [RCVoiceMessage messageWithAudio:voiceData duration:duration];
+    [self sendMessage:type messageType:@"voice" targetId:targetId content:rcVoiceMessage pushContent:pushContent resolve:resolve reject:reject];
+    
+}
+
+#pragma mark  RongCloud  GetSDKVersion  and   Disconnect
 
 RCT_REMAP_METHOD(getSDKVersion,
                  rejecter:(RCTPromiseResolveBlock)resolve
@@ -302,12 +497,14 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
 }
 
 
+#pragma mark  RongCloud  SDK methods
 
 -(RCIMClient *) getClient {
     return [RCIMClient sharedRCIMClient];
 }
 
 -(void)sendMessage:(int)type
+          messageType:(NSString *)messageType
           targetId:(NSString *)targetId
            content:(RCMessageContent *)content
        pushContent:(NSString *) pushContent
@@ -339,7 +536,12 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
         reject(@"发送失败", @"发送失败", nil);
     };
     
-    [[self getClient] sendMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:nil success:successBlock error:errorBlock];
+    if ([messageType isEqualToString:@"image"]){  //图片和文件消息使用sendMediaMessage方法（此方法会将图片上传至融云服务器）
+        [[self getClient] sendMediaMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:nil progress:nil success:successBlock error:errorBlock cancel:nil];
+    }else{  //文本和语音使用sendMessage方法（若使用本方法发送图片消息，则需要上传图片到自己的服务器后把图片地址放到图片消息内）
+        [[self getClient] sendMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:nil success:successBlock error:errorBlock];
+    }
+    
 }
 
 -(void)onReceived:(RCMessage *)message
@@ -363,13 +565,24 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
     _message[@"extra"] = message.extra;
     
     if ([message.content isMemberOfClass:[RCTextMessage class]]) {
-        RCTextMessage *testMessage = (RCTextMessage *)message.content;
-        _message[@"content"] = testMessage.content;
+        RCTextMessage *textMessage = (RCTextMessage *)message.content;
+        _message[@"type"] = @"text";
+        _message[@"content"] = textMessage.content;
+        _message[@"extra"] = textMessage.extra;
     }
     else if([message.content isMemberOfClass:[RCImageMessage class]]) {
         RCImageMessage *imageMessage = (RCImageMessage *)message.content;
+        _message[@"type"] = @"image";
         _message[@"imageUrl"] = imageMessage.imageUrl;
         _message[@"thumbnailImage"] = imageMessage.thumbnailImage;
+        _message[@"extra"] = imageMessage.extra;
+    }
+    else if ([message.content isMemberOfClass:[RCVoiceMessage class]]) {
+        RCVoiceMessage *voiceMessage = (RCVoiceMessage *)message.content;
+        _message[@"type"] = @"voice";
+        _message[@"wavAudioData"] = voiceMessage.wavAudioData;
+        _message[@"duration"] = @(voiceMessage.duration);
+        _message[@"extra"] = voiceMessage.extra;
     }
     
     
