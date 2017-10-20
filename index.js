@@ -61,8 +61,11 @@ export default {
     sendImageMessage(conversationType, targetId, imageUrl) {
         return RongCloudIMLib.sendImageMessage(conversationType, targetId, imageUrl, '');
     },
-    sendVoiceMessage(conversationType, targetId, voiceData, duration) {
-        return RongCloudIMLib.sendVoiceMessage(conversationType, targetId, voiceData, duration, '');
+    voiceBtnPressIn(conversationType, targetId) {
+        return RongCloudIMLib.voiceBtnPressIn(conversationType, targetId);
+    },
+    voiceBtnPressOut(conversationType, targetId) {
+        return RongCloudIMLib.voiceBtnPressOut(conversationType, targetId);
     },
     disconnect(disconnect) {
         return RongCloudIMLib.disconnect(disconnect);
