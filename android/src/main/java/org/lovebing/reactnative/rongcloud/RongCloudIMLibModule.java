@@ -1,6 +1,7 @@
 package org.lovebing.reactnative.rongcloud;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -25,6 +26,7 @@ import io.rong.imlib.model.Conversation.ConversationType;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.SearchConversationResult;
+import io.rong.message.ImageMessage;
 import io.rong.message.RichContentMessage;
 import io.rong.message.TextMessage;
 import io.rong.message.VoiceMessage;
@@ -38,6 +40,44 @@ import io.rong.message.VoiceMessage;
 public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     protected ReactApplicationContext context;
+    private AudioRecoderUtils recoderUtils;
+    private String AtargId = "";
+    private Promise Apromise = null;
+    private int Atype = 0;
+
+    public void addAudioListener() {
+        if (recoderUtils == null) {
+            recoderUtils = new AudioRecoderUtils();
+        }
+        recoderUtils.setOnAudioStatusUpdateListener(new AudioRecoderUtils.OnAudioStatusUpdateListener() {
+            @Override
+            public void onUpdate(double db, long time) {
+
+            }
+
+            @Override
+            public void onStop(String filePath, long time) {
+                sendVoiceMsg(filePath, time);
+            }
+        });
+    }
+
+
+    /**
+     * 发送语音消息
+     *
+     * @param filePath 文件路径
+     * @param time     单位毫秒
+     */
+    public void sendVoiceMsg(String filePath, long time) {
+        try {
+            //
+            int duration = (int) Math.ceil(time / 1000);
+            sendVoiceMessage(Atype, AtargId, filePath, duration, "", Apromise);
+        } catch (Exception e) {
+        }
+    }
+
 
     /**
      * @param reactContext
@@ -233,7 +273,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sendTextMessage(int mType, String targetId, String content, String pushContent,final Promise promise) {
+    public void sendTextMessage(int mType, String targetId, String content, String pushContent, final Promise promise) {
         TextMessage textMessage = TextMessage.obtain(content);
         ConversationType type = formatConversationType(mType);
         String pushData = "";
@@ -245,19 +285,19 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onSuccess(Message message) {
-                promise.resolve(message.getMessageId()+"");
+                promise.resolve(message.getMessageId() + "");
             }
 
             @Override
             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                promise.reject("发送失败","发送失败");
+                promise.reject("发送失败", "发送失败");
             }
         });
     }
 
     @ReactMethod
-    public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent,final Promise promise) {
-        RichContentMessage richContentMessage = RichContentMessage.obtain("","",imageUrl);
+    public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent, final Promise promise) {
+        RichContentMessage richContentMessage = RichContentMessage.obtain("", "", imageUrl);
         ConversationType type = formatConversationType(mType);
         String pushData = "";
         RongIMClient.getInstance().sendMessage(type, targetId, richContentMessage, pushContent, pushData, new IRongCallback.ISendMessageCallback() {
@@ -268,19 +308,19 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onSuccess(Message message) {
-                promise.resolve(message.getMessageId()+"");
+                promise.resolve(message.getMessageId() + "");
             }
 
             @Override
             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                promise.reject("发送失败","发送失败");
+                promise.reject("发送失败", "发送失败");
             }
         });
     }
 
     @ReactMethod
-    public void sendVoiceMessage(int mType, String targetId, String voiceData,int duration, String pushContent,final Promise promise) {
-        VoiceMessage voiceMessage = VoiceMessage.obtain(Uri.parse(voiceData),duration);
+    public void sendVoiceMessage(int mType, String targetId, String voiceData, int duration, String pushContent, final Promise promise) {
+        VoiceMessage voiceMessage = VoiceMessage.obtain(Uri.parse(voiceData), duration);
         ConversationType type = formatConversationType(mType);
         String pushData = "";
         RongIMClient.getInstance().sendMessage(type, targetId, voiceMessage, pushContent, pushData, new IRongCallback.ISendMessageCallback() {
@@ -291,12 +331,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onSuccess(Message message) {
-                promise.resolve(message.getMessageId()+"");
+                promise.resolve(message.getMessageId() + "");
             }
 
             @Override
             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                promise.reject("发送失败","发送失败");
+                promise.reject("发送失败", "发送失败");
             }
         });
     }
@@ -307,9 +347,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void clearUnreadMessage(int mType,String targetId,Promise promise) {
+    public void clearUnreadMessage(int mType, String targetId, Promise promise) {
         ConversationType type = formatConversationType(mType);
-        boolean is = RongIMClient.getInstance().clearMessagesUnreadStatus(type,targetId);
+        boolean is = RongIMClient.getInstance().clearMessagesUnreadStatus(type, targetId);
         promise.resolve(is);
     }
 
@@ -342,7 +382,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         } else if (message.getContent() instanceof VoiceMessage) {
             VoiceMessage voiceMessage = (VoiceMessage) message.getContent();
             msg.putString("type", "voice");
-            msg.putString("data", voiceMessage.getUri().toString());
+            msg.putString("wavAudioData", voiceMessage.getUri().toString());
             msg.putString("duration", voiceMessage.getDuration() + "");
             msg.putString("extra", voiceMessage.getExtra());
         }
@@ -372,38 +412,40 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onSuccess(Message message) {
-                promise.resolve(message.getMessageId()+"");
+                promise.resolve(message.getMessageId() + "");
             }
 
             @Override
             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                promise.reject("发送失败","发送失败");
+                promise.reject("发送失败", "发送失败");
             }
         });
+    }
 
-        //文件上传的
-//        RongIMClient.getInstance().sendMessage(type, targetId, content, pushContent, pushData, new RongIMClient.SendMediaMessageCallback() {
-//            @Override
-//            public void onAttached(Message message) {
-//
-//            }
-//
-//            @Override
-//            public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-//
-//            }
-//
-//            @Override
-//            public void onSuccess(Message message) {
-//
-//            }
-//
-//            @Override
-//            public void onProgress(Message message, int i) {
-//
-//            }
-//        });
+    @ReactMethod
+    public void voiceBtnPressIn(int mType, String targetId, final Promise promise) {
+        try {
+            addAudioListener();
+            recoderUtils.startRecord();
+            promise.resolve("success");
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
 
+    @ReactMethod
+    public void voiceBtnPressOut(int mType, String targetId, final Promise promise) {
+        try {
+            this.AtargId = targetId;
+            this.Atype = mType;
+            this.Apromise = promise;
+            if (recoderUtils == null) {
+                return;
+            }
+            recoderUtils.stopRecord();
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
     }
 
     protected void sendEvent(String eventName, @Nullable WritableMap params) {
