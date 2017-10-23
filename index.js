@@ -67,6 +67,12 @@ export default {
     voiceBtnPressOut(conversationType, targetId) {
         return RongCloudIMLib.voiceBtnPressOut(conversationType, targetId);
     },
+    audioPlayStart(filePath) {
+        return RongCloudIMLib.audioPlayStart(filePath);
+    },
+    audioPlayStop() {
+        return RongCloudIMLib.audioPlayStop();
+    },
     disconnect(disconnect) {
         return RongCloudIMLib.disconnect(disconnect);
     },

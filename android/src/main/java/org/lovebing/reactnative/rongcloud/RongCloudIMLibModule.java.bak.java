@@ -346,28 +346,6 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         RongIMClient.getInstance().disconnect(isReceivePush);
     }
 
-    //开始播放
-    @ReactMethod
-    public void audioPlayStart(String filePath,Promise promise) {
-        try {
-            AudioPlayUtils.start(filePath);
-            promise.resolve("success");
-        }catch (Exception e){
-            promise.reject("error","error");
-        }
-    }
-
-    //停止播放
-    @ReactMethod
-    public void audioPlayStop(Promise promise) {
-        try {
-            AudioPlayUtils.stop();
-            promise.resolve("success");
-        }catch (Exception e){
-            promise.reject("error","error");
-        }
-    }
-
     @ReactMethod
     public void clearUnreadMessage(int mType, String targetId, Promise promise) {
         ConversationType type = formatConversationType(mType);
