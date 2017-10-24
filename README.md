@@ -1,13 +1,13 @@
 # react-native-lomocoin-rongcloud
 Rongcloud For React Native
 
-# usage
+# Usage
 ```
 npm install --save https://github.com/lomocoin/react-native-lomocoin-rongcloud
 react-native link react-native-lomocoin-rongcloud
 ```
 
-## android config
+## Android config
 - config AndroidManifest.xml
 - fix settings.gradle
 ```
@@ -26,7 +26,7 @@ dependencies {
 
 ```
 
-## ios config
+## iOS config
 add framework
 - libopencore-amrnb.a
 - RongIMLib.framework
@@ -35,11 +35,11 @@ add framework
 add framework search paths & library search paths
 - $(PROJECT_DIR)/../node_modules/react-native-lomocoin-rongcloud/ios/lib
 
-## import
+## Import
 ```
 import RongCloud from 'react-native-lomocoin-rongcloud'
 ```
 
 
-## thanks
+## Thanks
 this project is base on https://github.com/lovebing/react-native-rongcloud-imlib
