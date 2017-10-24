@@ -39,8 +39,7 @@ add framework search paths & library search paths
 ```
 import RongCloud from 'react-native-lomocoin-rongcloud'
 ```
-```
+
 
 ## thanks
 this project is base on https://github.com/lovebing/react-native-rongcloud-imlib
-```
