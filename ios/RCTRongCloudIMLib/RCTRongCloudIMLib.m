@@ -8,6 +8,7 @@
 
 #import "RCTRongCloudIMLib.h"
 
+
 #import <AVFoundation/AVFoundation.h>
 
 @interface RCTRongCloudIMLib ()
@@ -20,7 +21,7 @@
 }
 @property (nonatomic, strong) AVAudioSession *session;
 @property (nonatomic, strong) AVAudioRecorder *recorder;//录音器
-@property (nonatomic, strong) AVPlayer *player; //播放器
+@property (nonatomic, strong) AVAudioPlayer *player; //播放器
 @property (nonatomic, strong) NSURL *recordFileUrl; //语音路径
 
 @end
@@ -189,7 +190,6 @@ RCT_REMAP_METHOD(getLatestMessages,
             break;
     }
     
-    
     NSArray * messageList = [[self getClient] getLatestMessages:conversationType targetId:targetId count:count];
     if(messageList){
         NSMutableArray * array = [NSMutableArray new];
@@ -219,7 +219,7 @@ RCT_REMAP_METHOD(getLatestMessages,
             else if ([message.content isKindOfClass:[RCVoiceMessage class]]){
                 RCVoiceMessage *voiceMsg = (RCVoiceMessage *)message.content;
                 dict[@"type"] = @"voice";
-                dict[@"wavAudioData"] = voiceMsg.wavAudioData;
+                dict[@"wavAudioData"] = [self saveWavAudioDataToSandbox:voiceMsg.wavAudioData messageId:message.messageId];
                 dict[@"duration"] = @(voiceMsg.duration);
                 dict[@"extra"] = voiceMsg.extra;
             }
@@ -232,6 +232,27 @@ RCT_REMAP_METHOD(getLatestMessages,
     else{
         reject(@"读取失败", @"读取失败", nil);
     }
+}
+
+- (NSString *)saveWavAudioDataToSandbox:(NSData *)data messageId:(NSInteger)msgId{
+    
+    NSFileManager * fileManager = [NSFileManager defaultManager];
+    
+    NSString * documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    
+    NSString * directoryPath = [documentPath stringByAppendingString:@"/ChatMessage"];
+    
+    if(![fileManager fileExistsAtPath:directoryPath]){
+        
+        [fileManager createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    
+    
+    NSString * filePath = [directoryPath stringByAppendingString:[NSString stringWithFormat:@"/%ld.wav",msgId]];
+    
+    [fileManager createFileAtPath:filePath contents:data attributes:nil];
+    
+    return filePath;
 }
 
 #pragma mark  RongCloud  SearchMessagesFromLocal
@@ -483,10 +504,55 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
     
 }
 
+#pragma mark  RongCloud  Play Voice Messages
+
+RCT_EXPORT_METHOD(audioPlayStart:(NSString *)filePath
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject){
+    
+    self.session =[AVAudioSession sharedInstance];
+    NSError *sessionError;
+    [self.session setCategory:AVAudioSessionCategoryPlayback error:&sessionError];
+    [self.session setActive:YES error:nil];
+    
+    if(_player){
+        [_player stop];
+        _player = nil;
+    }
+
+    NSURL *audioUrl = [NSURL fileURLWithPath:filePath];
+    NSError *playerError;
+    _player = [[AVAudioPlayer alloc] initWithContentsOfURL:audioUrl error:&playerError];
+    
+    if (_player == nil)
+    {
+        NSLog(@"fail to play audio :(");
+        reject(@"播放失败，请重试！",@"播放失败，请重试！",nil);
+        return;
+    }
+
+    [_player setNumberOfLoops:0];
+    [_player prepareToPlay];
+    [_player play];
+    resolve(@"正在播放");
+}
+
+
+RCT_REMAP_METHOD(audioPlayStop,
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 rejecte:(RCTPromiseRejectBlock)reject){
+    if(_player && [_player isPlaying]){
+        [_player stop];
+        resolve(@"已停止");
+    }else{
+        reject(@"没有播放的资源",@"没有播放的资源",nil);
+    }
+}
+
 #pragma mark  RongCloud  GetSDKVersion  and   Disconnect
 
 RCT_REMAP_METHOD(getSDKVersion,
-                 rejecter:(RCTPromiseResolveBlock)resolve
+                 resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject) {
     NSString* version = [[self getClient] getSDKVersion];
     resolve(version);
