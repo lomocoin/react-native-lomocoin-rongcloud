@@ -340,7 +340,7 @@ RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
     
         AVAudioSession *session =[AVAudioSession sharedInstance];
         NSError *sessionError;
-        [session setCategory:AVAudioSessionCategoryRecord error:&sessionError];
+        [session setCategory:AVAudioSessionCategoryPlayAndRecord error:&sessionError];
         
         if (session == nil) {
             NSLog(@"Error creating session: %@",[sessionError description]);
