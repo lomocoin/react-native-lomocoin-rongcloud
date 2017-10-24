@@ -1,15 +1,10 @@
-# react-native-rongcloud-imlib
-Rongcloud IMLib Module For React Native
-
-[![Join the chat at https://gitter.im/lotosbin/react-native-rongcloud-imlib](https://badges.gitter.im/lotosbin/react-native-rongcloud-imlib.svg)](https://gitter.im/lotosbin/react-native-rongcloud-imlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-# samples
-https://github.com/lotosbin/react-native-rongcloud-imlib-sample/
+# react-native-rongcloud
+Rongcloud For React Native
 
 # usage
 ```
-npm install --save https://github.com/haishangshijie/react-native-rongcloud-imlib
-react-native link react-native-rongcloud-imlib
+npm install --save https://github.com/lomocoin/react-native-rongcloud
+react-native link react-native-rongcloud
 ```
 
 ## android config
@@ -18,15 +13,15 @@ react-native link react-native-rongcloud-imlib
 ```
 // file: android/settings.gradle
 // ...
-include ':react-native-rongcloud-imlib'
-project(":react-native-rongcloud-imlib").projectDir = file("../node_modules/react-native-rongcloud-imlib/android")
+include ':react-native-rongcloud'
+project(":react-native-rongcloud").projectDir = file("../node_modules/react-native-rongcloud/android")
 ```
 ```
 // file: android/app/build.gradle
 
 dependencies {
     // ...
-    compile project(':react-native-rongcloud-imlib')
+    compile project(':react-native-rongcloud')
 }
 
 ```
@@ -38,11 +33,11 @@ add framework
 - libsqlite3.tbd
 
 add framework search paths & library search paths
-- $(PROJECT_DIR)/../node_modules/react-native-rongcloud-imlib/ios/lib
+- $(PROJECT_DIR)/../node_modules/react-native-rongcloud/ios/lib
 
 ## import
 ```
-import RongCloud from 'react-native-rongcloud-imlib'
+import RongCloud from 'react-native-rongcloud'
 ```
 ```
 
