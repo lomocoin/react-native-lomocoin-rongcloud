@@ -1,10 +1,10 @@
-# react-native-rongcloud
+# react-native-lomocoin-rongcloud
 Rongcloud For React Native
 
 # usage
 ```
-npm install --save https://github.com/lomocoin/react-native-rongcloud
-react-native link react-native-rongcloud
+npm install --save https://github.com/lomocoin/react-native-lomocoin-rongcloud
+react-native link react-native-lomocoin-rongcloud
 ```
 
 ## android config
@@ -13,15 +13,15 @@ react-native link react-native-rongcloud
 ```
 // file: android/settings.gradle
 // ...
-include ':react-native-rongcloud'
-project(":react-native-rongcloud").projectDir = file("../node_modules/react-native-rongcloud/android")
+include ':react-native-lomocoin-rongcloud'
+project(":react-native-lomocoin-rongcloud").projectDir = file("../node_modules/react-native-lomocoin-rongcloud/android")
 ```
 ```
 // file: android/app/build.gradle
 
 dependencies {
     // ...
-    compile project(':react-native-rongcloud')
+    compile project(':react-native-lomocoin-rongcloud')
 }
 
 ```
@@ -33,12 +33,14 @@ add framework
 - libsqlite3.tbd
 
 add framework search paths & library search paths
-- $(PROJECT_DIR)/../node_modules/react-native-rongcloud/ios/lib
+- $(PROJECT_DIR)/../node_modules/react-native-lomocoin-rongcloud/ios/lib
 
 ## import
 ```
-import RongCloud from 'react-native-rongcloud'
+import RongCloud from 'react-native-lomocoin-rongcloud'
 ```
 ```
 
+## thanks
+this project is base on https://github.com/lovebing/react-native-rongcloud-imlib
 ```
