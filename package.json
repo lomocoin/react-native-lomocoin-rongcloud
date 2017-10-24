@@ -1,7 +1,7 @@
 {
-  "name": "react-native-rongcloud",
+  "name": "react-native-lomocoin-rongcloud",
   "version": "1.0.0",
-  "description": "RongCloud IMLib For React Native",
+  "description": "RongCloud For React Native",
   "main": "index.js",
   "dependencies": {},
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lomocoin/react-native-rongcloud.git"
+    "url": "git+https://github.com/lomocoin/react-native-lomocoin-rongcloud.git"
   },
   "keywords": [
     "RongCloud",
@@ -18,10 +18,10 @@
   "author": "lomocoin",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/lomocoin/react-native-rongcloud/issues"
+    "url": "https://github.com/lomocoin/rreact-native-lomocoin-rongcloud/issues"
   },
-  "homepage": "https://github.com/lomocoin/react-native-rongcloud#readme",
+  "homepage": "https://github.com/lomocoin/react-native-lomocoin-rongcloud#readme",
   "rnpm": {
-    "packageImportPath": "import org.lovebing.reactnative.rongcloud.RongCloudPackage;"
+    "packageImportPath": "import com.lomocoin.imlib.RongCloudPackage;"
   }
 }
