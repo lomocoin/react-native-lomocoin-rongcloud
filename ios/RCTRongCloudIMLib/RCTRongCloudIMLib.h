@@ -2,8 +2,8 @@
 //  RCTRongCloudIMLib.h
 //  RCTRongCloudIMLib
 //
-//  Created by lovebing on 3/21/2016.
-//  Copyright © 2016 lovebing.org. All rights reserved.
+//  Created by lomocoin on 10/21/2017.
+//  Copyright © 2017 lomocoin.com. All rights reserved.
 //
 
 #import <React/RCTBridgeModule.h>
