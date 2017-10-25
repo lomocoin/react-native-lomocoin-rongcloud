@@ -470,6 +470,19 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
+    public void voiceBtnPressCancel(int mType, String targetId, final Promise promise) {
+        try {
+            if (recoderUtils == null) {
+                return;
+            }
+            recoderUtils.cancelRecord();
+            promise.resolve("success");
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
     protected void sendEvent(String eventName, @Nullable WritableMap params) {
         context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(eventName, params);

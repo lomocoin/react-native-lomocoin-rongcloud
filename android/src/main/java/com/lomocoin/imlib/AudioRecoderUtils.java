@@ -127,9 +127,7 @@ public class AudioRecoderUtils {
      * 取消录音
      */
     public void cancelRecord(){
-
         try {
-
             mMediaRecorder.stop();
             mMediaRecorder.reset();
             mMediaRecorder.release();
