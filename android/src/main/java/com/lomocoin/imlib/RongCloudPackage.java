@@ -1,4 +1,4 @@
-package org.lovebing.reactnative.rongcloud;
+package com.lomocoin.imlib;
 
 import java.util.Arrays;
 import java.util.Collections;

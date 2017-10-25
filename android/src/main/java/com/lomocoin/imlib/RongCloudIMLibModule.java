@@ -1,4 +1,4 @@
-package org.lovebing.reactnative.rongcloud;
+package com.lomocoin.imlib;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;

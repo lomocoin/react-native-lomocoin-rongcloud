@@ -1,4 +1,4 @@
-package org.lovebing.reactnative.rongcloud;
+package com.lomocoin.imlib;
 
 import android.media.MediaRecorder;
 import android.os.Environment;
