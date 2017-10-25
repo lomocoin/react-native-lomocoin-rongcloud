@@ -3,7 +3,7 @@ Rongcloud For React Native
 
 # Usage
 ```
-npm install --save https://github.com/lomocoin/react-native-lomocoin-rongcloud
+npm i react-native-lomocoin-rongcloud
 react-native link react-native-lomocoin-rongcloud
 ```
 
