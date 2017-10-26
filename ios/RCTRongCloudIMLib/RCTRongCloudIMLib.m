@@ -2,8 +2,8 @@
 //  RCTRongCloudIMLib.m
 //  RCTRongCloudIMLib
 //
-//  Created by lovebing on 3/21/2016.
-//  Copyright © 2016 lovebing.org. All rights reserved.
+//  Created by lomocoin on 10/21/2017.
+//  Copyright © 2017 lomocoin.com. All rights reserved.
 //
 
 #import "RCTRongCloudIMLib.h"
@@ -403,6 +403,30 @@ RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
 }
 
 /**
+ *  取消录音
+ */
+RCT_EXPORT_METHOD(voiceBtnPressCancel:(int)type
+                  targetId:(NSString *)targetId
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        [self removeTimer];
+        NSLog(@"取消录音");
+        
+        _isSend = NO;
+        if ([self.recorder isRecording]) {
+            [self.recorder stop];
+            self.recorder = nil;
+            
+            resolve(@"已取消");
+        }else{
+            reject(@"没有正在录音的资源",@"没有正在录音的资源",nil);
+        }
+    });
+}
+
+/**
  *  录音结束
  */
 RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
@@ -427,6 +451,7 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
     
     if ([self.recorder isRecording]) {
         [self.recorder stop];
+        self.recorder = nil;
     }
     
     _isSend = YES;
