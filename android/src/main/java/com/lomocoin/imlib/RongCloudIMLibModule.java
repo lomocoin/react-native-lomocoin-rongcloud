@@ -213,10 +213,11 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                         if (message instanceof TextMessage) {
                             TextMessage textMessage = (TextMessage) message;
                             msg.putString("lastestMessage", textMessage.getContent());
+                            msg.putString("msgType", "text");
                         } else if (message instanceof RichContentMessage) {
-                            msg.putString("lastestMessage", "图片");
+                            msg.putString("msgType", "image");
                         } else if (message instanceof VoiceMessage) {
-                            msg.putString("lastestMessage", "语音");
+                            msg.putString("msgType", "voice");
                         }
                         data.pushMap(msg);
                     }
@@ -248,15 +249,16 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                         msg.putInt("lastestMessageId", item.getLatestMessageId());
                         msg.putString("lastestMessageDirection", "");
                         // msg.putString("jsonDict", item.getLatestMessage().getJsonMentionInfo().toString());
-
+//                        type 是个字符串 'text'  'image'  'voice'
                         MessageContent message = item.getLatestMessage();
                         if (message instanceof TextMessage) {
                             TextMessage textMessage = (TextMessage) message;
                             msg.putString("lastestMessage", textMessage.getContent());
+                            msg.putString("msgType", "text");
                         } else if (message instanceof RichContentMessage) {
-                            msg.putString("lastestMessage", "图片");
+                            msg.putString("msgType", "image");
                         } else if (message instanceof VoiceMessage) {
-                            msg.putString("lastestMessage", "语音");
+                            msg.putString("msgType", "voice");
                         }
 
                         data.pushMap(msg);
