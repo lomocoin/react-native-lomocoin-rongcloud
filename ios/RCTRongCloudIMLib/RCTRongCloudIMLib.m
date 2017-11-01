@@ -151,11 +151,12 @@ RCT_REMAP_METHOD(getConversationList,
             dict[@"jsonDict"] = conversation.jsonDict;
             if ([conversation.lastestMessage isKindOfClass:[RCTextMessage class]]) {
                 RCTextMessage *textMsg = (RCTextMessage *)conversation.lastestMessage;
+                dict[@"msgType"] = @"text";
                 dict[@"lastestMessage"] = textMsg.content;
             } else if ([conversation.lastestMessage isKindOfClass:[RCImageMessage class]]) {
-                dict[@"lastestMessage"] = @"[图片]";
+                dict[@"msgType"] = @"image";
             } else if ([conversation.lastestMessage isKindOfClass:[RCVoiceMessage class]]) {
-                dict[@"lastestMessage"] = @"[语音]";
+                dict[@"msgType"] = @"voice";
             }
             
             [array addObject:dict];
@@ -281,11 +282,12 @@ RCT_REMAP_METHOD(searchConversations,
             dict[@"jsonDict"] = result.conversation.jsonDict;
             if ([result.conversation.lastestMessage isKindOfClass:[RCTextMessage class]]) {
                 RCTextMessage *textMsg = (RCTextMessage *)result.conversation.lastestMessage;
+                dict[@"msgType"] = @"text";
                 dict[@"lastestMessage"] = textMsg.content;
             } else if ([result.conversation.lastestMessage isKindOfClass:[RCImageMessage class]]) {
-                dict[@"lastestMessage"] = @"[图片]";
+                dict[@"msgType"] = @"image";
             } else if ([result.conversation.lastestMessage isKindOfClass:[RCVoiceMessage class]]) {
-                dict[@"lastestMessage"] = @"[语音]";
+                dict[@"msgType"] = @"voice";
             }
             
             [array addObject:dict];
