@@ -72,8 +72,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     public void sendVoiceMsg(String filePath, long time) {
         try {
             //
-            int duration = (int) Math.ceil(time / 1000);
-            sendVoiceMessage(Atype, AtargId, filePath, duration, "", Apromise);
+            if(time < 1000){
+                Apromise.reject("-500","-500");
+            }else{
+                int duration = (int) Math.ceil(time / 1000);
+                sendVoiceMessage(Atype, AtargId, filePath, duration, "", Apromise);
+            }
         } catch (Exception e) {
         }
     }
