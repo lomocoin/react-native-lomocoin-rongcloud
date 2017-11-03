@@ -15,10 +15,12 @@
 
 {
     BOOL       _isSend;    //是否已发送
-    NSTimer *  _timer;     //定时器
     NSTimer *  _longTimer; //60s定时器
     NSInteger  _duration;  //语音时长
 }
+
+@property (nonatomic, strong) NSDate * startDate;
+@property (nonatomic, strong) NSDate * endDate;
 @property (nonatomic, strong) AVAudioSession *session;
 @property (nonatomic, strong) AVAudioRecorder *recorder;//录音器
 @property (nonatomic, strong) AVAudioPlayer *player; //播放器
@@ -339,7 +341,7 @@ RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
     NSLog(@"开始录音");
     
     dispatch_async(dispatch_get_main_queue(), ^{
-    
+        
         AVAudioSession *session =[AVAudioSession sharedInstance];
         NSError *sessionError;
         [session setCategory:AVAudioSessionCategoryPlayAndRecord error:&sessionError];
@@ -384,20 +386,29 @@ RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
         
         if (_recorder) {
             
-            _recorder.meteringEnabled = YES;
-            [_recorder prepareToRecord];
-            [_recorder record];
-            
-            _isSend = NO;
-            _duration = 0;
-            [self addTimer];
-            
-            _longTimer = [NSTimer scheduledTimerWithTimeInterval:59.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
-                if(!_isSend){
-                    [self stopRecord:type targetId:targetId resolve:resolve reject:reject];
-                }
-            }];
-    
+            @try{
+                
+                _startDate = [NSDate date];
+                
+                _recorder.meteringEnabled = YES;
+                [_recorder prepareToRecord];
+                [_recorder record];
+                
+                _isSend = NO;
+                _duration = 0;
+                
+                _longTimer = [NSTimer scheduledTimerWithTimeInterval:59.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
+                    if(!_isSend){
+                        [self stopRecord:type targetId:targetId resolve:resolve reject:reject];
+                    }
+                }];
+            }
+            @catch(NSException *exception) {
+                NSLog(@"exception:%@", exception);
+            }
+            @finally {
+                
+            }
         }else{
             NSLog(@"音频格式和文件存储格式不匹配,无法初始化Recorder");
         }
@@ -436,7 +447,7 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^{
-       
+        
         if(!_isSend){
             [self stopRecord:type targetId:targetId resolve:resolve reject:reject];
         }
@@ -458,9 +469,28 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
     
     _isSend = YES;
     
-    NSData * audioData = [NSData dataWithContentsOfURL:self.recordFileUrl];
-    [self sendVoiceMessage:type targetId:targetId content:audioData duration:_duration pushContent:@"语音" resolve:resolve reject:reject];
+    _endDate = [NSDate date];
     
+    NSTimeInterval dataLong = [_endDate timeIntervalSinceDate:_startDate];
+    
+    if(dataLong < 1.0){
+        reject(@"-500",@"-500",nil);
+    }else{
+        
+        _duration = (NSInteger)roundf(dataLong);
+        
+        NSData * audioData = [NSData dataWithContentsOfURL:self.recordFileUrl];
+        [self sendVoiceMessage:type targetId:targetId content:audioData duration:_duration pushContent:@"语音" resolve:resolve reject:reject];
+        
+        //发送完录音后，删除本地录音（融云会自动保存录音）
+        NSString * filePath = self.recordFileUrl.absoluteString;
+        NSFileManager * fileManager = [NSFileManager defaultManager];
+        
+        if(![fileManager fileExistsAtPath:filePath]){
+            
+            [fileManager removeItemAtPath:filePath error:nil];
+        }
+    }
 }
 
 - (NSString *)getSandboxFilePath{
@@ -487,31 +517,10 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
     return filePath;
 }
 
-// 添加定时器
-- (void)addTimer
-{
-    _timer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(durationPlus:) userInfo:nil repeats:YES]; // 需要加入手动RunLoop，需要注意的是在NSTimer工作期间self是被强引用的
-    [[NSRunLoop currentRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes]; // 使用NSRunLoopCommonModes才能保证RunLoop切换模式时，NSTimer能正常工作。
-}
-
--(void)durationPlus:(NSTimer *)timer{
-    
-    if(_duration == 60){
-        [self removeTimer];
-    }
-    else{
-        _duration = _duration +1;
-        NSLog(@"语音时长 %ld",_duration);
-    }
-}
 
 // 移除定时器
 - (void)removeTimer
 {
-    if(_timer){
-        [_timer invalidate];
-        _timer = nil;
-    }
     if(_longTimer){
         [_longTimer invalidate];
         _longTimer = nil;
@@ -519,11 +528,11 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
 }
 
 - (void)sendVoiceMessage:(int)type
-                  targetId:(NSString *)targetId
-                  content:(NSData *)voiceData
-                  duration:(NSInteger )duration
-                  pushContent:(NSString *) pushContent
-                  resolve:(RCTPromiseResolveBlock)resolve
+                targetId:(NSString *)targetId
+                 content:(NSData *)voiceData
+                duration:(NSInteger )duration
+             pushContent:(NSString *) pushContent
+                 resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject {
     
     RCVoiceMessage *rcVoiceMessage = [RCVoiceMessage messageWithAudio:voiceData duration:duration];
@@ -546,7 +555,7 @@ RCT_EXPORT_METHOD(audioPlayStart:(NSString *)filePath
         [_player stop];
         _player = nil;
     }
-
+    
     NSURL *audioUrl = [NSURL fileURLWithPath:filePath];
     NSError *playerError;
     _player = [[AVAudioPlayer alloc] initWithContentsOfURL:audioUrl error:&playerError];
@@ -557,7 +566,7 @@ RCT_EXPORT_METHOD(audioPlayStart:(NSString *)filePath
         reject(@"播放失败，请重试！",@"播放失败，请重试！",nil);
         return;
     }
-
+    
     [_player setNumberOfLoops:0];
     [_player prepareToPlay];
     [_player play];
@@ -597,7 +606,7 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
 }
 
 -(void)sendMessage:(int)type
-          messageType:(NSString *)messageType
+       messageType:(NSString *)messageType
           targetId:(NSString *)targetId
            content:(RCMessageContent *)content
        pushContent:(NSString *) pushContent
