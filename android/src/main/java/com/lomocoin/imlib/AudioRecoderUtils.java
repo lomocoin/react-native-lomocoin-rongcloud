@@ -104,10 +104,10 @@ public class AudioRecoderUtils {
             mMediaRecorder.reset();
             mMediaRecorder.release();
             mMediaRecorder = null;
-
-            audioStatusUpdateListener.onStop(filePath,endTime - startTime);
+            if(endTime - startTime > 1000){
+                audioStatusUpdateListener.onStop(filePath,endTime - startTime);
+            }
             filePath = "";
-
         }catch (RuntimeException e){
             mMediaRecorder.reset();
             mMediaRecorder.release();
