@@ -30,6 +30,8 @@ import io.rong.message.ImageMessage;
 import io.rong.message.RichContentMessage;
 import io.rong.message.TextMessage;
 import io.rong.message.VoiceMessage;
+import io.rong.push.RongPushClient;
+import io.rong.push.common.RongException;
 
 /**
  * 融云原生功能模块
@@ -100,6 +102,11 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void initWithAppKey(String appKey) {
         Log.e("isme", "rong init appkey:" + appKey);
+        try {
+            RongPushClient.registerGCM(context);
+        } catch (RongException e) {
+            e.printStackTrace();
+        }
         RongIMClient.init(context, appKey);
     }
 

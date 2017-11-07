@@ -29,6 +29,8 @@ android {
 }
 
 dependencies {
+    compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile 'com.facebook.react:react-native:+'
     compile files('libs/Rong_IMLib.jar')
 }
+
