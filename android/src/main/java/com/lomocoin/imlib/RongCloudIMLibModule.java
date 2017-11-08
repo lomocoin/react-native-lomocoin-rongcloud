@@ -310,25 +310,62 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent, final Promise promise) {
-        RichContentMessage richContentMessage = RichContentMessage.obtain("", "", imageUrl);
+        Log.e("isme","imageUrl1:"+imageUrl);
+        imageUrl = ImgCompressUtils.compress(context,imageUrl);//压缩图片处理
+        Log.e("isme","imageUrl2:"+imageUrl);
+
+
+//        RichContentMessage richContentMessage = RichContentMessage.obtain("", "", imageUrl);
+//        Uri uri = Uri.parse(imageUrl);
+//        ImageMessage imageMessage = ImageMessage.obtain(uri,uri,true);
         ConversationType type = formatConversationType(mType);
-        String pushData = "";
-        RongIMClient.getInstance().sendMessage(type, targetId, richContentMessage, pushContent, pushData, new IRongCallback.ISendMessageCallback() {
+//        String pushData = "";
+//        Message message = Message.obtain(targetId, type, imageMessage);
+
+        RichContentMessage richContentMessage = RichContentMessage.obtain("", "", imageUrl);
+        Message myMessage = Message.obtain(targetId, type, richContentMessage);
+        RongIMClient.getInstance().sendMessage(myMessage, null, null, new IRongCallback.ISendMessageCallback() {
             @Override
             public void onAttached(Message message) {
-
+                //消息本地数据库存储成功的回调
             }
 
             @Override
             public void onSuccess(Message message) {
+                //消息通过网络发送成功的回调
                 promise.resolve(message.getMessageId() + "");
             }
 
             @Override
             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                promise.reject("发送失败", "发送失败");
+                //消息发送失败的回调
+                promise.reject("error", "error");
             }
         });
+
+
+//        RongIMClient.getInstance().sendImageMessage(type, targetId, imageMessage, null, null, new RongIMClient.SendImageMessageCallback() {
+//            @Override
+//            public void onAttached(Message message) {
+//
+//            }
+//
+//            @Override
+//            public void onError(Message message, RongIMClient.ErrorCode errorCode) {
+//                Log.e("isme","error:"+errorCode.getMessage() + errorCode.getValue());
+//                promise.reject("error", "error");
+//            }
+//
+//            @Override
+//            public void onSuccess(Message message) {
+//                promise.resolve(message.getMessageId() + "");
+//            }
+//
+//            @Override
+//            public void onProgress(Message message, int i) {
+//
+//            }
+//        });
     }
 
     @ReactMethod
