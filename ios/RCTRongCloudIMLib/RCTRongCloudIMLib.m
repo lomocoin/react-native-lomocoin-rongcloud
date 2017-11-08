@@ -56,6 +56,8 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
                   rejecter:(RCTPromiseRejectBlock)reject) {
     NSLog(@"connectWithToken %@", token);
     
+    [self setupPushNotificationsDeviceToken];
+    
     void (^successBlock)(NSString *userId);
     successBlock = ^(NSString* userId) {
         NSArray *events = [[NSArray alloc] initWithObjects:userId,nil];
@@ -604,6 +606,35 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
 -(RCIMClient *) getClient {
     return [RCIMClient sharedRCIMClient];
 }
+
+- (void)setupPushNotificationsDeviceToken{
+    
+    NSUserDefaults * userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString * deviceToken = [userDefaults objectForKey:@"RongPushNotificationsDeviceToken"];
+    if(deviceToken && deviceToken.length > 0){
+        NSLog(@"RongCloud setDeviceToken");
+        [[self getClient] setDeviceToken:deviceToken];
+    }else{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            NSTimer * tokenTimer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(refreshDeviceToken:) userInfo:nil repeats:YES]; // 需要加入手动RunLoop，需要注意的是在NSTimer工作期间self是被强引用的
+            [[NSRunLoop currentRunLoop] addTimer:tokenTimer forMode:NSRunLoopCommonModes];
+        });
+    }
+}
+
+- (void)refreshDeviceToken:(NSTimer *)timer{
+    
+    NSUserDefaults * userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString * deviceToken = [userDefaults objectForKey:@"RongPushNotificationsDeviceToken"];
+    if(deviceToken && deviceToken.length > 0){
+        NSLog(@"RongCloud setDeviceToken");
+        [[self getClient] setDeviceToken:deviceToken];
+        [timer invalidate];
+        timer = nil;
+    }
+}
+
 
 -(void)sendMessage:(int)type
        messageType:(NSString *)messageType
