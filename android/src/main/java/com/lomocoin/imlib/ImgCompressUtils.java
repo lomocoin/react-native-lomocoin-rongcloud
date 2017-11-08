@@ -28,14 +28,14 @@ public class ImgCompressUtils {
      * @return
      */
     public static String compress(Context context,String imgPath){
-            Log.e("isme","imgPath:"+imgPath);
+//            Log.e("isme","imgPath:"+imgPath);
         try {
             if(imgPath.startsWith("content")){
                 imgPath = BitmapUtils.getRealFilePath(context, Uri.parse(imgPath));
             }else if(imgPath.startsWith("file://")){
                 imgPath = imgPath.substring("file://".length(),imgPath.length());
             }else{
-                Log.e("isme","图片uri无效");
+//                Log.e("isme","图片uri无效");
                 return imgPath;
             }
 
@@ -43,19 +43,20 @@ public class ImgCompressUtils {
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(imgPath, options);
             // Raw height and width of image
-            Log.e("isme","图片处理开始");
-            Log.e("isme","outHeight:"+options.outHeight +"--- outWidth:"+options.outWidth);
+//            Log.e("isme","图片处理开始");
+//            Log.e("isme","outHeight:"+options.outHeight +"--- outWidth:"+options.outWidth);
             if(options.outHeight < IMG_H && options.outWidth < IMG_W){
-                Log.e("isme","图片的尺寸已经符合 融云的要求了");
+//                Log.e("isme","图片的尺寸已经符合 融云的要求了");
                 String uri = BitmapUtils.getImageContentUri(context,new File(imgPath)).toString();
                 return uri; //图片的尺寸已经符合 融云的要求了
             }
-            Bitmap bitmap = BitmapUtils.getSmallBitmap(imgPath,960,960);
+
+            Bitmap bitmap = BitmapUtils.getSmallBitmap(imgPath,IMG_W,IMG_H);
+
+//            Log.e("isme","处理之后： w:"+bitmap.getWidth()+"  h:"+bitmap.getHeight());
             String newImgPath = BitmapUtils.onSaveBitmap(bitmap,context);
             bitmap.recycle();//回收bitmap
-            String uri = BitmapUtils.getImageContentUri(context,new File(newImgPath)).toString();
-            String uri2 = BitmapUtils.getImageContentUri(context,new File(imgPath)).toString();
-            return newImgPath != null? uri : uri2;
+            return newImgPath;
         }catch (Exception e){
             return imgPath;
         }

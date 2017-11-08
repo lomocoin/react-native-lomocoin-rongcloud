@@ -310,62 +310,36 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent, final Promise promise) {
-        Log.e("isme","imageUrl1:"+imageUrl);
+
         imageUrl = ImgCompressUtils.compress(context,imageUrl);//压缩图片处理
-        Log.e("isme","imageUrl2:"+imageUrl);
-
-
-//        RichContentMessage richContentMessage = RichContentMessage.obtain("", "", imageUrl);
-//        Uri uri = Uri.parse(imageUrl);
-//        ImageMessage imageMessage = ImageMessage.obtain(uri,uri,true);
+//        imageUrl = "file://"+BitmapUtils.getRealFilePath(context, Uri.parse(imageUrl));
         ConversationType type = formatConversationType(mType);
-//        String pushData = "";
-//        Message message = Message.obtain(targetId, type, imageMessage);
 
-        RichContentMessage richContentMessage = RichContentMessage.obtain("", "", imageUrl);
-        Message myMessage = Message.obtain(targetId, type, richContentMessage);
-        RongIMClient.getInstance().sendMessage(myMessage, null, null, new IRongCallback.ISendMessageCallback() {
+        Uri uri = Uri.parse(imageUrl);
+        ImageMessage imageMessage = ImageMessage.obtain(uri,uri,true);
+
+        RongIMClient.getInstance().sendImageMessage(type, targetId, imageMessage, null, null, new RongIMClient.SendImageMessageCallback() {
             @Override
             public void onAttached(Message message) {
-                //消息本地数据库存储成功的回调
-            }
 
-            @Override
-            public void onSuccess(Message message) {
-                //消息通过网络发送成功的回调
-                promise.resolve(message.getMessageId() + "");
             }
 
             @Override
             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                //消息发送失败的回调
                 promise.reject("error", "error");
             }
+
+            @Override
+            public void onSuccess(Message message) {
+                Log.e("isme","发送成功");
+                promise.resolve(message.getMessageId() + "");
+            }
+
+            @Override
+            public void onProgress(Message message, int i) {
+
+            }
         });
-
-
-//        RongIMClient.getInstance().sendImageMessage(type, targetId, imageMessage, null, null, new RongIMClient.SendImageMessageCallback() {
-//            @Override
-//            public void onAttached(Message message) {
-//
-//            }
-//
-//            @Override
-//            public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-//                Log.e("isme","error:"+errorCode.getMessage() + errorCode.getValue());
-//                promise.reject("error", "error");
-//            }
-//
-//            @Override
-//            public void onSuccess(Message message) {
-//                promise.resolve(message.getMessageId() + "");
-//            }
-//
-//            @Override
-//            public void onProgress(Message message, int i) {
-//
-//            }
-//        });
     }
 
     @ReactMethod
@@ -446,10 +420,10 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             msg.putString("type", "text");
             msg.putString("content", textMessage.getContent());
             msg.putString("extra", textMessage.getExtra());
-        } else if (message.getContent() instanceof RichContentMessage) {
-            RichContentMessage richContentMessage = (RichContentMessage) message.getContent();
+        } else if (message.getContent() instanceof ImageMessage) {
+            ImageMessage richContentMessage = (ImageMessage) message.getContent();
             msg.putString("type", "image");
-            msg.putString("imageUrl", richContentMessage.getImgUrl());
+            msg.putString("imageUrl", richContentMessage.getRemoteUri().toString());
             msg.putString("extra", richContentMessage.getExtra());
         } else if (message.getContent() instanceof VoiceMessage) {
             VoiceMessage voiceMessage = (VoiceMessage) message.getContent();
