@@ -8,7 +8,7 @@
 
 #import "RCTRongCloudIMLib.h"
 
-
+#import <AssetsLibrary/AssetsLibrary.h>
 #import <AVFoundation/AVFoundation.h>
 
 @interface RCTRongCloudIMLib ()
@@ -326,11 +326,72 @@ RCT_EXPORT_METHOD(sendImageMessage:(int)type
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
-    RCImageMessage *imageMessage = [RCImageMessage messageWithImageURI:imageUrl];
-    [self sendMessage:type messageType:@"image" targetId:targetId content:imageMessage pushContent:pushContent resolve:resolve reject:reject];
+    if([imageUrl rangeOfString:@"assets-library"].location == NSNotFound){
+        RCImageMessage *imageMessage = [RCImageMessage messageWithImageURI:imageUrl];
+        [self sendMessage:type messageType:@"image" targetId:targetId content:imageMessage pushContent:pushContent resolve:resolve reject:reject];
+    }
+    else{
+        [self sendImageMessageWithType:type targetId:targetId ImageUrl:imageUrl pushContent:pushContent resolve:resolve reject:reject];
+    }
+}
+
+- (void)sendImageMessageWithType:(int)type targetId:(NSString *)targetId ImageUrl:(NSString *)imageUrl  pushContent:(NSString *)pushContent resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
+    
+    ALAssetsLibrary   *lib = [[ALAssetsLibrary alloc] init];
+    
+    [lib assetForURL:[NSURL URLWithString:imageUrl] resultBlock:^(ALAsset *asset) {
+        //在这里使用asset来获取图片
+        ALAssetRepresentation *assetRep = [asset defaultRepresentation];
+        CGImageRef imgRef = [assetRep fullResolutionImage];
+        UIImage * image = [UIImage imageWithCGImage:imgRef
+                                              scale:assetRep.scale
+                                        orientation:(UIImageOrientation)assetRep.orientation];
+        UIImage * scaledImage = [self scaleImageWithImage:image toSize:CGSizeMake(960, 960)]; // 融云推荐使用的大图尺寸为：960 x 960 像素
+        
+        RCImageMessage *imageMessage = [RCImageMessage messageWithImage:scaledImage];
+        
+        [self sendMessage:type messageType:@"image" targetId:targetId content:imageMessage pushContent:pushContent resolve:resolve reject:reject];
+        
+    } failureBlock:^(NSError *error) {
+        reject(@"Could not find the image",@"Could not find the image",nil);
+    }];
     
 }
 
+//等比例缩小
+-(UIImage *)scaleImageWithImage:(UIImage *)image toSize:(CGSize)size
+{
+    CGFloat width = CGImageGetWidth(image.CGImage);
+    CGFloat height = CGImageGetHeight(image.CGImage);
+    
+    if(width < size.width && height < size.height){
+        return image;
+    }
+    
+    float verticalRadio = height/size.height;
+    float horizontalRadio = width/size.width;
+    
+    float radio = verticalRadio > horizontalRadio ? verticalRadio : horizontalRadio;
+    
+    width = width/radio;
+    height = height/radio;
+    
+    // 创建一个bitmap的context
+    // 并把它设置成为当前正在使用的context
+    UIGraphicsBeginImageContext(CGSizeMake(width, height));
+    
+    // 绘制改变大小的图片
+    [image drawInRect:CGRectMake(0, 0, width, height)];
+    
+    // 从当前context中创建一个改变大小后的图片
+    UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+    
+    // 使当前的context出堆栈
+    UIGraphicsEndImageContext();
+    
+    // 返回新的改变大小后的图片
+    return scaledImage;
+}
 
 #pragma mark  RongCloud  Send Voice Messages
 /**
@@ -612,7 +673,7 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
     NSUserDefaults * userDefaults = [NSUserDefaults standardUserDefaults];
     NSString * deviceToken = [userDefaults objectForKey:@"RongPushNotificationsDeviceToken"];
     if(deviceToken && deviceToken.length > 0){
-        NSLog(@"RongCloud setDeviceToken");
+        NSLog(@"RongCloud setDeviceToken:%@",deviceToken);
         [[self getClient] setDeviceToken:deviceToken];
     }else{
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -628,7 +689,7 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
     NSUserDefaults * userDefaults = [NSUserDefaults standardUserDefaults];
     NSString * deviceToken = [userDefaults objectForKey:@"RongPushNotificationsDeviceToken"];
     if(deviceToken && deviceToken.length > 0){
-        NSLog(@"RongCloud setDeviceToken");
+        NSLog(@"RongCloud setDeviceToken:%@",deviceToken);
         [[self getClient] setDeviceToken:deviceToken];
         [timer invalidate];
         timer = nil;
