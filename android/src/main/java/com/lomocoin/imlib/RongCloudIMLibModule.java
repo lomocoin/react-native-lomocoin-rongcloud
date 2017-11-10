@@ -8,9 +8,17 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Promise;
 
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
+import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.Arguments;
@@ -32,6 +40,8 @@ import io.rong.message.TextMessage;
 import io.rong.message.VoiceMessage;
 import io.rong.push.RongPushClient;
 import io.rong.push.common.RongException;
+import io.rong.push.notification.PushNotificationMessage;
+import io.rong.push.notification.RongNotificationInterface;
 
 /**
  * 融云原生功能模块
@@ -115,7 +125,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         final RongCloudIMLibModule instance = this;
         RongIMClient.setOnReceiveMessageListener(new RongIMClient.OnReceiveMessageListener() {
             @Override
-            public boolean onReceived(Message message, int i) {
+            public boolean onReceived(final Message message, int i) {
 
                 WritableMap map = Arguments.createMap();
                 WritableMap msg = instance.formatMessage(message);
@@ -123,8 +133,41 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 map.putMap("message", msg);
                 map.putString("left", "0");
                 map.putString("errcode", "0");
-
                 instance.sendEvent("onRongMessageReceived", map);
+
+                //考虑是否需要发送推送到通知栏
+                UiThreadUtil.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                      try {
+                           Activity activity = getCurrentActivity();
+                           if(isBackground(activity)){
+                               Uri.Builder builder = Uri.parse("rong://" + activity.getPackageName()).buildUpon();
+
+                               builder.appendPath("conversation").appendPath("lomostart")
+                                       .appendQueryParameter("targetId", message.getTargetId())
+                                       .appendQueryParameter("title", "");
+                               Uri uri = builder.build();
+
+                               Intent intent = context.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
+                               intent.setData(uri);
+
+                               String title = "lomostart";
+                               String tickerText = context.getResources().getString(context.getResources().getIdentifier("rc_notification_ticker_text", "string", context.getPackageName()));
+                               PendingIntent intent1 =  PendingIntent.getActivity(context, 300, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                               Notification notification = NotificationUtil.createNotification(activity,title,intent1,tickerText);
+                               NotificationManager nm = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+                               if(notification != null) {
+                                   nm.notify(2000, notification);
+                               }
+                           }
+                      }catch (Exception e){
+                          Log.e("isme","考虑是否需要发送推送到通知栏 error");
+                      }
+                    }
+                });
+
+
                 return true;
             }
         });
@@ -162,6 +205,23 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 promise.reject(code, msg);
             }
         });
+    }
+
+    private boolean isBackground(Context context) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
+            if (appProcess.processName.equals(context.getPackageName())) {
+                if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_BACKGROUND) {
+                    Log.i("isme", "后台");
+                    return true;
+                }else{
+                    Log.i("isme", "前台");
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 
 
