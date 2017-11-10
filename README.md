@@ -44,7 +44,7 @@ import RongCloud from 'react-native-lomocoin-rongcloud'
 
 Please follow RongCloud official website to configuration certificate: http://www.rongcloud.cn/docs/ios_push.html
  
- And add code on -application:didFinishLaunchingWithOptions:  of  AppDelegate.m
+ And add code on -application:didFinishLaunchingWithOptions:  of  AppDelegate.m to register Notifications
  ```
  /**
  * Push Notifications
