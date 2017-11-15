@@ -573,6 +573,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             promise.reject("error", "error");
         }
+    }
 
     @ReactMethod
     public void voiceBtnPressCancel(int mType, String targetId, final Promise promise) {
