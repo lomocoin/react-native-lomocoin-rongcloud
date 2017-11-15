@@ -309,7 +309,7 @@ RCT_REMAP_METHOD(searchConversations,
 RCT_EXPORT_METHOD(sendTextMessage:(int)type
                   targetId:(NSString *)targetId
                   content:(NSString *)content
-                  pushContent:(NSString *) pushContent
+                  pushContent:(NSString *)pushContent
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
@@ -322,7 +322,7 @@ RCT_EXPORT_METHOD(sendTextMessage:(int)type
 RCT_EXPORT_METHOD(sendImageMessage:(int)type
                   targetId:(NSString *)targetId
                   content:(NSString *)imageUrl
-                  pushContent:(NSString *) pushContent
+                  pushContent:(NSString *)pushContent
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
@@ -399,6 +399,7 @@ RCT_EXPORT_METHOD(sendImageMessage:(int)type
  */
 RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
                   targetId:(NSString *)targetId
+                  pushContent:(NSString *)pushContent
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     NSLog(@"开始录音");
@@ -462,7 +463,7 @@ RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
                 
                 _longTimer = [NSTimer scheduledTimerWithTimeInterval:59.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
                     if(!_isSend){
-                        [self stopRecord:type targetId:targetId resolve:resolve reject:reject];
+                        [self stopRecord:type targetId:targetId pushContent:pushContent resolve:resolve reject:reject];
                     }
                 }];
             }
@@ -507,18 +508,20 @@ RCT_EXPORT_METHOD(voiceBtnPressCancel:(int)type
  */
 RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
                   targetId:(NSString *)targetId
+                  pushContent:(NSString *)pushContent
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^{
         
         if(!_isSend){
-            [self stopRecord:type targetId:targetId resolve:resolve reject:reject];
+            [self stopRecord:type targetId:targetId pushContent:pushContent resolve:resolve reject:reject];
         }
     });
 }
 
 - (void)stopRecord:(int)type
           targetId:(NSString *)targetId
+       pushContent:(NSString *)pushContent
            resolve:(RCTPromiseResolveBlock)resolve
             reject:(RCTPromiseRejectBlock)reject{
     
@@ -543,7 +546,7 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
         _duration = (NSInteger)roundf(dataLong);
         
         NSData * audioData = [NSData dataWithContentsOfURL:self.recordFileUrl];
-        [self sendVoiceMessage:type targetId:targetId content:audioData duration:_duration pushContent:@"语音" resolve:resolve reject:reject];
+        [self sendVoiceMessage:type targetId:targetId content:audioData duration:_duration pushContent:pushContent resolve:resolve reject:reject];
         
         //发送完录音后，删除本地录音（融云会自动保存录音）
         NSString * filePath = self.recordFileUrl.absoluteString;
@@ -594,7 +597,7 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
                 targetId:(NSString *)targetId
                  content:(NSData *)voiceData
                 duration:(NSInteger )duration
-             pushContent:(NSString *) pushContent
+             pushContent:(NSString *)pushContent
                  resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject {
     
