@@ -55,17 +55,17 @@ export default {
     getLatestMessages(type, targetId, count) {
         return RongCloudIMLib.getLatestMessages(type, targetId, count);
     },
-    sendTextMessage(conversationType, targetId, content) {
-        return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, content);
+    sendTextMessage(conversationType, targetId, content, pushContent) {
+        return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, pushContent);
     },
-    sendImageMessage(conversationType, targetId, imageUrl) {
-        return RongCloudIMLib.sendImageMessage(conversationType, targetId, imageUrl, '');
+    sendImageMessage(conversationType, targetId, imageUrl, pushContent) {
+        return RongCloudIMLib.sendImageMessage(conversationType, targetId, imageUrl, pushContent);
     },
-    voiceBtnPressIn(conversationType, targetId) {
-        return RongCloudIMLib.voiceBtnPressIn(conversationType, targetId);
+    voiceBtnPressIn(conversationType, targetId, pushContent) {
+        return RongCloudIMLib.voiceBtnPressIn(conversationType, targetId, pushContent);
     },
-    voiceBtnPressOut(conversationType, targetId) {
-        return RongCloudIMLib.voiceBtnPressOut(conversationType, targetId);
+    voiceBtnPressOut(conversationType, targetId, pushContent) {
+        return RongCloudIMLib.voiceBtnPressOut(conversationType, targetId, pushContent);
     },
     voiceBtnPressCancel(conversationType, targetId) {
         return RongCloudIMLib.voiceBtnPressCancel(conversationType, targetId);
