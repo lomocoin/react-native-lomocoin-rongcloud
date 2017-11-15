@@ -54,6 +54,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     protected ReactApplicationContext context;
     private AudioRecoderUtils recoderUtils;
     private String AtargId = "";
+    private String aPushContent = "";
     private Promise Apromise = null;
     private int Atype = 0;
 
@@ -88,7 +89,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 Apromise.reject("-500","-500");
             }else{
                 int duration = (int) Math.ceil(time / 1000);
-                sendVoiceMessage(Atype, AtargId, filePath, duration, "", Apromise);
+                sendVoiceMessage(Atype, AtargId, filePath, duration, aPushContent, Apromise);
             }
         } catch (Exception e) {
         }
@@ -529,8 +530,18 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void voiceBtnPressIn(int mType, String targetId, final Promise promise) {
+    public void voiceBtnPressIn(int mType, String targetId,String pushContent, final Promise promise) {
         try {
+            if(mType >= 0){
+                this.Atype = mType;
+            }
+            if(targetId != null && targetId.length() >0){
+                this.AtargId = targetId;
+            }
+            if(pushContent != null && pushContent.length() >0){
+                this.aPushContent = pushContent;
+            }
+
             addAudioListener();
             recoderUtils.startRecord();
             promise.resolve("success");
@@ -540,11 +551,21 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void voiceBtnPressOut(int mType, String targetId, final Promise promise) {
+    public void voiceBtnPressOut(int mType, String targetId,String pushContent, final Promise promise) {
         try {
-            this.AtargId = targetId;
-            this.Atype = mType;
-            this.Apromise = promise;
+            if(mType >= 0){
+                this.Atype = mType;
+            }
+            if(targetId != null && targetId.length() >0){
+                this.AtargId = targetId;
+            }
+            if(pushContent != null && pushContent.length() >0){
+                this.aPushContent = pushContent;
+            }
+            if(promise != null){
+                this.Apromise = promise;
+            }
+
             if (recoderUtils == null) {
                 return;
             }
@@ -552,7 +573,6 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             promise.reject("error", "error");
         }
-    }
 
     @ReactMethod
     public void voiceBtnPressCancel(int mType, String targetId, final Promise promise) {
