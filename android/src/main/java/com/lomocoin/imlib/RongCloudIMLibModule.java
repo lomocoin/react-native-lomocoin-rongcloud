@@ -140,7 +140,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 UiThreadUtil.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                      try {
+                       try {
                            Activity activity = getCurrentActivity();
                            if(isBackground(activity)){
                                Uri.Builder builder = Uri.parse("rong://" + activity.getPackageName()).buildUpon();
@@ -162,9 +162,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                                    nm.notify(2000, notification);
                                }
                            }
-                      }catch (Exception e){
-                          Log.e("isme","考虑是否需要发送推送到通知栏 error");
-                      }
+                       }catch (Exception e){
+                           Log.e("isme","考虑是否需要发送推送到通知栏 error");
+                       }
                     }
                 });
 
@@ -373,7 +373,13 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent, final Promise promise) {
 
         imageUrl = ImgCompressUtils.compress(context,imageUrl);//压缩图片处理
-//        imageUrl = "file://"+BitmapUtils.getRealFilePath(context, Uri.parse(imageUrl));
+//        Log.e("isme","inthis: "+imageUrl);
+        if(imageUrl.startsWith("content")){
+            imageUrl = "file://"+BitmapUtils.getRealFilePath(context, Uri.parse(imageUrl));
+        }else{
+            imageUrl = "file://"+imageUrl;
+        }
+//        Log.e("isme","path:  "+imageUrl);
         ConversationType type = formatConversationType(mType);
 
         Uri uri = Uri.parse(imageUrl);
@@ -392,7 +398,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onSuccess(Message message) {
-                Log.e("isme","发送成功");
+//                Log.e("isme","发送成功");
                 promise.resolve(message.getMessageId() + "");
             }
 

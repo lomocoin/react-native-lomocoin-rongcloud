@@ -45,7 +45,7 @@ public class ImgCompressUtils {
             // Raw height and width of image
 //            Log.e("isme","图片处理开始");
 //            Log.e("isme","outHeight:"+options.outHeight +"--- outWidth:"+options.outWidth);
-            if(options.outHeight < IMG_H && options.outWidth < IMG_W){
+            if(options.outHeight <= IMG_H && options.outWidth <= IMG_W){
 //                Log.e("isme","图片的尺寸已经符合 融云的要求了");
                 String uri = BitmapUtils.getImageContentUri(context,new File(imgPath)).toString();
                 return uri; //图片的尺寸已经符合 融云的要求了
@@ -58,6 +58,7 @@ public class ImgCompressUtils {
             bitmap.recycle();//回收bitmap
             return newImgPath;
         }catch (Exception e){
+            Log.e("isme","compress error :"+imgPath);
             return imgPath;
         }
     }
