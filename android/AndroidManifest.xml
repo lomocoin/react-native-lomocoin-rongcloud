@@ -19,7 +19,6 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
 
-
     <!-- GCM 配置开始 < -->
     <permission
         android:name="com.lomocoin.lomocoin.permission.C2D_MESSAGE"
@@ -30,32 +29,43 @@
     <application>
 
         <receiver
-        android:exported="true"
-        android:name="com.lomocoin.imlib.RongNotificationReceiver">
-        <intent-filter>
-        <action android:name="io.rong.push.intent.MESSAGE_ARRIVED" />
-        <action android:name="io.rong.push.intent.MI_MESSAGE_ARRIVED" />
-        <action android:name="io.rong.push.intent.MESSAGE_CLICKED" />
-        <action android:name="io.rong.push.intent.MI_MESSAGE_CLICKED" />
-        </intent-filter>
+            android:name="com.lomocoin.imlib.RongNotificationReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="io.rong.push.intent.MESSAGE_ARRIVED" />
+                <action android:name="io.rong.push.intent.MI_MESSAGE_ARRIVED" />
+                <action android:name="io.rong.push.intent.MESSAGE_CLICKED" />
+                <action android:name="io.rong.push.intent.MI_MESSAGE_CLICKED" />
+            </intent-filter>
         </receiver>
 
 
         <!-- GCM 配置 < -->
-        <receiver android:name="com.google.android.gms.gcm.GcmReceiver" android:exported="true" android:permission="com.google.android.c2dm.permission.SEND">
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
+                <!-- for Gingerbread GSF backward compat -->
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
                 <category android:name="com.lomocoin.lomocoin" />
                 <!-- 替换为自己的packagename < -->
             </intent-filter>
         </receiver>
 
-        <service android:name="io.rong.push.platform.RongGcmListenerService" android:exported="false">
+
+        <service
+            android:name="io.rong.push.platform.RongGcmListenerService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
-        <service android:name="io.rong.push.platform.RongGCMInstanceIDListenerService" android:exported="false">
+        <service
+            android:name="io.rong.push.platform.RongGCMInstanceIDListenerService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
@@ -70,11 +80,13 @@
             android:exported="true"
             android:process=":ipc" />
 
-        <service android:name="io.rong.imlib.ReConnectService"
-            android:exported="true"/>
+        <service
+            android:name="io.rong.imlib.ReConnectService"
+            android:exported="true" />
 
-        <receiver android:name="io.rong.imlib.ConnectChangeReceiver"
-            android:exported="true"/>
+        <receiver
+            android:name="io.rong.imlib.ConnectChangeReceiver"
+            android:exported="true" />
 
         <receiver
             android:name="io.rong.imlib.HeartbeatReceiver"
@@ -86,14 +98,12 @@
         <!--第三方相关,向第三方推送服务请求 token 的服务 -->
         <service
             android:name="io.rong.push.core.PushRegistrationService"
-            android:exported="false">
-        </service>
+            android:exported="false"></service>
 
         <!-- 处理 push 消息相关的服务 -->
         <service
             android:name="io.rong.push.core.MessageHandleService"
-            android:exported="true">
-        </service>
+            android:exported="true"></service>
 
         <!-- push服务 -->
         <service

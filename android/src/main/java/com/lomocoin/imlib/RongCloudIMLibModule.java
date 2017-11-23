@@ -116,7 +116,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         try {
             RongPushClient.registerGCM(context);
         } catch (RongException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         }
         RongIMClient.init(context, appKey);
     }

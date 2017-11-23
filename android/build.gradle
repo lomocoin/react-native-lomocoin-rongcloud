@@ -22,14 +22,16 @@ android {
         main {
             manifest.srcFile 'AndroidManifest.xml'
             res.srcDirs = ['src/main/res']
-            jniLibs.srcDirs = ['src/main/jniLibs']
+            // jniLibs.srcDirs = ['src/main/jniLibs']
+            jniLibs.srcDirs = ['libs']
         }
     }
 
 }
 
 dependencies {
-    compile 'com.google.android.gms:play-services-gcm:8.4.0'
+    // compile 'com.google.android.gms:play-services-gcm:8.4.0'
+    compile 'com.google.android.gms:play-services-gcm:11.0.4'
     compile 'com.facebook.react:react-native:+'
     compile files('libs/Rong_IMLib.jar')
 }
