@@ -40,11 +40,12 @@ add framework search paths & library search paths
 import RongCloud from 'react-native-lomocoin-rongcloud'
 ```
 
-## iOS Push Notifications
+### iOS Push Notifications
 
 Please follow RongCloud official website to configuration certificate: http://www.rongcloud.cn/docs/ios_push.html
+
  
-[Xcode 工程配置见：](https://github.com/GetuiLaboratory/react-native-getui/blob/master/example/document/iOS.md)
+ #### [Xcode 工程配置](https://github.com/lomocoin/react-native-lomocoin-rongcloud/blob/master/iOSPush.md)
 
 
 ## Thanks
