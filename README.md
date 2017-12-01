@@ -40,43 +40,12 @@ add framework search paths & library search paths
 import RongCloud from 'react-native-lomocoin-rongcloud'
 ```
 
-## iOS Push Notifications
+### iOS Push Notifications
 
 Please follow RongCloud official website to configuration certificate: http://www.rongcloud.cn/docs/ios_push.html
+
  
- And add code on -application:didFinishLaunchingWithOptions:  of  AppDelegate.m to register Notifications
- ```
- /**
- * Push Notifications
- */
- if ([[UIDevice currentDevice].systemVersion floatValue] >= 10.0) {
- //iOS10
- UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
- center.delegate = self;
- [center requestAuthorizationWithOptions:(UNAuthorizationOptionAlert | UNAuthorizationOptionBadge | UNAuthorizationOptionSound) completionHandler:^(BOOL granted, NSError * _Nullable error) {
- if (granted) {
- // user access push notifications permission
- [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
- }];
- } else {
- // user reject push notifications permission
- }
- }];
- }
- else if ([application
- respondsToSelector:@selector(registerUserNotificationSettings:)]) {
- //iOS 8 or later
- UIUserNotificationSettings *settings = [UIUserNotificationSettings
- settingsForTypes:(UIUserNotificationTypeBadge |
- UIUserNotificationTypeSound |
- UIUserNotificationTypeAlert)
- categories:nil];
- [application registerUserNotificationSettings:settings];
- }
- 
- // register Notifications
- [[UIApplication sharedApplication] registerForRemoteNotifications];
- ```
+ #### [Xcode 工程配置](https://github.com/lomocoin/react-native-lomocoin-rongcloud/blob/master/iOSPush.md)
 
 
 ## Thanks
