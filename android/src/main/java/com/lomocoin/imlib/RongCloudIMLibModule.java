@@ -23,6 +23,7 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import android.util.Log;
 
@@ -112,9 +113,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void initWithAppKey(String appKey) {
-        Log.e("isme", "rong init appkey:" + appKey);
+        // Log.e("isme", "rong init appkey:" + appKey);
         try {
-            RongPushClient.registerGCM(context);
+            RongPushClient.registerFCM(context);
+            String appId = FirebaseInstanceId.getInstance().getToken();
+//            FirebaseMessaging.getInstance().subscribeToTopic("testTopic");
+            Log.e("isme","token:"+appId);
         } catch (RongException e) {
             // e.printStackTrace();
         }

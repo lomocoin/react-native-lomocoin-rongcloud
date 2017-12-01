@@ -41,37 +41,54 @@
 
 
         <!-- GCM 配置 < -->
-        <receiver
-            android:name="com.google.android.gms.gcm.GcmReceiver"
-            android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <!-- for Gingerbread GSF backward compat -->
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+        <!--<receiver-->
+            <!--android:name="com.google.android.gms.gcm.GcmReceiver"-->
+            <!--android:exported="true"-->
+            <!--android:permission="com.google.android.c2dm.permission.SEND">-->
+            <!--<intent-filter>-->
+                <!--&lt;!&ndash; for Gingerbread GSF backward compat &ndash;&gt;-->
+                <!--<action android:name="com.google.android.c2dm.intent.REGISTRATION" />-->
+                <!--<action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
 
-                <category android:name="com.lomocoin.lomocoin" />
-                <!-- 替换为自己的packagename < -->
-            </intent-filter>
-        </receiver>
+                <!--<category android:name="com.lomocoin.lomocoin" />-->
+                <!--&lt;!&ndash; 替换为自己的packagename < &ndash;&gt;-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
 
 
-        <service
-            android:name="io.rong.push.platform.RongGcmListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-            </intent-filter>
-        </service>
-        <service
-            android:name="io.rong.push.platform.RongGCMInstanceIDListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID" />
-            </intent-filter>
-        </service>
+        <!--<service-->
+            <!--android:name="io.rong.push.platform.RongGcmListenerService"-->
+            <!--android:exported="false">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
+        <!--<service-->
+            <!--android:name="io.rong.push.platform.RongGCMInstanceIDListenerService"-->
+            <!--android:exported="false">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.google.android.gms.iid.InstanceID" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
         <!-- GCM 配置结束 < -->
-
+        <!-- [START firebase_service] -->
+        <service
+            android:name="io.rong.push.platform.RongFirebaseMessagingService"
+            android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <!-- [END firebase_service] -->
+        <!-- [START firebase_iid_service] -->
+        <service
+            android:name="io.rong.push.platform.RongFirebaseInstanceIDService"
+            android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+        <!-- [END firebase_iid_service] -->
 
         <!-- imlib config begin -->
 
