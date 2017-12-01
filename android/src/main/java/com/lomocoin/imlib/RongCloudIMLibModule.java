@@ -86,9 +86,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     public void sendVoiceMsg(String filePath, long time) {
         try {
             //
-            if(time < 1000){
-                Apromise.reject("-500","-500");
-            }else{
+            if (time < 1000) {
+                Apromise.reject("-500", "-500");
+            } else {
                 int duration = (int) Math.ceil(time / 1000);
                 sendVoiceMessage(Atype, AtargId, filePath, duration, aPushContent, Apromise);
             }
@@ -118,7 +118,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             RongPushClient.registerFCM(context);
             String appId = FirebaseInstanceId.getInstance().getToken();
 //            FirebaseMessaging.getInstance().subscribeToTopic("testTopic");
-            Log.e("isme","token:"+appId);
+            Log.e("isme", "token:" + appId);
         } catch (RongException e) {
             // e.printStackTrace();
         }
@@ -144,31 +144,31 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 UiThreadUtil.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                       try {
-                           Activity activity = getCurrentActivity();
-                           if(isBackground(activity)){
-                               Uri.Builder builder = Uri.parse("rong://" + activity.getPackageName()).buildUpon();
+                        try {
+                            Activity activity = getCurrentActivity();
+                            if (isBackground(activity)) {
+                                Uri.Builder builder = Uri.parse("rong://" + activity.getPackageName()).buildUpon();
 
-                               builder.appendPath("conversation").appendPath("lomostart")
-                                       .appendQueryParameter("targetId", message.getTargetId())
-                                       .appendQueryParameter("title", "");
-                               Uri uri = builder.build();
+                                builder.appendPath("conversation").appendPath("lomostart")
+                                        .appendQueryParameter("targetId", message.getTargetId())
+                                        .appendQueryParameter("title", "");
+                                Uri uri = builder.build();
 
-                               Intent intent = context.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
-                               intent.setData(uri);
+                                Intent intent = context.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
+                                intent.setData(uri);
 
-                               String title = "lomostart";
-                               String tickerText = context.getResources().getString(context.getResources().getIdentifier("rc_notification_ticker_text", "string", context.getPackageName()));
-                               PendingIntent intent1 =  PendingIntent.getActivity(context, 300, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                               Notification notification = NotificationUtil.createNotification(activity,title,intent1,tickerText);
-                               NotificationManager nm = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-                               if(notification != null) {
-                                   nm.notify(2000, notification);
-                               }
-                           }
-                       }catch (Exception e){
-                           Log.e("isme","考虑是否需要发送推送到通知栏 error");
-                       }
+                                String title = "lomostart";
+                                String tickerText = context.getResources().getString(context.getResources().getIdentifier("rc_notification_ticker_text", "string", context.getPackageName()));
+                                PendingIntent intent1 = PendingIntent.getActivity(context, 300, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                                Notification notification = NotificationUtil.createNotification(activity, title, intent1, tickerText);
+                                NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                                if (notification != null) {
+                                    nm.notify(2000, notification);
+                                }
+                            }
+                        } catch (Exception e) {
+                            Log.e("isme", "考虑是否需要发送推送到通知栏 error");
+                        }
                     }
                 });
 
@@ -220,7 +220,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_BACKGROUND) {
                     Log.i("isme", "后台");
                     return true;
-                }else{
+                } else {
                     Log.i("isme", "前台");
                     return false;
                 }
@@ -376,18 +376,18 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent, final Promise promise) {
 
-        imageUrl = ImgCompressUtils.compress(context,imageUrl);//压缩图片处理
+        imageUrl = ImgCompressUtils.compress(context, imageUrl);//压缩图片处理
 //        Log.e("isme","inthis: "+imageUrl);
-        if(imageUrl.startsWith("content")){
-            imageUrl = "file://"+BitmapUtils.getRealFilePath(context, Uri.parse(imageUrl));
-        }else{
-            imageUrl = "file://"+imageUrl;
+        if (imageUrl.startsWith("content")) {
+            imageUrl = "file://" + BitmapUtils.getRealFilePath(context, Uri.parse(imageUrl));
+        } else {
+            imageUrl = "file://" + imageUrl;
         }
 //        Log.e("isme","path:  "+imageUrl);
         ConversationType type = formatConversationType(mType);
 
         Uri uri = Uri.parse(imageUrl);
-        ImageMessage imageMessage = ImageMessage.obtain(uri,uri,true);
+        ImageMessage imageMessage = ImageMessage.obtain(uri, uri, true);
 
         RongIMClient.getInstance().sendImageMessage(type, targetId, imageMessage, null, null, new RongIMClient.SendImageMessageCallback() {
             @Override
@@ -443,12 +443,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     //开始播放
     @ReactMethod
-    public void audioPlayStart(String filePath,Promise promise) {
+    public void audioPlayStart(String filePath, Promise promise) {
         try {
             AudioPlayUtils.start(filePath);
             promise.resolve("success");
-        }catch (Exception e){
-            promise.reject("error","error");
+        } catch (Exception e) {
+            promise.reject("error", "error");
         }
     }
 
@@ -458,8 +458,8 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         try {
             AudioPlayUtils.stop();
             promise.resolve("success");
-        }catch (Exception e){
-            promise.reject("error","error");
+        } catch (Exception e) {
+            promise.reject("error", "error");
         }
     }
 
@@ -494,12 +494,20 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         } else if (message.getContent() instanceof ImageMessage) {
             ImageMessage richContentMessage = (ImageMessage) message.getContent();
             msg.putString("type", "image");
-            msg.putString("imageUrl", richContentMessage.getRemoteUri().toString());
+            if (richContentMessage != null && richContentMessage.getRemoteUri() != null) {
+                msg.putString("imageUrl", richContentMessage.getRemoteUri().toString());
+            } else {
+                msg.putString("imageUrl", "");
+            }
             msg.putString("extra", richContentMessage.getExtra());
         } else if (message.getContent() instanceof VoiceMessage) {
             VoiceMessage voiceMessage = (VoiceMessage) message.getContent();
             msg.putString("type", "voice");
-            msg.putString("wavAudioData", voiceMessage.getUri().toString());
+            if (voiceMessage != null && voiceMessage.getUri() != null) {
+                msg.putString("wavAudioData", voiceMessage.getUri().toString());
+            } else {
+                msg.putString("wavAudioData", "");
+            }
             msg.putString("duration", voiceMessage.getDuration() + "");
             msg.putString("extra", voiceMessage.getExtra());
         }
@@ -540,15 +548,15 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void voiceBtnPressIn(int mType, String targetId,String pushContent, final Promise promise) {
+    public void voiceBtnPressIn(int mType, String targetId, String pushContent, final Promise promise) {
         try {
-            if(mType >= 0){
+            if (mType >= 0) {
                 this.Atype = mType;
             }
-            if(targetId != null && targetId.length() >0){
+            if (targetId != null && targetId.length() > 0) {
                 this.AtargId = targetId;
             }
-            if(pushContent != null && pushContent.length() >0){
+            if (pushContent != null && pushContent.length() > 0) {
                 this.aPushContent = pushContent;
             }
 
@@ -561,18 +569,18 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void voiceBtnPressOut(int mType, String targetId,String pushContent, final Promise promise) {
+    public void voiceBtnPressOut(int mType, String targetId, String pushContent, final Promise promise) {
         try {
-            if(mType >= 0){
+            if (mType >= 0) {
                 this.Atype = mType;
             }
-            if(targetId != null && targetId.length() >0){
+            if (targetId != null && targetId.length() > 0) {
                 this.AtargId = targetId;
             }
-            if(pushContent != null && pushContent.length() >0){
+            if (pushContent != null && pushContent.length() > 0) {
                 this.aPushContent = pushContent;
             }
-            if(promise != null){
+            if (promise != null) {
                 this.Apromise = promise;
             }
 
