@@ -25,6 +25,7 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import io.rong.imlib.IRongCallback;
@@ -468,6 +469,21 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         ConversationType type = formatConversationType(mType);
         boolean is = RongIMClient.getInstance().clearMessagesUnreadStatus(type, targetId);
         promise.resolve(is);
+    }
+
+    //停止播放
+    @ReactMethod
+    public void getFCMToken(Promise promise) {
+        try {
+            String appId = FirebaseInstanceId.getInstance().getToken();
+            if(!TextUtils.isEmpty(appId)){
+                promise.resolve(appId);
+            }else{
+                promise.reject("error", "error");
+            }
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
     }
 
 

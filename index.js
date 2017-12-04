@@ -2,7 +2,8 @@
 import {
     NativeModules,
     DeviceEventEmitter,
-    NativeEventEmitter
+    NativeEventEmitter,
+    Platform
 }
     from 'react-native';
 
@@ -79,4 +80,13 @@ export default {
     disconnect(disconnect) {
         return RongCloudIMLib.disconnect(disconnect);
     },
+    getFCMToken() {
+        if(Platform.OS === 'android'){
+            return RongCloudIMLib.getFCMToken();
+        }else{
+            return '';
+        }
+    },
+
+    
 };
