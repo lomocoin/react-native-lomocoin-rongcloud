@@ -707,7 +707,7 @@ RCT_REMAP_METHOD(screenGlobalNotification,
         reject(@"设置失败", @"设置失败", nil);
     };
     
-    [[self getClient] setNotificationQuietHours:@"00:00:00" spanMins:1440 success:successBlock error:errorBlock];
+    [[self getClient] setNotificationQuietHours:@"00:00:00" spanMins:1439 success:successBlock error:errorBlock];
 }
 
 RCT_REMAP_METHOD(removeGlobalNotification,
@@ -739,7 +739,6 @@ RCT_REMAP_METHOD(getGlobalNotificationStatus,
         }else{
             resolve(@(NO));
         }
-        
     };
     
     void (^errorBlock)(RCErrorCode nErrorCode);
