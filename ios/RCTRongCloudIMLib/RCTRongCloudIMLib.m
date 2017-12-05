@@ -744,7 +744,7 @@ RCT_REMAP_METHOD(getGlobalNotificationStatus,
     
     void (^errorBlock)(RCErrorCode nErrorCode);
     errorBlock = ^(RCErrorCode nErrorCode) {
-        reject(@"设置失败", @"设置失败", nil);
+        reject(@"获取失败", @"获取失败", nil);
     };
     
     [[self getClient] getNotificationQuietHours:successBlock error:errorBlock];
