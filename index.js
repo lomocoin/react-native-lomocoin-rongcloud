@@ -76,6 +76,21 @@ export default {
     audioPlayStop() {
         return RongCloudIMLib.audioPlayStop();
     },
+    setConversationNotificationStatus(conversationType, targetId, isBlocked) {
+    	return RongCloudIMLib.setConversationNotificationStatus(conversationType, targetId, isBlocked);
+    },
+    getConversationNotificationStatus(conversationType, targetId) {
+    	return RongCloudIMLib.getConversationNotificationStatus(conversationType, targetId);
+    },
+    screenGlobalNotification() {
+    	return RongCloudIMLib.screenGlobalNotification();
+    },
+    removeGlobalNotification() {
+    	return RongCloudIMLib.removeGlobalNotification();
+    },
+    getGlobalNotificationStatus() {
+    	return RongCloudIMLib.getGlobalNotificationStatus();
+    },
     disconnect(disconnect) {
         return RongCloudIMLib.disconnect(disconnect);
     },

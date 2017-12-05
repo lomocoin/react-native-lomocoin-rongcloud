@@ -24,48 +24,48 @@ Xcode 工程中需要注册个推 SDK 、注册 deviceToken 、监听消息回�
 ````
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-// 注册远程通知
-[self registerRemoteNotification];
+    // 注册远程通知
+    [self registerRemoteNotification];
 }
 
 /** 注册远程通知 */
 - (void)registerRemoteNotification {
-/*
-警告：Xcode8的需要手动开启“TARGETS -> Capabilities -> Push Notifications”
-*/
-
-/*
-警告：该方法需要开发者自定义，以下代码根据APP支持的iOS系统不同，代码可以对应修改。
-以下为演示代码，注意根据实际需要修改，注意测试支持的iOS系统都能获取到DeviceToken
-*/
-if ([[UIDevice currentDevice].systemVersion floatValue] >= 10.0) {
+    /*
+     警告：Xcode8的需要手动开启“TARGETS -> Capabilities -> Push Notifications”
+     */
+    
+    /*
+     警告：该方法需要开发者自定义，以下代码根据APP支持的iOS系统不同，代码可以对应修改。
+     以下为演示代码，注意根据实际需要修改，注意测试支持的iOS系统都能获取到DeviceToken
+     */
+    if ([[UIDevice currentDevice].systemVersion floatValue] >= 10.0) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0 // Xcode 8编译会调用
-UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-center.delegate = self;
-[center requestAuthorizationWithOptions:(UNAuthorizationOptionBadge | UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionCarPlay) completionHandler:^(BOOL granted, NSError *_Nullable error) {
-if (!error) {
-NSLog(@"request authorization succeeded!");
-}
-}];
-
-[[UIApplication sharedApplication] registerForRemoteNotifications];
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        center.delegate = self;
+        [center requestAuthorizationWithOptions:(UNAuthorizationOptionBadge | UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionCarPlay) completionHandler:^(BOOL granted, NSError *_Nullable error) {
+            if (!error) {
+                NSLog(@"request authorization succeeded!");
+            }
+        }];
+        
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
 #else // Xcode 7编译会调用
-UIUserNotificationType types = (UIUserNotificationTypeAlert | UIUserNotificationTypeSound | UIUserNotificationTypeBadge);
-UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
-[[UIApplication sharedApplication] registerUserNotificationSettings:settings];
-[[UIApplication sharedApplication] registerForRemoteNotifications];
+        UIUserNotificationType types = (UIUserNotificationTypeAlert | UIUserNotificationTypeSound | UIUserNotificationTypeBadge);
+        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
+        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
 #endif
-} else if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
-UIUserNotificationType types = (UIUserNotificationTypeAlert | UIUserNotificationTypeSound | UIUserNotificationTypeBadge);
-UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
-[[UIApplication sharedApplication] registerUserNotificationSettings:settings];
-[[UIApplication sharedApplication] registerForRemoteNotifications];
-} else {
-UIRemoteNotificationType apn_type = (UIRemoteNotificationType)(UIRemoteNotificationTypeAlert |
-UIRemoteNotificationTypeSound |
-UIRemoteNotificationTypeBadge);
-[[UIApplication sharedApplication] registerForRemoteNotificationTypes:apn_type];
-}
+    } else if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
+        UIUserNotificationType types = (UIUserNotificationTypeAlert | UIUserNotificationTypeSound | UIUserNotificationTypeBadge);
+        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
+        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+        [[UIApplication sharedApplication] registerForRemoteNotifications];
+    } else {
+        UIRemoteNotificationType apn_type = (UIRemoteNotificationType)(UIRemoteNotificationTypeAlert |
+                                                                       UIRemoteNotificationTypeSound |
+                                                                       UIRemoteNotificationTypeBadge);
+        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:apn_type];
+    }
 }
 
 ````
@@ -75,15 +75,15 @@ UIRemoteNotificationTypeBadge);
 ````
 - (void)application:(UIApplication *)application
 didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-NSString *token =
-[[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"
-withString:@""]
-stringByReplacingOccurrencesOfString:@">"
-withString:@""]
-stringByReplacingOccurrencesOfString:@" "
-withString:@""];
-
-[[RCIMClient sharedRCIMClient] setDeviceToken:token];
+    NSString *token =
+    [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"
+                                                           withString:@""]
+      stringByReplacingOccurrencesOfString:@">"
+      withString:@""]
+     stringByReplacingOccurrencesOfString:@" "
+     withString:@""];
+    
+    [[RCIMClient sharedRCIMClient] setDeviceToken:token];
 }
 ````
 
@@ -94,11 +94,11 @@ withString:@""];
 
 /** APP已经接收到“远程”通知(推送) - 透传推送消息  */
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler {
-
-// 控制台打印接收APNs信息
-NSLog(@"\n>>>[Receive RemoteNotification]:%@\n\n", userInfo);
-
-completionHandler(UIBackgroundFetchResultNewData);
+    
+    // 控制台打印接收APNs信息
+    NSLog(@"\n>>>[Receive RemoteNotification]:%@\n\n", userInfo);
+    
+    completionHandler(UIBackgroundFetchResultNewData);
 }
 
 #pragma mark - iOS 10中收到推送消息
@@ -106,19 +106,19 @@ completionHandler(UIBackgroundFetchResultNewData);
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 //  iOS 10: App在前台获取到通知
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
-
-NSLog(@"willPresentNotification：%@", notification.request.content.userInfo);
-
-// 根据APP需要，判断是否要提示用户Badge、Sound、Alert
-completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert);
+    
+    NSLog(@"willPresentNotification：%@", notification.request.content.userInfo);
+    
+    // 根据APP需要，判断是否要提示用户Badge、Sound、Alert
+    completionHandler(UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert);
 }
 
 //  iOS 10: 点击通知进入App时触发
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler {
-
-NSLog(@"didReceiveNotification：%@", response.notification.request.content.userInfo);
-
-completionHandler();
+    
+    NSLog(@"didReceiveNotification：%@", response.notification.request.content.userInfo);
+    
+    completionHandler();
 }
 #endif
 
