@@ -649,6 +649,106 @@ RCT_REMAP_METHOD(audioPlayStop,
     }
 }
 
+#pragma mark  RongCloud PushNotification Settting
+
+RCT_EXPORT_METHOD(setConversationNotificationStatus:(int)type
+                  targetId:(NSString *)targetId
+                  isBlocked:(BOOL)isBlocked
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    void (^successBlock)(NSUInteger RCConversationNotificationStatus);
+    successBlock = ^(NSUInteger RCConversationNotificationStatus) {
+        //0: 消息免打扰(DO_NOT_DISTURB)   1: 新消息提醒(NOTIFY)
+        resolve(@(RCConversationNotificationStatus));
+    };
+    
+    void (^errorBlock)(RCErrorCode nErrorCode);
+    errorBlock = ^(RCErrorCode nErrorCode) {
+        reject(@"设置失败", @"设置失败", nil);
+    };
+    
+    [[self getClient] setConversationNotificationStatus:type targetId:targetId isBlocked:isBlocked success:successBlock error:errorBlock];
+    
+}
+
+RCT_EXPORT_METHOD(getConversationNotificationStatus:(int)type
+                  targetId:(NSString *)targetId
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    void (^successBlock)(NSUInteger RCConversationNotificationStatus);
+    successBlock = ^(NSUInteger RCConversationNotificationStatus) {
+        //0: 消息免打扰(DO_NOT_DISTURB)   1: 新消息提醒(NOTIFY)
+        resolve(@(RCConversationNotificationStatus));
+    };
+    
+    void (^errorBlock)(RCErrorCode nErrorCode);
+    errorBlock = ^(RCErrorCode nErrorCode) {
+        reject(@"获取失败", @"获取失败", nil);
+    };
+    
+    [[self getClient] getConversationNotificationStatus:type targetId:targetId success:successBlock error:errorBlock];
+}
+
+
+
+RCT_REMAP_METHOD(screenGlobalNotification,
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    void (^successBlock)();
+    successBlock = ^() {
+        resolve(@(YES));
+    };
+    
+    void (^errorBlock)(RCErrorCode nErrorCode);
+    errorBlock = ^(RCErrorCode nErrorCode) {
+        reject(@"设置失败", @"设置失败", nil);
+    };
+    
+    [[self getClient] setNotificationQuietHours:@"00:00:00" spanMins:1440 success:successBlock error:errorBlock];
+}
+
+RCT_REMAP_METHOD(removeGlobalNotification,
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    void (^successBlock)();
+    successBlock = ^() {
+        resolve(@(YES));
+    };
+    
+    void (^errorBlock)(RCErrorCode nErrorCode);
+    errorBlock = ^(RCErrorCode nErrorCode) {
+        reject(@"设置失败", @"设置失败", nil);
+    };
+    
+    [[self getClient] removeNotificationQuietHours:successBlock error:errorBlock];
+}
+
+RCT_REMAP_METHOD(getGlobalNotificationStatus,
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    void (^successBlock)(NSString *startTime, int spansMin);
+    successBlock = ^(NSString *startTime, int spansMin) {
+        if(spansMin > 0){
+            resolve(@(YES));
+        }else{
+            resolve(@(NO));
+        }
+        
+    };
+    
+    void (^errorBlock)(RCErrorCode nErrorCode);
+    errorBlock = ^(RCErrorCode nErrorCode) {
+        reject(@"设置失败", @"设置失败", nil);
+    };
+    
+    [[self getClient] getNotificationQuietHours:successBlock error:errorBlock];
+}
+
 #pragma mark  RongCloud  GetSDKVersion  and   Disconnect
 
 RCT_REMAP_METHOD(getSDKVersion,
