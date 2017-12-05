@@ -711,8 +711,8 @@ RCT_REMAP_METHOD(screenGlobalNotification,
 }
 
 RCT_REMAP_METHOD(removeGlobalNotification,
-                 resolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject) {
+                 removeResolver:(RCTPromiseResolveBlock)resolve
+                 removeRejecter:(RCTPromiseRejectBlock)reject) {
     
     void (^successBlock)();
     successBlock = ^() {
@@ -728,11 +728,12 @@ RCT_REMAP_METHOD(removeGlobalNotification,
 }
 
 RCT_REMAP_METHOD(getGlobalNotificationStatus,
-                 resolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject) {
+                 statusResolver:(RCTPromiseResolveBlock)resolve
+                 statusRejecter:(RCTPromiseRejectBlock)reject) {
     
     void (^successBlock)(NSString *startTime, int spansMin);
     successBlock = ^(NSString *startTime, int spansMin) {
+        
         if(spansMin > 0){
             resolve(@(YES));
         }else{
@@ -752,8 +753,8 @@ RCT_REMAP_METHOD(getGlobalNotificationStatus,
 #pragma mark  RongCloud  GetSDKVersion  and   Disconnect
 
 RCT_REMAP_METHOD(getSDKVersion,
-                 resolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject) {
+                 versionResolver:(RCTPromiseResolveBlock)resolve
+                 versionRejecter:(RCTPromiseRejectBlock)reject) {
     NSString* version = [[self getClient] getSDKVersion];
     resolve(version);
 }
