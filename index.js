@@ -78,18 +78,23 @@ export default {
         return RongCloudIMLib.audioPlayStop();
     },
     setConversationNotificationStatus(conversationType, targetId, isBlocked) {
+    	//设置会话消息提醒 isBlocked（true 屏蔽  false 新消息提醒）  （return  0:（屏蔽） 1:（新消息提醒））
     	return RongCloudIMLib.setConversationNotificationStatus(conversationType, targetId, isBlocked);
     },
     getConversationNotificationStatus(conversationType, targetId) {
+    	//获取会话消息提醒状态  （return  0:（屏蔽） 1:（新消息提醒））
     	return RongCloudIMLib.getConversationNotificationStatus(conversationType, targetId);
     },
     screenGlobalNotification() {
+    	//屏蔽全局新消息提醒
     	return RongCloudIMLib.screenGlobalNotification();
     },
     removeGlobalNotification() {
+    	//移除全局新消息提醒
     	return RongCloudIMLib.removeGlobalNotification();
     },
     getGlobalNotificationStatus() {
+    	//获取全局新消息提醒状态 （return  true:(全局消息屏蔽)  false:(全局新消息提醒)）
     	return RongCloudIMLib.getGlobalNotificationStatus();
     },
     disconnect(disconnect) {
