@@ -476,9 +476,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     public void getFCMToken(Promise promise) {
         try {
             String appId = FirebaseInstanceId.getInstance().getToken();
-            if(!TextUtils.isEmpty(appId)){
+            if (!TextUtils.isEmpty(appId)) {
                 promise.resolve(appId);
-            }else{
+            } else {
                 promise.reject("error", "error");
             }
         } catch (Exception e) {
@@ -621,6 +621,126 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             promise.reject("error", "error");
         }
     }
+
+
+    //设置会话消息提醒 isBlocked（true 屏蔽  false 新消息提醒）  （return  0:（屏蔽） 1:（新消息提醒））
+    @ReactMethod
+    public void setConversationNotificationStatus(int mType, String targetId, boolean isBlocked, final Promise promise) {
+        try {
+            ConversationType type = formatConversationType(mType);
+            Conversation.ConversationNotificationStatus status = isBlocked ?
+                    Conversation.ConversationNotificationStatus.DO_NOT_DISTURB ://勿扰 屏蔽
+                    Conversation.ConversationNotificationStatus.NOTIFY;//消息通知
+            RongIMClient.getInstance().setConversationNotificationStatus(type, targetId, status, new ResultCallback<Conversation.ConversationNotificationStatus>() {
+                @Override
+                public void onSuccess(Conversation.ConversationNotificationStatus conversationNotificationStatus) {
+                    String state = conversationNotificationStatus ==
+                            Conversation.ConversationNotificationStatus.DO_NOT_DISTURB ?
+                            "0" : "1";
+                    promise.resolve(state);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject("error", "error");
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    //获取会话消息提醒状态  （return  0:（屏蔽） 1:（新消息提醒））
+    @ReactMethod
+    public void getConversationNotificationStatus(int mType, String targetId, final Promise promise) {
+        try {
+            ConversationType type = formatConversationType(mType);
+
+            RongIMClient.getInstance().getConversationNotificationStatus(type, targetId, new ResultCallback<Conversation.ConversationNotificationStatus>() {
+                @Override
+                public void onSuccess(Conversation.ConversationNotificationStatus conversationNotificationStatus) {
+                    String state = conversationNotificationStatus ==
+                            Conversation.ConversationNotificationStatus.DO_NOT_DISTURB ?
+                            "0" : "1";
+                    promise.resolve(state);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject("error", "error");
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+
+    ////屏蔽全局新消息提醒
+    @ReactMethod
+    public void screenGlobalNotification(final Promise promise) {
+        try {
+
+            RongIMClient.getInstance().setNotificationQuietHours("00:00:00", 1339, new RongIMClient.OperationCallback() {
+                @Override
+                public void onSuccess() {
+                    promise.resolve("success");
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject("error", "error");
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    //移除全局新消息提醒
+    @ReactMethod
+    public void removeGlobalNotification(final Promise promise) {
+        try {
+            RongIMClient.getInstance().removeNotificationQuietHours(new RongIMClient.OperationCallback() {
+                @Override
+                public void onSuccess() {
+                    promise.resolve("success");
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject("error", "error");
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    ////获取全局新消息提醒状态 （return  true:(全局消息屏蔽)  false:(全局新消息提醒)）
+    @ReactMethod
+    public void getGlobalNotificationStatus(final Promise promise) {
+        try {
+            RongIMClient.getInstance().getNotificationQuietHours(new RongIMClient.GetNotificationQuietHoursCallback() {
+                @Override
+                public void onSuccess(String s, int i) {
+                    if(i > 0){
+                        promise.resolve(true);
+                    }else{
+                        promise.resolve(false);
+                    }
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject("error", "error");
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
 
     protected void sendEvent(String eventName, @Nullable WritableMap params) {
         context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
