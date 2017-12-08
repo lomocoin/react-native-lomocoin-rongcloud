@@ -150,7 +150,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                             if (isBackground(activity)) {
                                 Uri.Builder builder = Uri.parse("rong://" + activity.getPackageName()).buildUpon();
 
-                                builder.appendPath("conversation").appendPath("lomostart")
+                                builder.appendPath("conversation").appendPath("lomostar")
                                         .appendQueryParameter("targetId", message.getTargetId())
                                         .appendQueryParameter("title", "");
                                 Uri uri = builder.build();
@@ -158,7 +158,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                                 Intent intent = context.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
                                 intent.setData(uri);
 
-                                String title = "lomostart";
+                                String title = "LoMoStar";
                                 String tickerText = context.getResources().getString(context.getResources().getIdentifier("rc_notification_ticker_text", "string", context.getPackageName()));
                                 PendingIntent intent1 = PendingIntent.getActivity(context, 300, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                                 Notification notification = NotificationUtil.createNotification(activity, title, intent1, tickerText);
