@@ -25,8 +25,8 @@
 		A4FDDBC71FE7B88A008557F1 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FDDBC61FE7B88A008557F1 /* AssetsLibrary.framework */; };
 		A4FDDBC91FE7B891008557F1 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FDDBC81FE7B891008557F1 /* SafariServices.framework */; };
 		A4FDDBCB1FE7B899008557F1 /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FDDBCA1FE7B899008557F1 /* Photos.framework */; };
-		A4FDDC101FE7BD98008557F1 /* RongIMLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FDDC0D1FE7BD98008557F1 /* RongIMLib.framework */; };
-		A4FDDC111FE7BD98008557F1 /* libopencore-amrnb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FDDC0E1FE7BD98008557F1 /* libopencore-amrnb.a */; };
+		A4FDDC421FE7C2A7008557F1 /* RongIMLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FDDC401FE7C2A7008557F1 /* RongIMLib.framework */; };
+		A4FDDC431FE7C2A7008557F1 /* libopencore-amrnb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FDDC411FE7C2A7008557F1 /* libopencore-amrnb.a */; };
 		EF631A971CC22A4600AC9715 /* RCTRongCloudIMLib.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = EF631A961CC22A4600AC9715 /* RCTRongCloudIMLib.h */; };
 		EF631A991CC22A4600AC9715 /* RCTRongCloudIMLib.m in Sources */ = {isa = PBXBuildFile; fileRef = EF631A981CC22A4600AC9715 /* RCTRongCloudIMLib.m */; };
 /* End PBXBuildFile section */
@@ -63,9 +63,9 @@
 		A4FDDBC61FE7B88A008557F1 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		A4FDDBC81FE7B891008557F1 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
 		A4FDDBCA1FE7B899008557F1 /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
-		A4FDDC0D1FE7BD98008557F1 /* RongIMLib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RongIMLib.framework; sourceTree = "<group>"; };
-		A4FDDC0E1FE7BD98008557F1 /* libopencore-amrnb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libopencore-amrnb.a"; sourceTree = "<group>"; };
-		A4FDDC0F1FE7BD98008557F1 /* RCConfig.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = RCConfig.plist; sourceTree = "<group>"; };
+		A4FDDC3F1FE7C2A6008557F1 /* RCConfig.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = RCConfig.plist; sourceTree = "<group>"; };
+		A4FDDC401FE7C2A7008557F1 /* RongIMLib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RongIMLib.framework; sourceTree = "<group>"; };
+		A4FDDC411FE7C2A7008557F1 /* libopencore-amrnb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libopencore-amrnb.a"; sourceTree = "<group>"; };
 		EF631A931CC22A4600AC9715 /* libRCTRongCloudIMLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTRongCloudIMLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF631A961CC22A4600AC9715 /* RCTRongCloudIMLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTRongCloudIMLib.h; sourceTree = "<group>"; };
 		EF631A981CC22A4600AC9715 /* RCTRongCloudIMLib.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTRongCloudIMLib.m; sourceTree = "<group>"; };
@@ -76,7 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A4FDDC101FE7BD98008557F1 /* RongIMLib.framework in Frameworks */,
+				A4FDDC421FE7C2A7008557F1 /* RongIMLib.framework in Frameworks */,
 				A4FDDBCB1FE7B899008557F1 /* Photos.framework in Frameworks */,
 				A4FDDBC91FE7B891008557F1 /* SafariServices.framework in Frameworks */,
 				A4FDDBC71FE7B88A008557F1 /* AssetsLibrary.framework in Frameworks */,
@@ -89,7 +89,7 @@
 				A4FDDBB91FE7B84D008557F1 /* CoreMedia.framework in Frameworks */,
 				A4FDDBB71FE7B846008557F1 /* CoreTelephony.framework in Frameworks */,
 				A4FDDBB51FE7B83D008557F1 /* CoreVideo.framework in Frameworks */,
-				A4FDDC111FE7BD98008557F1 /* libopencore-amrnb.a in Frameworks */,
+				A4FDDC431FE7C2A7008557F1 /* libopencore-amrnb.a in Frameworks */,
 				A4FDDBB31FE7B837008557F1 /* ImageIO.framework in Frameworks */,
 				A4FDDBB11FE7B82C008557F1 /* MapKit.framework in Frameworks */,
 				A4FDDBAF1FE7B823008557F1 /* OpenGLES.framework in Frameworks */,
@@ -127,16 +127,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		A4FDDC0C1FE7BD98008557F1 /* lib */ = {
-			isa = PBXGroup;
-			children = (
-				A4FDDC0D1FE7BD98008557F1 /* RongIMLib.framework */,
-				A4FDDC0E1FE7BD98008557F1 /* libopencore-amrnb.a */,
-				A4FDDC0F1FE7BD98008557F1 /* RCConfig.plist */,
-			);
-			path = lib;
-			sourceTree = "<group>";
-		};
 		EF631A8A1CC22A4500AC9715 = {
 			isa = PBXGroup;
 			children = (
@@ -157,7 +147,9 @@
 		EF631A951CC22A4600AC9715 /* RCTRongCloudIMLib */ = {
 			isa = PBXGroup;
 			children = (
-				A4FDDC0C1FE7BD98008557F1 /* lib */,
+				A4FDDC411FE7C2A7008557F1 /* libopencore-amrnb.a */,
+				A4FDDC3F1FE7C2A6008557F1 /* RCConfig.plist */,
+				A4FDDC401FE7C2A7008557F1 /* RongIMLib.framework */,
 				EF631A961CC22A4600AC9715 /* RCTRongCloudIMLib.h */,
 				EF631A981CC22A4600AC9715 /* RCTRongCloudIMLib.m */,
 			);
@@ -310,10 +302,10 @@
 		EF631A9D1CC22A4600AC9715 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/RCTRongCloudIMLib/lib";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/RCTRongCloudIMLib";
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../react-native/React";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/RCTRongCloudIMLib/lib";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/RCTRongCloudIMLib";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -323,10 +315,10 @@
 		EF631A9E1CC22A4600AC9715 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/RCTRongCloudIMLib/lib";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/RCTRongCloudIMLib";
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../react-native/React";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/RCTRongCloudIMLib/lib";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/RCTRongCloudIMLib";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
