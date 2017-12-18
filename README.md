@@ -33,7 +33,7 @@ add framework
 - libsqlite3.tbd
 
 add framework search paths & library search paths
-- $(PROJECT_DIR)/../node_modules/react-native-lomocoin-rongcloud/ios/lib
+- $(PROJECT_DIR)/../node_modules/react-native-lomocoin-rongcloud/ios/RCTRongCloudIMLib
 
 ## Import
 ```
