@@ -109,7 +109,28 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
     
 }
 
-#pragma mark  RongCloud  GetMessagesFromLocal
+#pragma mark RongCloud  Unread Message
+
+RCT_EXPORT_METHOD(getTotalUnreadCount:(RCTResponseSenderBlock)callback) {
+    
+    int totalUnreadCount = [[self getClient] getTotalUnreadCount];
+    callback(@[[NSNull null], totalUnreadCount]);
+}
+
+RCT_EXPORT_METHOD(getTargetUnreadCount:(int)type
+                  targetId:(NSString *)targetId
+                  callback:(RCTResponseSenderBlock)callback) {
+    
+    int unreadCount = [[self getClient] getUnreadCount:type targetId:targetId];
+    callback(@[[NSNull null], unreadCount]);
+}
+
+RCT_EXPORT_METHOD(getConversationsUnreadCount:(NSArray *)types
+                  callback:(RCTResponseSenderBlock)callback) {
+    
+    int unreadCount = [[self getClient] getUnreadCount:types];
+    callback(@[[NSNull null], unreadCount]);
+}
 
 RCT_EXPORT_METHOD(clearUnreadMessage:(int)type
                   targetId:(NSString *)targetId) {
@@ -131,6 +152,7 @@ RCT_EXPORT_METHOD(clearUnreadMessage:(int)type
     [[self getClient] clearMessagesUnreadStatus:conversationType targetId:targetId];
 }
 
+#pragma mark  RongCloud  GetMessagesFromLocal
 
 RCT_REMAP_METHOD(getConversationList,
                  resolve:(RCTPromiseResolveBlock)resolve

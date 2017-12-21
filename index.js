@@ -44,6 +44,17 @@ export default {
     connectWithToken(token) {
         return RongCloudIMLib.connectWithToken(token);
     },
+    getTotalUnreadCount() {
+        return RongCloudIMLib.getTotalUnreadCount();
+    },
+    getTargetUnreadCount(conversationType, targetId) {
+    	// 获取某个会话类型的target 的未读消息数
+        return RongCloudIMLib.getTargetUnreadCount(conversationType, targetId);
+    },
+    getConversationsUnreadCount(conversationTypes) {
+    	// 获取某些会话类型（conversationTypes为数组）的未读消息数
+        return RongCloudIMLib.getConversationsUnreadCount(conversationTypes);
+    },
     clearUnreadMessage(conversationType, targetId){
         return RongCloudIMLib.clearUnreadMessage(conversationType, targetId);
     },
