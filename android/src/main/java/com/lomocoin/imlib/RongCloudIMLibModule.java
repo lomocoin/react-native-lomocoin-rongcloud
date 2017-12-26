@@ -1,5 +1,6 @@
 package com.lomocoin.imlib;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -729,6 +730,73 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                     }else{
                         promise.resolve(false);
                     }
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject("error", "error");
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    @ReactMethod
+    public void getTotalUnreadCount(final Promise promise) {
+        try {
+            RongIMClient.getInstance().getTotalUnreadCount(new ResultCallback<Integer>() {
+                @Override
+                public void onSuccess(Integer integer) {
+                    promise.resolve(integer);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject("error", "error");
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    // 获取某个会话类型的target 的未读消息数
+    @ReactMethod
+    public void getTargetUnreadCount(int mType, String targetId,final Promise promise) {
+        try {
+            ConversationType type = formatConversationType(mType);
+            RongIMClient.getInstance().getUnreadCount(type, targetId, new ResultCallback<Integer>() {
+                @Override
+                public void onSuccess(Integer integer) {
+                    promise.resolve(integer);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject("error", "error");
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    // 获取某些会话类型（conversationTypes为数组）的未读消息数
+    @ReactMethod
+    public void getConversationsUnreadCount(int[] conversationTypes,final Promise promise) {
+        try {
+            List<ConversationType> lists = new ArrayList<>();
+            for(int t : conversationTypes){
+                ConversationType type = formatConversationType(t);
+                lists.add(type);
+            }
+            ConversationType[] types = (ConversationType[])lists.toArray(new ConversationType[lists.size()]);
+
+            RongIMClient.getInstance().getUnreadCount(types, new ResultCallback<Integer>() {
+                @Override
+                public void onSuccess(Integer integer) {
+                    promise.resolve(integer);
                 }
 
                 @Override
