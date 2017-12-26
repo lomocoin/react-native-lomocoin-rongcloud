@@ -114,7 +114,7 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
 RCT_EXPORT_METHOD(getTotalUnreadCount:(RCTResponseSenderBlock)callback) {
     
     int totalUnreadCount = [[self getClient] getTotalUnreadCount];
-    callback(@[[NSNull null], totalUnreadCount]);
+    callback(@[[NSNull null], @(totalUnreadCount)]);
 }
 
 RCT_EXPORT_METHOD(getTargetUnreadCount:(int)type
@@ -122,14 +122,14 @@ RCT_EXPORT_METHOD(getTargetUnreadCount:(int)type
                   callback:(RCTResponseSenderBlock)callback) {
     
     int unreadCount = [[self getClient] getUnreadCount:type targetId:targetId];
-    callback(@[[NSNull null], unreadCount]);
+    callback(@[[NSNull null], @(unreadCount)]);
 }
 
 RCT_EXPORT_METHOD(getConversationsUnreadCount:(NSArray *)types
                   callback:(RCTResponseSenderBlock)callback) {
     
     int unreadCount = [[self getClient] getUnreadCount:types];
-    callback(@[[NSNull null], unreadCount]);
+    callback(@[[NSNull null], @(unreadCount)]);
 }
 
 RCT_EXPORT_METHOD(clearUnreadMessage:(int)type
