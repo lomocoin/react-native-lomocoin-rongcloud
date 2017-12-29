@@ -732,7 +732,7 @@ RCT_REMAP_METHOD(screenGlobalNotification,
     [[self getClient] setNotificationQuietHours:@"00:00:00" spanMins:1439 success:successBlock error:errorBlock];
 }
 
-RCT_REMAP_METHOD(removeGlobalNotification,
+RCT_REMAP_METHOD(removeScreenOfGlobalNotification,
                  removeResolver:(RCTPromiseResolveBlock)resolve
                  removeRejecter:(RCTPromiseRejectBlock)reject) {
     

@@ -698,9 +698,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         }
     }
 
-    //移除全局新消息提醒
+    //移除全局新消息屏蔽
     @ReactMethod
-    public void removeGlobalNotification(final Promise promise) {
+    public void removeScreenOfGlobalNotification(final Promise promise) {
         try {
             RongIMClient.getInstance().removeNotificationQuietHours(new RongIMClient.OperationCallback() {
                 @Override

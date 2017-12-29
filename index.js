@@ -100,9 +100,9 @@ export default {
     	//屏蔽全局新消息提醒
     	return RongCloudIMLib.screenGlobalNotification();
     },
-    removeGlobalNotification() {
-    	//移除全局新消息提醒
-    	return RongCloudIMLib.removeGlobalNotification();
+    removeScreenOfGlobalNotification() {
+    	//移除全局新消息屏蔽
+    	return RongCloudIMLib.removeScreenOfGlobalNotification();
     },
     getGlobalNotificationStatus() {
     	//获取全局新消息提醒状态 （return  true:(全局消息屏蔽)  false:(全局新消息提醒)）
