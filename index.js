@@ -13,9 +13,9 @@ var _onRongCloudMessageReceived = function (resp) {
     console.log("融云接受消息:" + JSON.stringify(resp));
 }
 
-DeviceEventEmitter.addListener('onRongMessageReceived', (resp) => {
-    typeof (_onRongCloudMessageReceived) === 'function' && _onRongCloudMessageReceived(resp);
-});
+// DeviceEventEmitter.addListener('onRongMessageReceived', (resp) => {
+//     typeof (_onRongCloudMessageReceived) === 'function' && _onRongCloudMessageReceived(resp);
+// });
 
 const RongCloudIMLibEmitter = new NativeEventEmitter(RongCloudIMLib);
 

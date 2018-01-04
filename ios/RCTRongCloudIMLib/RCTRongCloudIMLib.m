@@ -111,25 +111,40 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
 
 #pragma mark RongCloud  Unread Message
 
-RCT_EXPORT_METHOD(getTotalUnreadCount:(RCTResponseSenderBlock)callback) {
+RCT_REMAP_METHOD(getTotalUnreadCount,
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 rejects:(RCTPromiseRejectBlock)rejects) {
     
     int totalUnreadCount = [[self getClient] getTotalUnreadCount];
-    callback(@[[NSNull null], @(totalUnreadCount)]);
+    if(totalUnreadCount){
+        resolve(@(totalUnreadCount));
+    }else{
+        rejects(@"获取失败",@"获取失败",nil);
+    }
 }
 
 RCT_EXPORT_METHOD(getTargetUnreadCount:(int)type
                   targetId:(NSString *)targetId
-                  callback:(RCTResponseSenderBlock)callback) {
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
     
     int unreadCount = [[self getClient] getUnreadCount:type targetId:targetId];
-    callback(@[[NSNull null], @(unreadCount)]);
+    if(unreadCount){
+        resolve(@(unreadCount));
+    }else{
+        reject(@"获取失败",@"获取失败",nil);
+    }
 }
 
 RCT_EXPORT_METHOD(getConversationsUnreadCount:(NSArray *)types
-                  callback:(RCTResponseSenderBlock)callback) {
-    
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
     int unreadCount = [[self getClient] getUnreadCount:types];
-    callback(@[[NSNull null], @(unreadCount)]);
+    if(unreadCount){
+        resolve(@(unreadCount));
+    }else{
+        reject(@"获取失败",@"获取失败",nil);
+    }
 }
 
 RCT_EXPORT_METHOD(clearUnreadMessage:(int)type
