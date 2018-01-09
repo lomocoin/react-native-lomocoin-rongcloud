@@ -108,8 +108,9 @@ export default {
     	//获取全局新消息提醒状态 （return  true:(全局消息屏蔽)  false:(全局新消息提醒)）
     	return RongCloudIMLib.getGlobalNotificationStatus();
     },
-    disconnect(disconnect) {
-        return RongCloudIMLib.disconnect(disconnect);
+    //isReceivePush-true 开启后台推送 false-关闭后台推送
+    disconnect(isReceivePush) {
+        return RongCloudIMLib.disconnect(isReceivePush);
     },
     logout(){
         return RongCloudIMLib.logout();
