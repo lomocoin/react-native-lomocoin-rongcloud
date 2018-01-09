@@ -120,11 +120,31 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             RongPushClient.registerFCM(context);
             String appId = FirebaseInstanceId.getInstance().getToken();
 //            FirebaseMessaging.getInstance().subscribeToTopic("testTopic");
-            Log.e("isme", "token:" + appId);
+            // Log.e("isme", "token:" + appId);
         } catch (RongException e) {
             // e.printStackTrace();
         }
         RongIMClient.init(context, appKey);
+    }
+
+    @ReactMethod
+    public void logout(final Promise promise) {
+        try {
+            RongIMClient.getInstance().logout();
+            promise.resolve("success");
+        }catch (Exception e){
+            promise.reject("error","error");
+        }
+    }
+
+    @ReactMethod
+    public void disconnect(final Promise promise) {
+        try {
+            RongIMClient.getInstance().disconnect();
+            promise.resolve("success");
+        }catch (Exception e){
+            promise.reject("error","error");
+        }
     }
 
     @ReactMethod
@@ -194,7 +214,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
              */
             @Override
             public void onSuccess(String userid) {
-                Log.e("isme", "rong 连接融云成功 userid:" + userid);
+                Log.e("isme", "连接融云成功");
                 WritableMap map = Arguments.createMap();
                 map.putString("userid", userid);
                 promise.resolve(map);

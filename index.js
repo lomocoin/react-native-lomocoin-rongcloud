@@ -41,6 +41,15 @@ export default {
     initWithAppKey(appKey) {
         return RongCloudIMLib.initWithAppKey(appKey);
     },
+
+    disconnect(){
+        return RongCloudIMLib.disconnect();
+    },
+
+    logout(){
+        return RongCloudIMLib.logout();
+    },
+
     connectWithToken(token) {
         return RongCloudIMLib.connectWithToken(token);
     },
