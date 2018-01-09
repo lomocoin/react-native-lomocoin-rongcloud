@@ -799,6 +799,9 @@ RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
     [[self getClient] disconnect:isReceivePush];
 }
 
+RCT_EXPORT_METHOD(logout) {
+    [[self getClient] logout];
+}
 
 #pragma mark  RongCloud  SDK methods
 
