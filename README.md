@@ -27,13 +27,13 @@ dependencies {
 ```
 
 ## iOS config
-add framework
+Build Phases -> Link Binary With Libraries -> add Other:
 - libopencore-amrnb.a
 - RongIMLib.framework
 - libsqlite3.tbd
 
 add framework search paths & library search paths
-- $(PROJECT_DIR)/../node_modules/react-native-lomocoin-rongcloud/ios/RCTRongCloudIMLib
+"$(SRCROOT)/../node_modules/react-native-lomocoin-rongcloud/ios/lib"
 
 ## Import
 ```
