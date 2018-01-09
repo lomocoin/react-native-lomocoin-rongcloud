@@ -138,9 +138,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void disconnect(final Promise promise) {
+    public void disconnect(boolean isReceivePush,final Promise promise) {
         try {
-            RongIMClient.getInstance().disconnect();
+            RongIMClient.getInstance().disconnect(isReceivePush);
             promise.resolve("success");
         }catch (Exception e){
             promise.reject("error","error");
@@ -458,11 +458,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         });
     }
 
-    @ReactMethod
-    public void disconnect(boolean isReceivePush) {
-        RongIMClient.getInstance().disconnect(isReceivePush);
-    }
-
+ 
     //开始播放
     @ReactMethod
     public void audioPlayStart(String filePath, Promise promise) {

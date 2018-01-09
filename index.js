@@ -41,15 +41,6 @@ export default {
     initWithAppKey(appKey) {
         return RongCloudIMLib.initWithAppKey(appKey);
     },
-
-    disconnect(){
-        return RongCloudIMLib.disconnect();
-    },
-
-    logout(){
-        return RongCloudIMLib.logout();
-    },
-
     connectWithToken(token) {
         return RongCloudIMLib.connectWithToken(token);
     },
@@ -119,6 +110,9 @@ export default {
     },
     disconnect(disconnect) {
         return RongCloudIMLib.disconnect(disconnect);
+    },
+    logout(){
+        return RongCloudIMLib.logout();
     },
     getFCMToken() {
         if(Platform.OS === 'android'){
