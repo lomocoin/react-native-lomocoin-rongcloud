@@ -1,8 +1,8 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 26
+    buildToolsVersion '27'
 
     defaultConfig {
         minSdkVersion 16
@@ -32,8 +32,16 @@ android {
 dependencies {
     // compile 'com.google.android.gms:play-services-gcm:8.4.0'
 //    compile 'com.google.android.gms:play-services-gcm:11.0.4'
+    compile 'com.android.support:support-compat:27.0.0'
     compile 'com.google.firebase:firebase-messaging:11.0.4'
     compile 'com.facebook.react:react-native:+'
     compile files('libs/Rong_IMLib.jar')
+}
+
+repositories { flatDir { dirs '../push/aars' }
+    maven {
+        url 'https://maven.google.com/'
+        name 'Google'
+    }
 }
 

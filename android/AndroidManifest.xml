@@ -2,8 +2,8 @@
     package="com.lomocoin.imlib">
 
     <uses-sdk
-        android:minSdkVersion="15"
-        android:targetSdkVersion="20" />
+        android:minSdkVersion="16"
+        android:targetSdkVersion="23" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -39,38 +39,6 @@
             </intent-filter>
         </receiver>
 
-
-        <!-- GCM 配置 < -->
-        <!--<receiver-->
-            <!--android:name="com.google.android.gms.gcm.GcmReceiver"-->
-            <!--android:exported="true"-->
-            <!--android:permission="com.google.android.c2dm.permission.SEND">-->
-            <!--<intent-filter>-->
-                <!--&lt;!&ndash; for Gingerbread GSF backward compat &ndash;&gt;-->
-                <!--<action android:name="com.google.android.c2dm.intent.REGISTRATION" />-->
-                <!--<action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
-
-                <!--<category android:name="com.lomocoin.lomocoin" />-->
-                <!--&lt;!&ndash; 替换为自己的packagename < &ndash;&gt;-->
-            <!--</intent-filter>-->
-        <!--</receiver>-->
-
-
-        <!--<service-->
-            <!--android:name="io.rong.push.platform.RongGcmListenerService"-->
-            <!--android:exported="false">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
-            <!--</intent-filter>-->
-        <!--</service>-->
-        <!--<service-->
-            <!--android:name="io.rong.push.platform.RongGCMInstanceIDListenerService"-->
-            <!--android:exported="false">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="com.google.android.gms.iid.InstanceID" />-->
-            <!--</intent-filter>-->
-        <!--</service>-->
-        <!-- GCM 配置结束 < -->
         <!-- [START firebase_service] -->
         <service
             android:name="io.rong.push.platform.RongFirebaseMessagingService"
