@@ -105,7 +105,7 @@ export default {
     	return RongCloudIMLib.removeScreenOfGlobalNotification();
     },
     getGlobalNotificationStatus() {
-    	//获取全局新消息提醒状态 （return  true:(全局新消息提醒)  false:(全局消息屏蔽)）
+    	//获取全局新消息提醒状态 （ return  0:（屏蔽） 1:（新消息提醒））
     	return RongCloudIMLib.getGlobalNotificationStatus();
     },
     //isReceivePush-true 开启后台推送 false-关闭后台推送
