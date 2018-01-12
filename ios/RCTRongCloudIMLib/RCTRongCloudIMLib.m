@@ -772,9 +772,9 @@ RCT_REMAP_METHOD(getGlobalNotificationStatus,
     successBlock = ^(NSString *startTime, int spansMin) {
         
         if(spansMin > 0){
-            resolve(@(YES));
-        }else{
             resolve(@(NO));
+        }else{
+            resolve(@(YES));
         }
     };
     
