@@ -168,7 +168,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                     public void run() {
                         try {
                             Activity activity = getCurrentActivity();
-                            if (isBackground(activity)) {
+//                            if (isBackground(activity)) {
+                            //关闭 按home键后的消息提醒
+                            if (false) {
                                 Uri.Builder builder = Uri.parse("rong://" + activity.getPackageName()).buildUpon();
 
                                 builder.appendPath("conversation").appendPath("lomostar")
@@ -194,7 +196,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                     }
                 });
 
-
+                
                 return true;
             }
         });
@@ -667,7 +669,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         }
     }
 
-    //获取会话消息提醒状态  （return  0:（屏蔽） 1:（新消息提醒））
+    //获取会话消息提醒状态  （return true:（新消息提醒） false:（屏蔽） ）
     @ReactMethod
     public void getConversationNotificationStatus(int mType, String targetId, final Promise promise) {
         try {
@@ -675,11 +677,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
             RongIMClient.getInstance().getConversationNotificationStatus(type, targetId, new ResultCallback<Conversation.ConversationNotificationStatus>() {
                 @Override
-                public void onSuccess(Conversation.ConversationNotificationStatus conversationNotificationStatus) {
-                    String state = conversationNotificationStatus ==
-                            Conversation.ConversationNotificationStatus.DO_NOT_DISTURB ?
-                            "0" : "1";
-                    promise.resolve(state);
+                public void onSuccess(Conversation.ConversationNotificationStatus state) {
+                    boolean isNotify = state == Conversation.ConversationNotificationStatus.NOTIFY;
+                    promise.resolve(isNotify);//true 提醒 fasle屏蔽
                 }
 
                 @Override
@@ -734,7 +734,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         }
     }
 
-    ////获取全局新消息提醒状态 （return  true:(全局消息屏蔽)  false:(全局新消息提醒)）
+    ////获取全局新消息提醒状态 （return  false:(全局消息屏蔽)  true:(全局新消息提醒)）
     @ReactMethod
     public void getGlobalNotificationStatus(final Promise promise) {
         try {
@@ -742,9 +742,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 @Override
                 public void onSuccess(String s, int i) {
                     if(i > 0){
-                        promise.resolve(true);
-                    }else{
                         promise.resolve(false);
+                    }else{
+                        promise.resolve(true);
                     }
                 }
 
