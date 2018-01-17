@@ -736,7 +736,7 @@ RCT_REMAP_METHOD(screenGlobalNotification,
     
     void (^successBlock)();
     successBlock = ^() {
-        resolve(@(YES));
+        resolve(@"success");
     };
     
     void (^errorBlock)(RCErrorCode nErrorCode);
@@ -753,7 +753,7 @@ RCT_REMAP_METHOD(removeScreenOfGlobalNotification,
     
     void (^successBlock)();
     successBlock = ^() {
-        resolve(@(YES));
+        resolve(@"success");
     };
     
     void (^errorBlock)(RCErrorCode nErrorCode);
@@ -772,9 +772,9 @@ RCT_REMAP_METHOD(getGlobalNotificationStatus,
     successBlock = ^(NSString *startTime, int spansMin) {
         
         if(spansMin > 0){
-            resolve(@(NO));
+            resolve(@(0));
         }else{
-            resolve(@(YES));
+            resolve(@(1));
         }
     };
     
