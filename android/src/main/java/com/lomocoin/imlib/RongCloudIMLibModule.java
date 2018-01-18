@@ -485,9 +485,13 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void clearUnreadMessage(int mType, String targetId, Promise promise) {
-        ConversationType type = formatConversationType(mType);
-        boolean is = RongIMClient.getInstance().clearMessagesUnreadStatus(type, targetId);
-        promise.resolve(is);
+        try {
+            ConversationType type = formatConversationType(mType);
+            boolean is = RongIMClient.getInstance().clearMessagesUnreadStatus(type, targetId);
+            promise.resolve(is);
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
     }
 
     //停止播放
