@@ -522,7 +522,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         msg.putString("receivedTime", message.getReceivedTime() + "");
         msg.putString("sentTime", message.getSentTime() + "");
         msg.putString("senderUserId", message.getSenderUserId());
-        msg.putString("messageUId", "");
+        msg.putString("messageUId", message.getUId());
         msg.putInt("messageDirection", message.getMessageDirection().getValue());
 
         if (message.getContent() instanceof TextMessage) {
