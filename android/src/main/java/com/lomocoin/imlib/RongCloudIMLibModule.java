@@ -314,7 +314,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                             TextMessage textMessage = (TextMessage) message;
                             msg.putString("lastestMessage", textMessage.getContent());
                             msg.putString("msgType", "text");
-                        } else if (message instanceof RichContentMessage) {
+                        } else if (message instanceof RichContentMessage || message instanceof ImageMessage) {
                             msg.putString("msgType", "image");
                         } else if (message instanceof VoiceMessage) {
                             msg.putString("msgType", "voice");
@@ -355,7 +355,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                             TextMessage textMessage = (TextMessage) message;
                             msg.putString("lastestMessage", textMessage.getContent());
                             msg.putString("msgType", "text");
-                        } else if (message instanceof RichContentMessage) {
+                        } else if (message instanceof RichContentMessage || message instanceof ImageMessage) {
                             msg.putString("msgType", "image");
                         } else if (message instanceof VoiceMessage) {
                             msg.putString("msgType", "voice");
