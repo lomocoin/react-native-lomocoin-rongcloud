@@ -216,61 +216,102 @@ RCT_REMAP_METHOD(getLatestMessages,
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject) {
     
-    RCConversationType conversationType;
-    switch (type) {
-        case 1:
-            conversationType = ConversationType_PRIVATE;
-            break;
-        case 3:
-            conversationType = ConversationType_GROUP;
-            break;
-            
-        default:
-            conversationType = ConversationType_PRIVATE;
-            break;
-    }
+    RCConversationType conversationType = [self getMessageType:type];
     
     NSArray * messageList = [[self getClient] getLatestMessages:conversationType targetId:targetId count:count];
     if(messageList){
-        NSMutableArray * array = [NSMutableArray new];
-        for (RCMessage * message in messageList) {
-            NSMutableDictionary * dict = [NSMutableDictionary new];
-            dict[@"conversationType"] = @((unsigned long)message.conversationType);
-            dict[@"targetId"] = message.targetId;
-            dict[@"messageId"] = @(message.messageId);
-            dict[@"receivedTime"] = @((long long)message.receivedTime);
-            dict[@"sentTime"] = @((long long)message.sentTime);
-            dict[@"senderUserId"] = message.senderUserId;
-            dict[@"messageUId"] = message.messageUId;
-            dict[@"messageDirection"] = @(message.messageDirection);
-            
-            if([message.content isKindOfClass:[RCTextMessage class]]){
-                RCTextMessage *textMsg = (RCTextMessage *)message.content;
-                dict[@"type"] = @"text";
-                dict[@"content"] = textMsg.content;
-                dict[@"extra"] = textMsg.extra;
-            }
-            else if ([message.content isKindOfClass:[RCImageMessage class]]){
-                RCImageMessage *imageMsg = (RCImageMessage *)message.content;
-                dict[@"type"] = @"image";
-                dict[@"imageUrl"] = imageMsg.imageUrl;
-                dict[@"extra"] = imageMsg.extra;
-            }
-            else if ([message.content isKindOfClass:[RCVoiceMessage class]]){
-                RCVoiceMessage *voiceMsg = (RCVoiceMessage *)message.content;
-                dict[@"type"] = @"voice";
-                dict[@"wavAudioData"] = [self saveWavAudioDataToSandbox:voiceMsg.wavAudioData messageId:message.messageId];
-                dict[@"duration"] = @(voiceMsg.duration);
-                dict[@"extra"] = voiceMsg.extra;
-            }
-            [array addObject:dict];
-        }
         NSLog(@"MessagesList === %@",array);
-        resolve(array);
-        
+        resolve([self getMessageList:messageList]);
     }
     else{
         reject(@"读取失败", @"读取失败", nil);
+    }
+}
+
+RCT_REMAP_METHOD(getHistoryMessages,
+                 type:(int)type
+                 targetId:(NSString *)targetId
+                 oldestMessageId:(int)oldestMessageId
+                 count:(int)count
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getMessageType:type];
+    
+    NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId oldestMessageId:oldestMessageId count:count];
+    if(messageList){
+        resolve([self getMessageList:messageList]);
+    }
+    else{
+    reject(@"读取失败", @"读取失败", nil);
+    }
+}
+
+RCT_REMAP_METHOD(getDesignatedTypeHistoryMessages,
+                 type:(int)type
+                 targetId:(NSString *)targetId
+                 objectName:(NSString *)objectName
+                 oldestMessageId:(int)oldestMessageId
+                 count:(int)count
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getMessageType:type];
+    
+    NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId objectName:objectName oldestMessageId:oldestMessageId count:count];
+    if(messageList){
+        resolve([self getMessageList:messageList]);
+    }
+    else{
+        reject(@"读取失败", @"读取失败", nil);
+    }
+}
+
+- (NSMutableArray *)getMessageList:(NSArray *)messageList{
+    NSMutableArray * array = [NSMutableArray new];
+    for (RCMessage * message in messageList) {
+        NSMutableDictionary * dict = [NSMutableDictionary new];
+        dict[@"conversationType"] = @((unsigned long)message.conversationType);
+        dict[@"targetId"] = message.targetId;
+        dict[@"messageId"] = @(message.messageId);
+        dict[@"receivedTime"] = @((long long)message.receivedTime);
+        dict[@"sentTime"] = @((long long)message.sentTime);
+        dict[@"senderUserId"] = message.senderUserId;
+        dict[@"messageUId"] = message.messageUId;
+        dict[@"messageDirection"] = @(message.messageDirection);
+        
+        if([message.content isKindOfClass:[RCTextMessage class]]){
+            RCTextMessage *textMsg = (RCTextMessage *)message.content;
+            dict[@"type"] = @"text";
+            dict[@"content"] = textMsg.content;
+            dict[@"extra"] = textMsg.extra;
+        }
+        else if ([message.content isKindOfClass:[RCImageMessage class]]){
+            RCImageMessage *imageMsg = (RCImageMessage *)message.content;
+            dict[@"type"] = @"image";
+            dict[@"imageUrl"] = imageMsg.imageUrl;
+            dict[@"extra"] = imageMsg.extra;
+        }
+        else if ([message.content isKindOfClass:[RCVoiceMessage class]]){
+            RCVoiceMessage *voiceMsg = (RCVoiceMessage *)message.content;
+            dict[@"type"] = @"voice";
+            dict[@"wavAudioData"] = [self saveWavAudioDataToSandbox:voiceMsg.wavAudioData messageId:message.messageId];
+            dict[@"duration"] = @(voiceMsg.duration);
+            dict[@"extra"] = voiceMsg.extra;
+        }
+        [array addObject:dict];
+    }
+    return array;
+}
+
+- (NSUInteger)getMessageType:(int)type{
+    switch (type) {
+        case 1:
+            return ConversationType_PRIVATE;
+        case 3:
+            return ConversationType_GROUP;
+        default:
+            return ConversationType_PRIVATE;
     }
 }
 
@@ -906,4 +947,3 @@ RCT_EXPORT_METHOD(logout) {
 
 
 @end
-

@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import io.rong.imlib.IRongCallback;
+import io.rong.imlib.RongCommonDefine;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.RongIMClient.ResultCallback;
 import io.rong.imlib.model.Conversation;
@@ -196,7 +197,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                     }
                 });
 
-                
+
                 return true;
             }
         });
@@ -277,6 +278,109 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             }
         });
     }
+
+    @ReactMethod
+    public void getHistoryMessages(int mType, String targetId, int oldestMessageId, int count, final Promise promise){
+        ConversationType type = formatConversationType(mType);
+        RongIMClient.getInstance().getHistoryMessages(type, targetId, oldestMessageId, count, new ResultCallback<List<Message>>() {
+            @Override
+            public void onSuccess(List<Message> messages) {
+                WritableArray data = Arguments.createArray();
+
+                if (messages != null && !messages.isEmpty()) {
+                    for (int i = 0; i < messages.size(); i++) {
+                        Message message = messages.get(i);
+                        WritableMap item = formatMessage(message);
+                        data.pushMap(item);
+                    }
+                }
+                promise.resolve(data);
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode errorCode) {
+                promise.reject(errorCode.getValue() + "", errorCode.getMessage());
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getDesignatedTypeHistoryMessages(int mType, String targetId, String objectName, int oldestMessageId, int count, final Promise promise){
+        ConversationType type = formatConversationType(mType);
+        RongIMClient.getInstance().getHistoryMessages(type, targetId, objectName, oldestMessageId, count, new ResultCallback<List<Message>>() {
+            @Override
+            public void onSuccess(List<Message> messages) {
+                WritableArray data = Arguments.createArray();
+
+                if (messages != null && !messages.isEmpty()) {
+                    for (int i = 0; i < messages.size(); i++) {
+                        Message message = messages.get(i);
+                        WritableMap item = formatMessage(message);
+                        data.pushMap(item);
+                    }
+                }
+                promise.resolve(data);
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode errorCode) {
+                promise.reject(errorCode.getValue() + "", errorCode.getMessage());
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getDesignatedDirectionypeHistoryMessages(int mType, String targetId, String objectName, int baseMessageId, int count, int direction, final Promise promise){
+        ConversationType type = formatConversationType(mType);
+
+        RongIMClient.getInstance().getHistoryMessages(type, targetId, objectName, baseMessageId, count, getMessageDirection(direction), new ResultCallback<List<Message>>() {
+            @Override
+            public void onSuccess(List<Message> messages) {
+                WritableArray data = Arguments.createArray();
+
+                if (messages != null && !messages.isEmpty()) {
+                    for (int i = 0; i < messages.size(); i++) {
+                        Message message = messages.get(i);
+                        WritableMap item = formatMessage(message);
+                        data.pushMap(item);
+                    }
+                }
+                promise.resolve(data);
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode errorCode) {
+                promise.reject(errorCode.getValue() + "", errorCode.getMessage());
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getBaseOnSentTimeHistoryMessages(int mType, String targetId, long sentTime, int before, int after, final Promise promise){
+        ConversationType type = formatConversationType(mType);
+
+        RongIMClient.getInstance().getHistoryMessages(type, targetId, sentTime, before, after, new ResultCallback<List<Message>>() {
+            @Override
+            public void onSuccess(List<Message> messages) {
+                WritableArray data = Arguments.createArray();
+
+                if (messages != null && !messages.isEmpty()) {
+                    for (int i = 0; i < messages.size(); i++) {
+                        Message message = messages.get(i);
+                        WritableMap item = formatMessage(message);
+                        data.pushMap(item);
+                    }
+                }
+                promise.resolve(data);
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode errorCode) {
+                promise.reject(errorCode.getValue() + "", errorCode.getMessage());
+            }
+        });
+    }
+
 
     @ReactMethod
     public void searchConversations(String keyWord, final Promise promise) {
@@ -460,7 +564,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         });
     }
 
- 
+
     //开始播放
     @ReactMethod
     public void audioPlayStart(String filePath, Promise promise) {
@@ -843,5 +947,13 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             default:
                 return ConversationType.GROUP;
         }
+    }
+
+    private RongCommonDefine.GetMessageDirection getMessageDirection(int direction){
+        if(direction == RongCommonDefine.GetMessageDirection.BEHIND.ordinal()){
+            return  RongCommonDefine.GetMessageDirection.BEHIND;
+        }
+
+        return  RongCommonDefine.GetMessageDirection.FRONT;
     }
 }
