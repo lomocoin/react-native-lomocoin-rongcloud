@@ -52,7 +52,6 @@
 
 @property(nonatomic) int userTipTime;
 @property(nonatomic, strong) NSString *userTipWord;
-
 /*!
  * 评价时机
  */
@@ -62,7 +61,7 @@
  * 评价类型
  如果 evaType 为 RCCSEvaSeparately，发送机器人评价消息调用RCIMClient中evaluateCustomerService: knownledgeId: robotValue: suggest:
  发送人工评价消息调用RCIMClient中
- evaluateCustomerService: dialogId: humanValue: suggest:
+ evaluateCustomerService:dialogId:starValue:suggest:resolveStatus:tagText:extra:
  
  如果 evaType 为 EVA_UNIFIED，发送评价消息调用RCIMClient中
  evaluateCustomerService: dialogId: starValue: suggest: resolveStatus:
@@ -93,4 +92,14 @@
  * 默认留言样式
  */
 @property(nonatomic, copy) NSArray<RCCSLeaveMessageItem *> *leaveMessageNativeInfo;
+
+/*!
+ * 通告内容
+ */
+@property(nonatomic, copy) NSString *announceMsg;
+
+/*!
+ * 通告链接 url
+ */
+@property(nonatomic, copy) NSString *announceClickUrl;
 @end

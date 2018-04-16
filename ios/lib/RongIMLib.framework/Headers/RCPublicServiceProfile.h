@@ -109,10 +109,20 @@
  */
 @property(nonatomic, strong) NSDictionary *jsonDict;
 
+/**
+ 是否禁用公众号菜单
+ */
+@property (nonatomic,assign) BOOL disableMenu;
+
+/**
+ 是否禁用输入框
+ */
+@property (nonatomic,assign) BOOL disableInput;
+
 /*!
  初始化公众服务账号信息
 
- @param jsonContent    公众藏獒信息的json数据
+ @param jsonContent    公众账号信息的json数据
  */
 - (void)initContent:(NSString *)jsonContent;
 
