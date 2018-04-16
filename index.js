@@ -45,18 +45,18 @@ export default {
         return RongCloudIMLib.connectWithToken(token);
     },
     getTotalUnreadCount() {
-    	// 获取全部未读消息数量（此消息数量为SDK本地查询到的未读消息数（有可能包含已退出群组的消息数量））
+        // 获取全部未读消息数量（此消息数量为SDK本地查询到的未读消息数（有可能包含已退出群组的消息数量））
         return RongCloudIMLib.getTotalUnreadCount();
     },
     getTargetUnreadCount(conversationType, targetId) {
-    	// 获取某个会话类型的target 的未读消息数
+        // 获取某个会话类型的target 的未读消息数
         return RongCloudIMLib.getTargetUnreadCount(conversationType, targetId);
     },
     getConversationsUnreadCount(conversationTypes) {
-    	// 获取某些会话类型（conversationTypes为数组）的未读消息数（此消息数量为SDK本地查询到的未读消息数（有可能包含已退出群组的消息数量））
+        // 获取某些会话类型（conversationTypes为数组）的未读消息数（此消息数量为SDK本地查询到的未读消息数（有可能包含已退出群组的消息数量））
         return RongCloudIMLib.getConversationsUnreadCount(conversationTypes);
     },
-    clearUnreadMessage(conversationType, targetId){
+    clearUnreadMessage(conversationType, targetId) {
         return RongCloudIMLib.clearUnreadMessage(conversationType, targetId);
     },
     searchConversations(keyword) {
@@ -67,6 +67,20 @@ export default {
     },
     getLatestMessages(type, targetId, count) {
         return RongCloudIMLib.getLatestMessages(type, targetId, count);
+    },
+    getHistoryMessages(type, targetId, oldestMessageId, count) {
+        return RongCloudIMLib.getHistoryMessages(type, targetId, oldestMessageId, count);
+    },
+    getDesignatedTypeHistoryMessages(type, targetId, objectName, oldestMessageId, count) {
+        return RongCloudIMLib.getDesignatedTypeHistoryMessages(type, targetId, objectName, oldestMessageId, count);
+    },
+    //仅支持android
+    getDesignatedDirectionypeHistoryMessages(type, targetId, objectName, baseMessageId, count, direction) {
+        return RongCloudIMLib.getDesignatedDirectionypeHistoryMessages(type, targetId, objectName, baseMessageId, count, direction);
+    },
+    //仅支持android
+    getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after) {
+        return RongCloudIMLib.getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after);
     },
     sendTextMessage(conversationType, targetId, content, pushContent) {
         return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, pushContent);
@@ -90,39 +104,39 @@ export default {
         return RongCloudIMLib.audioPlayStop();
     },
     setConversationNotificationStatus(conversationType, targetId, isBlocked) {
-    	//设置会话消息提醒 isBlocked（true 屏蔽  false 新消息提醒）  （return  0:（屏蔽） 1:（新消息提醒））
-    	return RongCloudIMLib.setConversationNotificationStatus(conversationType, targetId, isBlocked);
+        //设置会话消息提醒 isBlocked（true 屏蔽  false 新消息提醒）  （return  0:（屏蔽） 1:（新消息提醒））
+        return RongCloudIMLib.setConversationNotificationStatus(conversationType, targetId, isBlocked);
     },
     getConversationNotificationStatus(conversationType, targetId) {
-    	//获取会话消息提醒状态  （return  0:（屏蔽） 1:（新消息提醒））
-    	return RongCloudIMLib.getConversationNotificationStatus(conversationType, targetId);
+        //获取会话消息提醒状态  （return  0:（屏蔽） 1:（新消息提醒））
+        return RongCloudIMLib.getConversationNotificationStatus(conversationType, targetId);
     },
     screenGlobalNotification() {
-    	//屏蔽全局新消息提醒
-    	return RongCloudIMLib.screenGlobalNotification();
+        //屏蔽全局新消息提醒
+        return RongCloudIMLib.screenGlobalNotification();
     },
     removeScreenOfGlobalNotification() {
-    	//移除全局新消息屏蔽
-    	return RongCloudIMLib.removeScreenOfGlobalNotification();
+        //移除全局新消息屏蔽
+        return RongCloudIMLib.removeScreenOfGlobalNotification();
     },
     getGlobalNotificationStatus() {
-    	//获取全局新消息提醒状态 （ return  0:（屏蔽） 1:（新消息提醒））
-    	return RongCloudIMLib.getGlobalNotificationStatus();
+        //获取全局新消息提醒状态 （ return  0:（屏蔽） 1:（新消息提醒））
+        return RongCloudIMLib.getGlobalNotificationStatus();
     },
     //isReceivePush-true 开启后台推送 false-关闭后台推送
     disconnect(isReceivePush) {
         return RongCloudIMLib.disconnect(isReceivePush);
     },
-    logout(){
+    logout() {
         return RongCloudIMLib.logout();
     },
     getFCMToken() {
-        if(Platform.OS === 'android'){
+        if (Platform.OS === 'android') {
             return RongCloudIMLib.getFCMToken();
-        }else{
+        } else {
             return '';
         }
     },
 
-    
+
 };
