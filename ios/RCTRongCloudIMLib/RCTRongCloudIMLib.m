@@ -220,7 +220,7 @@ RCT_REMAP_METHOD(getLatestMessages,
     
     NSArray * messageList = [[self getClient] getLatestMessages:conversationType targetId:targetId count:count];
     if(messageList){
-        NSLog(@"MessagesList === %@",array);
+        NSLog(@"MessagesList === %@",messageList);
         resolve([self getMessageList:messageList]);
     }
     else{
@@ -279,7 +279,7 @@ RCT_REMAP_METHOD(getDesignatedDirectionypeHistoryMessages,
     
     RCConversationType conversationType = [self getMessageType:type];
     
-    NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId objectName:objectName baseMessageId:oldestMessageId isForward:direction count:count];
+    NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId objectName:objectName baseMessageId:baseMessageId isForward:direction count:count];
     if(messageList){
         resolve([self getMessageList:messageList]);
     }
