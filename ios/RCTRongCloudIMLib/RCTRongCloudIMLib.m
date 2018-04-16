@@ -243,7 +243,7 @@ RCT_REMAP_METHOD(getHistoryMessages,
         resolve([self getMessageList:messageList]);
     }
     else{
-    reject(@"读取失败", @"读取失败", nil);
+        reject(@"读取失败", @"读取失败", nil);
     }
 }
 
@@ -259,6 +259,47 @@ RCT_REMAP_METHOD(getDesignatedTypeHistoryMessages,
     RCConversationType conversationType = [self getMessageType:type];
     
     NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId objectName:objectName oldestMessageId:oldestMessageId count:count];
+    if(messageList){
+        resolve([self getMessageList:messageList]);
+    }
+    else{
+        reject(@"读取失败", @"读取失败", nil);
+    }
+}
+
+RCT_REMAP_METHOD(getDesignatedDirectionypeHistoryMessages,
+                 type:(int)type
+                 targetId:(NSString *)targetId
+                 objectName:(NSString *)objectName
+                 baseMessageId:(int)baseMessageId
+                 count:(int)count
+                 direction:(BOOL)direction
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getMessageType:type];
+    
+    NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId objectName:objectName baseMessageId:oldestMessageId isForward:direction count:count];
+    if(messageList){
+        resolve([self getMessageList:messageList]);
+    }
+    else{
+        reject(@"读取失败", @"读取失败", nil);
+    }
+}
+
+RCT_REMAP_METHOD(getBaseOnSentTimeHistoryMessages,
+                 type:(int)type
+                 targetId:(NSString *)targetId
+                 sentTime:(long long)sentTime
+                 before:(int)before
+                 after:(int)after
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getMessageType:type];
+    
+    NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId sentTime:sentTime beforeCount:before afterCount:after];
     if(messageList){
         resolve([self getMessageList:messageList]);
     }

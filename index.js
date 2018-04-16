@@ -74,11 +74,9 @@ export default {
     getDesignatedTypeHistoryMessages(type, targetId, objectName, oldestMessageId, count) {
         return RongCloudIMLib.getDesignatedTypeHistoryMessages(type, targetId, objectName, oldestMessageId, count);
     },
-    //仅支持android
     getDesignatedDirectionypeHistoryMessages(type, targetId, objectName, baseMessageId, count, direction) {
         return RongCloudIMLib.getDesignatedDirectionypeHistoryMessages(type, targetId, objectName, baseMessageId, count, direction);
     },
-    //仅支持android
     getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after) {
         return RongCloudIMLib.getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after);
     },
@@ -137,6 +135,4 @@ export default {
             return '';
         }
     },
-
-
 };
