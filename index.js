@@ -59,6 +59,9 @@ export default {
     clearUnreadMessage(conversationType, targetId) {
         return RongCloudIMLib.clearUnreadMessage(conversationType, targetId);
     },
+    deleteTargetMessages(conversationType, targetId) {
+        return RongCloudIMLib.deleteTargetMessages(conversationType, targetId);
+    },
     searchConversations(keyword) {
         return RongCloudIMLib.searchConversations(keyword);
     },
@@ -80,17 +83,17 @@ export default {
     getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after) {
         return RongCloudIMLib.getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after);
     },
-    sendTextMessage(conversationType, targetId, content, pushContent) {
-        return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, pushContent);
+    sendTextMessage(conversationType, targetId, content, pushContent, extra) {
+        return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, pushContent, extra);
     },
-    sendImageMessage(conversationType, targetId, imageUrl, pushContent) {
-        return RongCloudIMLib.sendImageMessage(conversationType, targetId, imageUrl, pushContent);
+    sendImageMessage(conversationType, targetId, imageUrl, pushContent, extra) {
+        return RongCloudIMLib.sendImageMessage(conversationType, targetId, imageUrl, pushContent, extra);
     },
-    voiceBtnPressIn(conversationType, targetId, pushContent) {
-        return RongCloudIMLib.voiceBtnPressIn(conversationType, targetId, pushContent);
+    voiceBtnPressIn(conversationType, targetId, pushContent, extra) {
+        return RongCloudIMLib.voiceBtnPressIn(conversationType, targetId, pushContent, extra);
     },
-    voiceBtnPressOut(conversationType, targetId, pushContent) {
-        return RongCloudIMLib.voiceBtnPressOut(conversationType, targetId, pushContent);
+    voiceBtnPressOut(conversationType, targetId, pushContent, extra) {
+        return RongCloudIMLib.voiceBtnPressOut(conversationType, targetId, pushContent, extra);
     },
     voiceBtnPressCancel(conversationType, targetId) {
         return RongCloudIMLib.voiceBtnPressCancel(conversationType, targetId);

@@ -128,7 +128,8 @@ RCT_EXPORT_METHOD(getTargetUnreadCount:(int)type
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
-    int unreadCount = [[self getClient] getUnreadCount:type targetId:targetId];
+    RCConversationType conversationType = [self getConversationType:type];
+    int unreadCount = [[self getClient] getUnreadCount:conversationType targetId:targetId];
     if(unreadCount){
         resolve(@(unreadCount));
     }else{
@@ -150,19 +151,7 @@ RCT_EXPORT_METHOD(getConversationsUnreadCount:(NSArray *)types
 RCT_EXPORT_METHOD(clearUnreadMessage:(int)type
                   targetId:(NSString *)targetId) {
     
-    RCConversationType conversationType;
-    switch (type) {
-        case 1:
-            conversationType = ConversationType_PRIVATE;
-            break;
-        case 3:
-            conversationType = ConversationType_GROUP;
-            break;
-            
-        default:
-            conversationType = ConversationType_PRIVATE;
-            break;
-    }
+    RCConversationType conversationType = [self getConversationType:type];
     
     [[self getClient] clearMessagesUnreadStatus:conversationType targetId:targetId];
 }
@@ -216,7 +205,7 @@ RCT_REMAP_METHOD(getLatestMessages,
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject) {
     
-    RCConversationType conversationType = [self getMessageType:type];
+    RCConversationType conversationType = [self getConversationType:type];
     
     NSArray * messageList = [[self getClient] getLatestMessages:conversationType targetId:targetId count:count];
     if(messageList){
@@ -236,7 +225,7 @@ RCT_REMAP_METHOD(getHistoryMessages,
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject) {
     
-    RCConversationType conversationType = [self getMessageType:type];
+    RCConversationType conversationType = [self getConversationType:type];
     
     NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId oldestMessageId:oldestMessageId count:count];
     if(messageList){
@@ -256,7 +245,7 @@ RCT_REMAP_METHOD(getDesignatedTypeHistoryMessages,
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject) {
     
-    RCConversationType conversationType = [self getMessageType:type];
+    RCConversationType conversationType = [self getConversationType:type];
     
     NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId objectName:objectName oldestMessageId:oldestMessageId count:count];
     if(messageList){
@@ -277,7 +266,7 @@ RCT_REMAP_METHOD(getDesignatedDirectionypeHistoryMessages,
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject) {
     
-    RCConversationType conversationType = [self getMessageType:type];
+    RCConversationType conversationType = [self getConversationType:type];
     
     NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId objectName:objectName baseMessageId:baseMessageId isForward:direction count:count];
     if(messageList){
@@ -297,7 +286,7 @@ RCT_REMAP_METHOD(getBaseOnSentTimeHistoryMessages,
                  resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject) {
     
-    RCConversationType conversationType = [self getMessageType:type];
+    RCConversationType conversationType = [self getConversationType:type];
     
     NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId sentTime:sentTime beforeCount:before afterCount:after];
     if(messageList){
@@ -345,17 +334,6 @@ RCT_REMAP_METHOD(getBaseOnSentTimeHistoryMessages,
     return array;
 }
 
-- (NSUInteger)getMessageType:(int)type{
-    switch (type) {
-        case 1:
-            return ConversationType_PRIVATE;
-        case 3:
-            return ConversationType_GROUP;
-        default:
-            return ConversationType_PRIVATE;
-    }
-}
-
 - (NSString *)saveWavAudioDataToSandbox:(NSData *)data messageId:(NSInteger)msgId{
     
     NSFileManager * fileManager = [NSFileManager defaultManager];
@@ -375,6 +353,28 @@ RCT_REMAP_METHOD(getBaseOnSentTimeHistoryMessages,
     [fileManager createFileAtPath:filePath contents:data attributes:nil];
     
     return filePath;
+}
+
+#pragma mark  RongCloud  DeleteMessagesFromLocal
+
+RCT_EXPORT_METHOD(deleteTargetMessages:(int)type
+                  targetId:(NSString *)targetId
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    void (^successBlock)(void);
+    successBlock = ^() {
+        resolve(@"删除成功");
+    };
+    
+    void (^errorBlock)(RCErrorCode nErrorCode);
+    errorBlock = ^(RCErrorCode nErrorCode) {
+        reject(@"设置失败", @"设置失败", nil);
+    };
+    
+    [[self getClient] deleteMessages:conversationType targetId:targetId success:successBlock error:errorBlock];
 }
 
 #pragma mark  RongCloud  SearchMessagesFromLocal
@@ -427,10 +427,14 @@ RCT_EXPORT_METHOD(sendTextMessage:(int)type
                   targetId:(NSString *)targetId
                   content:(NSString *)content
                   pushContent:(NSString *)pushContent
+                  extra:(NSString *)extra
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
     RCTextMessage *messageContent = [RCTextMessage messageWithContent:content];
+    if(extra){
+        messageContent.extra = extra;
+    }
     [self sendMessage:type messageType:@"text" targetId:targetId content:messageContent pushContent:pushContent resolve:resolve reject:reject];
     
     
@@ -440,19 +444,23 @@ RCT_EXPORT_METHOD(sendImageMessage:(int)type
                   targetId:(NSString *)targetId
                   content:(NSString *)imageUrl
                   pushContent:(NSString *)pushContent
+                  extra:(NSString *)extra
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
     if([imageUrl rangeOfString:@"assets-library"].location == NSNotFound){
         RCImageMessage *imageMessage = [RCImageMessage messageWithImageURI:imageUrl];
+        if(extra){
+            imageMessage.extra = extra;
+        }
         [self sendMessage:type messageType:@"image" targetId:targetId content:imageMessage pushContent:pushContent resolve:resolve reject:reject];
     }
     else{
-        [self sendImageMessageWithType:type targetId:targetId ImageUrl:imageUrl pushContent:pushContent resolve:resolve reject:reject];
+        [self sendImageMessageWithType:type targetId:targetId ImageUrl:imageUrl pushContent:pushContent extra:extra resolve:resolve reject:reject];
     }
 }
 
-- (void)sendImageMessageWithType:(int)type targetId:(NSString *)targetId ImageUrl:(NSString *)imageUrl  pushContent:(NSString *)pushContent resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
+- (void)sendImageMessageWithType:(int)type targetId:(NSString *)targetId ImageUrl:(NSString *)imageUrl  pushContent:(NSString *)pushContent extra:(NSString *)extra resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
     
     ALAssetsLibrary   *lib = [[ALAssetsLibrary alloc] init];
     
@@ -466,7 +474,9 @@ RCT_EXPORT_METHOD(sendImageMessage:(int)type
         UIImage * scaledImage = [self scaleImageWithImage:image toSize:CGSizeMake(960, 960)]; // 融云推荐使用的大图尺寸为：960 x 960 像素
         
         RCImageMessage *imageMessage = [RCImageMessage messageWithImage:scaledImage];
-        
+        if(extra){
+            imageMessage.extra = extra;
+        }
         [self sendMessage:type messageType:@"image" targetId:targetId content:imageMessage pushContent:pushContent resolve:resolve reject:reject];
         
     } failureBlock:^(NSError *error) {
@@ -517,6 +527,7 @@ RCT_EXPORT_METHOD(sendImageMessage:(int)type
 RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
                   targetId:(NSString *)targetId
                   pushContent:(NSString *)pushContent
+                  extra:(NSString *)extra
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     NSLog(@"开始录音");
@@ -580,7 +591,7 @@ RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
                 
                 _longTimer = [NSTimer scheduledTimerWithTimeInterval:59.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
                     if(!_isSend){
-                        [self stopRecord:type targetId:targetId pushContent:pushContent resolve:resolve reject:reject];
+                        [self stopRecord:type targetId:targetId pushContent:pushContent extra:extra resolve:resolve reject:reject];
                     }
                 }];
             }
@@ -626,12 +637,13 @@ RCT_EXPORT_METHOD(voiceBtnPressCancel:(int)type
 RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
                   targetId:(NSString *)targetId
                   pushContent:(NSString *)pushContent
+                  extra:(NSString *)extra
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_main_queue(), ^{
         
         if(!_isSend){
-            [self stopRecord:type targetId:targetId pushContent:pushContent resolve:resolve reject:reject];
+            [self stopRecord:type targetId:targetId pushContent:pushContent extra:extra resolve:resolve reject:reject];
         }
     });
 }
@@ -639,6 +651,7 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
 - (void)stopRecord:(int)type
           targetId:(NSString *)targetId
        pushContent:(NSString *)pushContent
+             extra:(NSString *)extra
            resolve:(RCTPromiseResolveBlock)resolve
             reject:(RCTPromiseRejectBlock)reject{
     
@@ -663,7 +676,7 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
         _duration = (NSInteger)roundf(dataLong);
         
         NSData * audioData = [NSData dataWithContentsOfURL:self.recordFileUrl];
-        [self sendVoiceMessage:type targetId:targetId content:audioData duration:_duration pushContent:pushContent resolve:resolve reject:reject];
+        [self sendVoiceMessage:type targetId:targetId content:audioData duration:_duration pushContent:pushContent extra:extra resolve:resolve reject:reject];
         
         //发送完录音后，删除本地录音（融云会自动保存录音）
         NSString * filePath = self.recordFileUrl.absoluteString;
@@ -715,10 +728,14 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
                  content:(NSData *)voiceData
                 duration:(NSInteger )duration
              pushContent:(NSString *)pushContent
+                   extra:(NSString *)extra
                  resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject {
     
     RCVoiceMessage *rcVoiceMessage = [RCVoiceMessage messageWithAudio:voiceData duration:duration];
+    if (extra){
+        rcVoiceMessage.extra = extra;
+    }
     [self sendMessage:type messageType:@"voice" targetId:targetId content:rcVoiceMessage pushContent:pushContent resolve:resolve reject:reject];
     
 }
@@ -776,6 +793,8 @@ RCT_EXPORT_METHOD(setConversationNotificationStatus:(int)type
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
+    RCConversationType conversationType = [self getConversationType:type];
+    
     void (^successBlock)(NSUInteger RCConversationNotificationStatus);
     successBlock = ^(NSUInteger RCConversationNotificationStatus) {
         //0: 消息免打扰(DO_NOT_DISTURB)   1: 新消息提醒(NOTIFY)
@@ -787,7 +806,7 @@ RCT_EXPORT_METHOD(setConversationNotificationStatus:(int)type
         reject(@"设置失败", @"设置失败", nil);
     };
     
-    [[self getClient] setConversationNotificationStatus:type targetId:targetId isBlocked:isBlocked success:successBlock error:errorBlock];
+    [[self getClient] setConversationNotificationStatus:conversationType targetId:targetId isBlocked:isBlocked success:successBlock error:errorBlock];
     
 }
 
@@ -795,6 +814,8 @@ RCT_EXPORT_METHOD(getConversationNotificationStatus:(int)type
                   targetId:(NSString *)targetId
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getConversationType:type];
     
     void (^successBlock)(NSUInteger RCConversationNotificationStatus);
     successBlock = ^(NSUInteger RCConversationNotificationStatus) {
@@ -807,7 +828,7 @@ RCT_EXPORT_METHOD(getConversationNotificationStatus:(int)type
         reject(@"获取失败", @"获取失败", nil);
     };
     
-    [[self getClient] getConversationNotificationStatus:type targetId:targetId success:successBlock error:errorBlock];
+    [[self getClient] getConversationNotificationStatus:conversationType targetId:targetId success:successBlock error:errorBlock];
 }
 
 
@@ -891,6 +912,17 @@ RCT_EXPORT_METHOD(logout) {
     return [RCIMClient sharedRCIMClient];
 }
 
+- (NSUInteger)getConversationType:(int)type{
+    switch (type) {
+        case 1:
+            return ConversationType_PRIVATE;
+        case 3:
+            return ConversationType_GROUP;
+        default:
+            return ConversationType_PRIVATE;
+    }
+}
+
 -(void)sendMessage:(int)type
        messageType:(NSString *)messageType
           targetId:(NSString *)targetId
@@ -899,19 +931,7 @@ RCT_EXPORT_METHOD(logout) {
            resolve:(RCTPromiseResolveBlock)resolve
             reject:(RCTPromiseRejectBlock)reject {
     
-    RCConversationType conversationType;
-    switch (type) {
-        case 1:
-            conversationType = ConversationType_PRIVATE;
-            break;
-        case 3:
-            conversationType = ConversationType_GROUP;
-            break;
-            
-        default:
-            conversationType = ConversationType_PRIVATE;
-            break;
-    }
+    RCConversationType conversationType = [self getConversationType:type];
     
     void (^successBlock)(long messageId);
     successBlock = ^(long messageId) {
