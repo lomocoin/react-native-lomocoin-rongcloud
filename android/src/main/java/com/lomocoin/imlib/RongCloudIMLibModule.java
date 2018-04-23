@@ -61,6 +61,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     private String aPushContent = "";
     private Promise Apromise = null;
     private int Atype = 0;
+    private String extra = "";
 
     public void addAudioListener() {
         if (recoderUtils == null) {
@@ -93,7 +94,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 Apromise.reject("-500", "-500");
             } else {
                 int duration = (int) Math.ceil(time / 1000);
-                sendVoiceMessage(Atype, AtargId, filePath, duration, aPushContent, Apromise);
+                sendVoiceMessage(Atype, AtargId, filePath, duration, aPushContent,extra, Apromise);
             }
         } catch (Exception e) {
         }
@@ -479,8 +480,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sendTextMessage(int mType, String targetId, String content, String pushContent, final Promise promise) {
+    public void sendTextMessage(int mType, String targetId, String content, String pushContent,String extra, final Promise promise) {
         TextMessage textMessage = TextMessage.obtain(content);
+        textMessage.setExtra(extra);
         ConversationType type = formatConversationType(mType);
         String pushData = "";
         RongIMClient.getInstance().sendMessage(type, targetId, textMessage, pushContent, pushData, new IRongCallback.ISendMessageCallback() {
@@ -502,7 +504,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent, final Promise promise) {
+    public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent,String extra, final Promise promise) {
 
         imageUrl = ImgCompressUtils.compress(context, imageUrl);//压缩图片处理
 //        Log.e("isme","inthis: "+imageUrl);
@@ -516,7 +518,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
         Uri uri = Uri.parse(imageUrl);
         ImageMessage imageMessage = ImageMessage.obtain(uri, uri, true);
-
+        imageMessage.setExtra(extra);
         RongIMClient.getInstance().sendImageMessage(type, targetId, imageMessage, null, null, new RongIMClient.SendImageMessageCallback() {
             @Override
             public void onAttached(Message message) {
@@ -542,8 +544,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sendVoiceMessage(int mType, String targetId, String voiceData, int duration, String pushContent, final Promise promise) {
+    public void sendVoiceMessage(int mType, String targetId, String voiceData, int duration, String pushContent,String extra, final Promise promise) {
         VoiceMessage voiceMessage = VoiceMessage.obtain(Uri.parse(voiceData), duration);
+        voiceMessage.setExtra(extra);
         ConversationType type = formatConversationType(mType);
         String pushData = "";
         RongIMClient.getInstance().sendMessage(type, targetId, voiceMessage, pushContent, pushData, new IRongCallback.ISendMessageCallback() {
@@ -691,7 +694,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void voiceBtnPressIn(int mType, String targetId, String pushContent, final Promise promise) {
+    public void voiceBtnPressIn(int mType, String targetId, String pushContent,String extra, final Promise promise) {
         try {
             if (mType >= 0) {
                 this.Atype = mType;
@@ -701,6 +704,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             }
             if (pushContent != null && pushContent.length() > 0) {
                 this.aPushContent = pushContent;
+            }
+            if (extra != null && extra.length() > 0) {
+                this.extra = extra;
             }
 
             addAudioListener();
@@ -712,7 +718,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void voiceBtnPressOut(int mType, String targetId, String pushContent, final Promise promise) {
+    public void voiceBtnPressOut(int mType, String targetId, String pushContent,String extra, final Promise promise) {
         try {
             if (mType >= 0) {
                 this.Atype = mType;
@@ -722,6 +728,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             }
             if (pushContent != null && pushContent.length() > 0) {
                 this.aPushContent = pushContent;
+            }
+            if (extra != null && extra.length() > 0) {
+                this.extra = extra;
             }
             if (promise != null) {
                 this.Apromise = promise;
@@ -924,6 +933,28 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 @Override
                 public void onError(RongIMClient.ErrorCode errorCode) {
                     promise.reject("error", "error");
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+
+    // 删除消息
+    @ReactMethod
+    public void deleteTargetMessages(int mType, String targetId,final Promise promise) {
+        try {
+            ConversationType type = formatConversationType(mType);
+            RongIMClient.getInstance().deleteMessages(type, targetId, new ResultCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean aBoolean) {
+                    promise.resolve(aBoolean);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
                 }
             });
         } catch (Exception e) {
