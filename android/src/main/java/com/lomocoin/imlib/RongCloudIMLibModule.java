@@ -385,7 +385,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void searchConversations(String keyWord, final Promise promise) {
-        ConversationType[] type = {formatConversationType(1)};//只搜索私有消息
+        ConversationType[] type = {formatConversationType(1), formatConversationType(3)};    
         String[] objName = {"RC:TxtMsg"};
         RongIMClient.getInstance().searchConversations(keyWord, type, objName, new ResultCallback<List<SearchConversationResult>>() {
             @Override
