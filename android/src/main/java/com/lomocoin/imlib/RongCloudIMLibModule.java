@@ -9,6 +9,8 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Promise;
 
+import android.*;
+import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Notification;
@@ -16,7 +18,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.Nullable;
 
 import com.facebook.react.bridge.UiThreadUtil;
@@ -696,6 +700,13 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void voiceBtnPressIn(int mType, String targetId, String pushContent,String extra, final Promise promise) {
         try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                int state = context.checkSelfPermission(Manifest.permission.RECORD_AUDIO);
+                if(state != PackageManager.PERMISSION_GRANTED){
+                    promise.reject("permission_error", "error");
+                }
+            }
+
             if (mType >= 0) {
                 this.Atype = mType;
             }
@@ -713,7 +724,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             recoderUtils.startRecord();
             promise.resolve("success");
         } catch (Exception e) {
-            promise.reject("error", "error");
+            promise.reject("permission_error", "error");
         }
     }
 
