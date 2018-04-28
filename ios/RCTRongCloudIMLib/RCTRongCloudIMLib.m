@@ -534,6 +534,15 @@ RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
     
     dispatch_async(dispatch_get_main_queue(), ^{
         
+        AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
+        if(authStatus == AVAuthorizationStatusDenied) {
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
+                if (!granted) {
+                    reject(@"permission_error",@"permission_error",nil);
+                }
+            }];
+        }
+        
         AVAudioSession *session =[AVAudioSession sharedInstance];
         NSError *sessionError;
         [session setCategory:AVAudioSessionCategoryPlayAndRecord error:&sessionError];
