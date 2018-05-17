@@ -1,6 +1,7 @@
 package com.lomocoin.imlib;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -39,6 +40,7 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.RongIMClient.ResultCallback;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Conversation.ConversationType;
+import io.rong.imlib.model.Discussion;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.SearchConversationResult;
@@ -98,7 +100,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 Apromise.reject("-500", "-500");
             } else {
                 int duration = (int) Math.ceil(time / 1000);
-                sendVoiceMessage(Atype, AtargId, filePath, duration, aPushContent,extra, Apromise);
+                sendVoiceMessage(Atype, AtargId, filePath, duration, aPushContent, extra, Apromise);
             }
         } catch (Exception e) {
         }
@@ -138,18 +140,18 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         try {
             RongIMClient.getInstance().logout();
             promise.resolve("success");
-        }catch (Exception e){
-            promise.reject("error","error");
+        } catch (Exception e) {
+            promise.reject("error", "error");
         }
     }
 
     @ReactMethod
-    public void disconnect(boolean isReceivePush,final Promise promise) {
+    public void disconnect(boolean isReceivePush, final Promise promise) {
         try {
             RongIMClient.getInstance().disconnect(isReceivePush);
             promise.resolve("success");
-        }catch (Exception e){
-            promise.reject("error","error");
+        } catch (Exception e) {
+            promise.reject("error", "error");
         }
     }
 
@@ -285,7 +287,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getHistoryMessages(int mType, String targetId, int oldestMessageId, int count, final Promise promise){
+    public void getHistoryMessages(int mType, String targetId, int oldestMessageId, int count, final Promise promise) {
         ConversationType type = formatConversationType(mType);
         RongIMClient.getInstance().getHistoryMessages(type, targetId, oldestMessageId, count, new ResultCallback<List<Message>>() {
             @Override
@@ -310,7 +312,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getDesignatedTypeHistoryMessages(int mType, String targetId, String objectName, int oldestMessageId, int count, final Promise promise){
+    public void getDesignatedTypeHistoryMessages(int mType, String targetId, String objectName, int oldestMessageId, int count, final Promise promise) {
         ConversationType type = formatConversationType(mType);
         RongIMClient.getInstance().getHistoryMessages(type, targetId, objectName, oldestMessageId, count, new ResultCallback<List<Message>>() {
             @Override
@@ -335,7 +337,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getDesignatedDirectionypeHistoryMessages(int mType, String targetId, String objectName, int baseMessageId, int count, int direction, final Promise promise){
+    public void getDesignatedDirectionypeHistoryMessages(int mType, String targetId, String objectName, int baseMessageId, int count, int direction, final Promise promise) {
         ConversationType type = formatConversationType(mType);
 
         RongIMClient.getInstance().getHistoryMessages(type, targetId, objectName, baseMessageId, count, getMessageDirection(direction), new ResultCallback<List<Message>>() {
@@ -361,7 +363,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getBaseOnSentTimeHistoryMessages(int mType, String targetId, long sentTime, int before, int after, final Promise promise){
+    public void getBaseOnSentTimeHistoryMessages(int mType, String targetId, long sentTime, int before, int after, final Promise promise) {
         ConversationType type = formatConversationType(mType);
 
         RongIMClient.getInstance().getHistoryMessages(type, targetId, sentTime, before, after, new ResultCallback<List<Message>>() {
@@ -389,7 +391,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void searchConversations(String keyWord, final Promise promise) {
-        ConversationType[] type = {formatConversationType(1), formatConversationType(3)};    
+        ConversationType[] type = {formatConversationType(1), formatConversationType(3)};
         String[] objName = {"RC:TxtMsg"};
         RongIMClient.getInstance().searchConversations(keyWord, type, objName, new ResultCallback<List<SearchConversationResult>>() {
             @Override
@@ -484,7 +486,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sendTextMessage(int mType, String targetId, String content, String pushContent,String extra, final Promise promise) {
+    public void sendTextMessage(int mType, String targetId, String content, String pushContent, String extra, final Promise promise) {
         TextMessage textMessage = TextMessage.obtain(content);
         textMessage.setExtra(extra);
         ConversationType type = formatConversationType(mType);
@@ -508,7 +510,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent,String extra, final Promise promise) {
+    public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent, String extra, final Promise promise) {
 
         imageUrl = ImgCompressUtils.compress(context, imageUrl);//压缩图片处理
 //        Log.e("isme","inthis: "+imageUrl);
@@ -548,7 +550,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sendVoiceMessage(int mType, String targetId, String voiceData, int duration, String pushContent,String extra, final Promise promise) {
+    public void sendVoiceMessage(int mType, String targetId, String voiceData, int duration, String pushContent, String extra, final Promise promise) {
         VoiceMessage voiceMessage = VoiceMessage.obtain(Uri.parse(voiceData), duration);
         voiceMessage.setExtra(extra);
         ConversationType type = formatConversationType(mType);
@@ -698,11 +700,11 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void voiceBtnPressIn(int mType, String targetId, String pushContent,String extra, final Promise promise) {
+    public void voiceBtnPressIn(int mType, String targetId, String pushContent, String extra, final Promise promise) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 int state = context.checkSelfPermission(Manifest.permission.RECORD_AUDIO);
-                if(state != PackageManager.PERMISSION_GRANTED){
+                if (state != PackageManager.PERMISSION_GRANTED) {
                     promise.reject("permission_error", "error");
                 }
             }
@@ -729,7 +731,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void voiceBtnPressOut(int mType, String targetId, String pushContent,String extra, final Promise promise) {
+    public void voiceBtnPressOut(int mType, String targetId, String pushContent, String extra, final Promise promise) {
         try {
             if (mType >= 0) {
                 this.Atype = mType;
@@ -867,9 +869,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             RongIMClient.getInstance().getNotificationQuietHours(new RongIMClient.GetNotificationQuietHoursCallback() {
                 @Override
                 public void onSuccess(String s, int i) {
-                    if(i > 0){
+                    if (i > 0) {
                         promise.resolve(0);
-                    }else{
+                    } else {
                         promise.resolve(1);
                     }
                 }
@@ -905,7 +907,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     // 获取某个会话类型的target 的未读消息数
     @ReactMethod
-    public void getTargetUnreadCount(int mType, String targetId,final Promise promise) {
+    public void getTargetUnreadCount(int mType, String targetId, final Promise promise) {
         try {
             ConversationType type = formatConversationType(mType);
             RongIMClient.getInstance().getUnreadCount(type, targetId, new ResultCallback<Integer>() {
@@ -926,14 +928,14 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     // 获取某些会话类型（conversationTypes为数组）的未读消息数
     @ReactMethod
-    public void getConversationsUnreadCount(int[] conversationTypes,final Promise promise) {
+    public void getConversationsUnreadCount(int[] conversationTypes, final Promise promise) {
         try {
             List<ConversationType> lists = new ArrayList<>();
-            for(int t : conversationTypes){
+            for (int t : conversationTypes) {
                 ConversationType type = formatConversationType(t);
                 lists.add(type);
             }
-            ConversationType[] types = (ConversationType[])lists.toArray(new ConversationType[lists.size()]);
+            ConversationType[] types = (ConversationType[]) lists.toArray(new ConversationType[lists.size()]);
 
             RongIMClient.getInstance().getUnreadCount(types, new ResultCallback<Integer>() {
                 @Override
@@ -954,7 +956,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     // 删除消息
     @ReactMethod
-    public void deleteTargetMessages(int mType, String targetId,final Promise promise) {
+    public void deleteTargetMessages(int mType, String targetId, final Promise promise) {
         try {
             ConversationType type = formatConversationType(mType);
             RongIMClient.getInstance().deleteMessages(type, targetId, new ResultCallback<Boolean>() {
@@ -974,6 +976,217 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
 
+    // Discussion start
+
+    /**
+     * 创建讨论组
+     *
+     * @param name       讨论组名称，如：当前所有成员的名字的组合。
+     * @param userIdList 讨论组成员 Id 列表。
+     * @param promise    创建讨论组成功后的回调。
+     */
+    @ReactMethod
+    public void createDiscussion(String name, String[] userIdList, final Promise promise) {
+        try {
+            String newName = name.length() > 40 ? name.substring(0, 40) : name;
+            List<String> userList = Arrays.asList(userIdList);
+            RongIMClient.getInstance().createDiscussion(newName, userList, new RongIMClient.CreateDiscussionCallback() {
+                @Override
+                public void onSuccess(String s) {
+                    promise.resolve(s);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    /**
+     * 添加一名或者一组用户加入讨论组
+     *
+     * @param discussionId 讨论组 Id。
+     * @param userIdList   邀请的用户 Id 列表。
+     * @param promise      执行操作的回调。
+     */
+    @ReactMethod
+    public void addMemberToDiscussion(String discussionId, String[] userIdList, final Promise promise) {
+        try {
+            List<String> userList = Arrays.asList(userIdList);
+            RongIMClient.getInstance().addMemberToDiscussion(discussionId, userList, new RongIMClient.OperationCallback() {
+                @Override
+                public void onSuccess() {
+                    promise.resolve("success");
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    /**
+     * 供创建者将某用户移出讨论组。
+     * 如果当前登陆用户不是此讨论组的创建者并且此讨论组没有开放加人权限，则会返回错误 {@link RongIMClient.ErrorCode}。
+     * 不能使用此接口将自己移除，否则会返回错误 {@link RongIMClient.ErrorCode}。
+     * 如果您需要退出该讨论组，可以使用 {@link #quitDiscussion(String, Promise)} 方法
+     *
+     * @param discussionId 讨论组 Id。
+     * @param userId       用户 Id。
+     * @param promise      执行操作的回调
+     */
+    @ReactMethod
+    public void removeMemberFromDiscussion(String discussionId, String userId, final Promise promise) {
+        try {
+            RongIMClient.getInstance().removeMemberFromDiscussion(discussionId, userId, new RongIMClient.OperationCallback() {
+                @Override
+                public void onSuccess() {
+                    promise.resolve("success");
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+
+    /**
+     * 退出当前用户所在的某讨论组
+     *
+     * @param discussionId 讨论组 Id
+     * @param promise      执行操作的回调
+     */
+    @ReactMethod
+    public void quitDiscussion(String discussionId, final Promise promise) {
+        try {
+            RongIMClient.getInstance().quitDiscussion(discussionId, new RongIMClient.OperationCallback() {
+                @Override
+                public void onSuccess() {
+                    promise.resolve("success");
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+
+    /**
+     * 获取讨论组信息和设置。
+     *
+     * @param discussionId 讨论组 Id。
+     * @param promise      获取讨论组的回调。
+     */
+    @ReactMethod
+    public void getDiscussion(String discussionId, final Promise promise) {
+        try {
+            RongIMClient.getInstance().getDiscussion(discussionId, new ResultCallback<Discussion>() {
+                @Override
+                public void onSuccess(Discussion discussion) {
+                    try {
+                        WritableMap dis = Arguments.createMap();
+                        WritableArray memberIdList = Arguments.createArray();
+                        List<String> userList = discussion.getMemberIdList();
+                        for (String userId : userList) {
+                            memberIdList.pushString(userId);
+                        }
+                        dis.putString("id", discussion.getId());
+                        dis.putString("name", discussion.getName());
+                        dis.putString("creatorId", discussion.getCreatorId());
+                        dis.putBoolean("isOpen", discussion.isOpen());
+                        dis.putArray("memberIdList", memberIdList);
+                        promise.resolve(dis);
+                    } catch (Exception e) {
+                        promise.reject("error", "error");
+                    }
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    /**
+     * 设置讨论组名称。
+     *
+     * @param discussionId 讨论组 Id。
+     * @param name         讨论组名称。
+     * @param promise      设置讨论组的回调。
+     */
+    @ReactMethod
+    public void setDiscussionName(String discussionId, String name, final Promise promise) {
+        try {
+            RongIMClient.getInstance().setDiscussionName(discussionId, name, new RongIMClient.OperationCallback() {
+                @Override
+                public void onSuccess() {
+                    promise.resolve("success");
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    /**
+     * 设置讨论组成员邀请权限。
+     * 讨论组默认开放加人权限，即所有成员都可以加人。
+     * 如果关闭加人权限之后，只有讨论组的创建者有加人权限。
+     *
+     * @param discussionId 讨论组 Id。
+     * @param isOpen       邀请状态，默认为开放。
+     * @param promise      设置权限的回调。
+     */
+    @ReactMethod
+    public void setDiscussionInviteStatus(String discussionId, int isOpen, final Promise promise) {
+        try {
+            RongIMClient.DiscussionInviteStatus status = RongIMClient.DiscussionInviteStatus.setValue(isOpen);
+            RongIMClient.getInstance().setDiscussionInviteStatus(discussionId, status, new RongIMClient.OperationCallback() {
+                @Override
+                public void onSuccess() {
+                    promise.resolve("success");
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    // Discussion end
+
+
     protected void sendEvent(String eventName, @Nullable WritableMap params) {
         context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(eventName, params);
@@ -991,11 +1204,11 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         }
     }
 
-    private RongCommonDefine.GetMessageDirection getMessageDirection(int direction){
-        if(direction == RongCommonDefine.GetMessageDirection.BEHIND.ordinal()){
-            return  RongCommonDefine.GetMessageDirection.BEHIND;
+    private RongCommonDefine.GetMessageDirection getMessageDirection(int direction) {
+        if (direction == RongCommonDefine.GetMessageDirection.BEHIND.ordinal()) {
+            return RongCommonDefine.GetMessageDirection.BEHIND;
         }
 
-        return  RongCommonDefine.GetMessageDirection.FRONT;
+        return RongCommonDefine.GetMessageDirection.FRONT;
     }
 }
