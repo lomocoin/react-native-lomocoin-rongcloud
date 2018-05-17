@@ -44,6 +44,7 @@ export default {
     connectWithToken(token) {
         return RongCloudIMLib.connectWithToken(token);
     },
+    // 未读消息
     getTotalUnreadCount() {
         // 获取全部未读消息数量（此消息数量为SDK本地查询到的未读消息数（有可能包含已退出群组的消息数量））
         return RongCloudIMLib.getTotalUnreadCount();
@@ -59,6 +60,7 @@ export default {
     clearUnreadMessage(conversationType, targetId) {
         return RongCloudIMLib.clearUnreadMessage(conversationType, targetId);
     },
+    // Conversations
     deleteTargetMessages(conversationType, targetId) {
         return RongCloudIMLib.deleteTargetMessages(conversationType, targetId);
     },
@@ -68,6 +70,33 @@ export default {
     getConversationList() {
         return RongCloudIMLib.getConversationList();
     },
+    // Discussion
+    createDiscussion(name, userIdList){
+        // 设置的讨论组名称长度不能超过40个字符，否则将会截断为前40个字符。
+        return RongCloudIMLib.createDiscussion(name, userIdList);
+    },
+    addMemberToDiscussion(discussionId, userIdList){
+        return RongCloudIMLib.addMemberToDiscussion(discussionId, userIdList);
+    },
+    removeMemberFromDiscussion(discussionId, userId){
+        // 如果当前登陆用户不是此讨论组的创建者并且此讨论组没有开放加人权限，则会返回错误。
+        // 不能使用此接口将自己移除，否则会返回错误。 如果您需要退出该讨论组，可以使用quitDiscussion方法。
+        return RongCloudIMLib.removeMemberFromDiscussion(discussionId, userId);
+    },
+    quitDiscussion(discussionId){
+        return RongCloudIMLib.quitDiscussion(discussionId);
+    },
+    getDiscussion(discussionId){
+        return RongCloudIMLib.getDiscussion(discussionId);
+    },
+    setDiscussionName(discussionId, neme){
+        return RongCloudIMLib.setDiscussionName(discussionId, neme);
+    },
+    setDiscussionInviteStatus(discussionId, isOpen){
+        // 设置讨论组是否开放加人权限,讨论组默认开放加人权限，即所有成员都可以加人。如果关闭加人权限之后，只有讨论组的创建者有加人权限。
+        return RongCloudIMLib.setDiscussionInviteStatus(discussionId, isOpen);
+    },
+    // Messages
     getLatestMessages(type, targetId, count) {
         return RongCloudIMLib.getLatestMessages(type, targetId, count);
     },
@@ -83,6 +112,7 @@ export default {
     getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after) {
         return RongCloudIMLib.getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after);
     },
+    // Send Message
     sendTextMessage(conversationType, targetId, content, pushContent, extra) {
         return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, pushContent, extra);
     },
@@ -104,6 +134,7 @@ export default {
     audioPlayStop() {
         return RongCloudIMLib.audioPlayStop();
     },
+    // Push Notification
     setConversationNotificationStatus(conversationType, targetId, isBlocked) {
         //设置会话消息提醒 isBlocked（true 屏蔽  false 新消息提醒）  （return  0:（屏蔽） 1:（新消息提醒））
         return RongCloudIMLib.setConversationNotificationStatus(conversationType, targetId, isBlocked);
