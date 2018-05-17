@@ -55,12 +55,12 @@ public class AudioRecoderUtils {
      *      录音文件
      * @return
      */
-    public void startRecord() {
+    public void startRecord() throws Exception{
         // 开始录音
         /* ①Initial：实例化MediaRecorder对象 */
         if (mMediaRecorder == null)
             mMediaRecorder = new MediaRecorder();
-        try {
+//        try {
             /* ②setAudioSource/setVedioSource */
             mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);// 设置麦克风
             /* ②设置音频文件的编码：AAC/AMR_NB/AMR_MB/Default 声音的（波形）的采样 */
@@ -83,11 +83,11 @@ public class AudioRecoderUtils {
             startTime = System.currentTimeMillis();
             updateMicStatus();
             Log.e("fan", "startTime" + startTime);
-        } catch (IllegalStateException e) {
-            Log.i(TAG, "call startAmr(File mRecAudioFile) failed!" + e.getMessage());
-        } catch (IOException e) {
-            Log.i(TAG, "call startAmr(File mRecAudioFile) failed!" + e.getMessage());
-        }
+//        } catch (IllegalStateException e) {
+//            Log.i(TAG, "call startAmr(File mRecAudioFile) failed!" + e.getMessage());
+//        } catch (IOException e) {
+//            Log.i(TAG, "call startAmr(File mRecAudioFile) failed!" + e.getMessage());
+//        }
     }
 
     /**
