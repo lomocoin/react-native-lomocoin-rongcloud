@@ -89,8 +89,8 @@ export default {
     getDiscussion(discussionId){
         return RongCloudIMLib.getDiscussion(discussionId);
     },
-    setDiscussionName(discussionId, neme){
-        return RongCloudIMLib.setDiscussionName(discussionId, neme);
+    setDiscussionName(discussionId, name){
+        return RongCloudIMLib.setDiscussionName(discussionId, name);
     },
     setDiscussionInviteStatus(discussionId, isOpen){
         // 设置讨论组是否开放加人权限,讨论组默认开放加人权限，即所有成员都可以加人。如果关闭加人权限之后，只有讨论组的创建者有加人权限。

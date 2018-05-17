@@ -8,25 +8,8 @@
 
 #import "RCTRongCloudIMLib.h"
 
-#import <AssetsLibrary/AssetsLibrary.h>
-#import <AVFoundation/AVFoundation.h>
-
-@interface RCTRongCloudIMLib ()
-
-{
-    BOOL       _isSend;    //是否已发送
-    NSTimer *  _longTimer; //60s定时器
-    NSInteger  _duration;  //语音时长
-}
-
-@property (nonatomic, strong) NSDate * startDate;
-@property (nonatomic, strong) NSDate * endDate;
-@property (nonatomic, strong) AVAudioSession *session;
-@property (nonatomic, strong) AVAudioRecorder *recorder;//录音器
-@property (nonatomic, strong) AVAudioPlayer *player; //播放器
-@property (nonatomic, strong) NSURL *recordFileUrl; //语音路径
-
-@end
+#import "RCTRongCloudDiscussion.h"
+#import "RCTRongCloudMessage.h"
 
 @implementation RCTRongCloudIMLib
 
@@ -64,40 +47,7 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
     
     void (^errorBlock)(RCConnectErrorCode status);
     errorBlock = ^(RCConnectErrorCode status) {
-        NSString *errcode;
-        switch (status) {
-            case RC_CONN_ID_REJECT:
-                errcode = @"RC_CONN_ID_REJECT";
-                break;
-            case RC_CONN_TOKEN_INCORRECT:
-                errcode = @"RC_CONN_TOKEN_INCORRECT";
-                break;
-            case RC_CONN_NOT_AUTHRORIZED:
-                errcode = @"RC_CONN_NOT_AUTHRORIZED";
-                break;
-            case RC_CONN_PACKAGE_NAME_INVALID:
-                errcode = @"RC_CONN_PACKAGE_NAME_INVALID";
-                break;
-            case RC_CONN_APP_BLOCKED_OR_DELETED:
-                errcode = @"RC_CONN_APP_BLOCKED_OR_DELETED";
-                break;
-            case RC_DISCONN_KICK:
-                errcode = @"RC_DISCONN_KICK";
-                break;
-            case RC_CLIENT_NOT_INIT:
-                errcode = @"RC_CLIENT_NOT_INIT";
-                break;
-            case RC_INVALID_PARAMETER:
-                errcode = @"RC_INVALID_PARAMETER";
-                break;
-            case RC_INVALID_ARGUMENT:
-                errcode = @"RC_INVALID_ARGUMENT";
-                break;
-                
-            default:
-                errcode = @"OTHER";
-                break;
-        }
+        NSString *errcode = [self getRCConnectErrorCode:status];
         reject(errcode, [NSString stringWithFormat:@"status :%ld  errcode: %@",(long)status,errcode], nil);
     };
     void (^tokenIncorrectBlock)();
@@ -155,6 +105,91 @@ RCT_EXPORT_METHOD(clearUnreadMessage:(int)type
     
     [[self getClient] clearMessagesUnreadStatus:conversationType targetId:targetId];
 }
+
+#pragma mark  RongCloud  Discussion
+
+RCT_EXPORT_METHOD(createDiscussion:(NSString *)name
+                  userIdList:(NSArray *)userIdList
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion createDiscussion:name userIdList:userIdList success:^(NSDictionary *discussionDic) {
+        resolve(discussionDic);
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(addMemberToDiscussion:(NSString *)discussionId
+                  userIdList:(NSArray *)userIdList
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion addMemberToDiscussion:discussionId userIdList:userIdList success:^(NSDictionary *discussionDic) {
+        resolve(discussionDic);
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(removeMemberFromDiscussion:(NSString *)discussionId
+                  userId:(NSString *)userId
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion removeMemberFromDiscussion:discussionId userId:userId success:^(NSDictionary *discussionDic) {
+        resolve(discussionDic);
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(quitDiscussion:(NSString *)discussionId
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion quitDiscussion:discussionId success:^(NSDictionary *discussionDic) {
+        resolve(discussionDic);
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(getDiscussion:(NSString *)discussionId
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion getDiscussion:discussionId success:^(NSDictionary *discussionDic) {
+        resolve(discussionDic);
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(setDiscussionName:(NSString *)discussionId
+                  name:(NSString *)name
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion setDiscussionName:discussionId name:name success:^(BOOL success) {
+        resolve(@(success));
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(setDiscussionInviteStatus:(NSString *)discussionId
+                  isOpen:(BOOL)isOpen
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion setDiscussionInviteStatus:discussionId isOpen:isOpen success:^(BOOL success) {
+        resolve(@(success));
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
 
 #pragma mark  RongCloud  GetMessagesFromLocal
 
@@ -369,12 +404,9 @@ RCT_EXPORT_METHOD(deleteTargetMessages:(int)type
         resolve(@"删除成功");
     };
     
-    void (^errorBlock)(RCErrorCode nErrorCode);
-    errorBlock = ^(RCErrorCode nErrorCode) {
-        reject(@"设置失败", @"设置失败", nil);
-    };
-    
-    [[self getClient] deleteMessages:conversationType targetId:targetId success:successBlock error:errorBlock];
+    [[self getClient] deleteMessages:conversationType targetId:targetId success:successBlock error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
 }
 
 #pragma mark  RongCloud  SearchMessagesFromLocal
@@ -385,7 +417,6 @@ RCT_REMAP_METHOD(searchConversations,
                  reject:(RCTPromiseRejectBlock)reject) {
     
     NSArray *SearchResult = [[self getClient] searchConversations:@[@(ConversationType_PRIVATE),@(ConversationType_GROUP)] messageType:@[[RCTextMessage getObjectName]] keyword:keyword];
-    
     
     if(SearchResult.count > 0){
         NSMutableArray * array = [NSMutableArray new];
@@ -431,93 +462,26 @@ RCT_EXPORT_METHOD(sendTextMessage:(int)type
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
-    RCTextMessage *messageContent = [RCTextMessage messageWithContent:content];
-    if(extra){
-        messageContent.extra = extra;
-    }
-    [self sendMessage:type messageType:@"text" targetId:targetId content:messageContent pushContent:pushContent resolve:resolve reject:reject];
-    
-    
+    [RCTRongCloudMessage sendTextMessage:type targetId:targetId content:content pushContent:pushContent extra:extra success:^(NSString *messageId) {
+        resolve(messageId);
+    } error:^(RCErrorCode status, NSString *messageId) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
 }
 
 RCT_EXPORT_METHOD(sendImageMessage:(int)type
                   targetId:(NSString *)targetId
-                  content:(NSString *)imageUrl
+                  imageUrl:(NSString *)imageUrl
                   pushContent:(NSString *)pushContent
                   extra:(NSString *)extra
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
     
-    if([imageUrl rangeOfString:@"assets-library"].location == NSNotFound){
-        RCImageMessage *imageMessage = [RCImageMessage messageWithImageURI:imageUrl];
-        if(extra){
-            imageMessage.extra = extra;
-        }
-        [self sendMessage:type messageType:@"image" targetId:targetId content:imageMessage pushContent:pushContent resolve:resolve reject:reject];
-    }
-    else{
-        [self sendImageMessageWithType:type targetId:targetId ImageUrl:imageUrl pushContent:pushContent extra:extra resolve:resolve reject:reject];
-    }
-}
-
-- (void)sendImageMessageWithType:(int)type targetId:(NSString *)targetId ImageUrl:(NSString *)imageUrl  pushContent:(NSString *)pushContent extra:(NSString *)extra resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject{
-    
-    ALAssetsLibrary   *lib = [[ALAssetsLibrary alloc] init];
-    
-    [lib assetForURL:[NSURL URLWithString:imageUrl] resultBlock:^(ALAsset *asset) {
-        //在这里使用asset来获取图片
-        ALAssetRepresentation *assetRep = [asset defaultRepresentation];
-        CGImageRef imgRef = [assetRep fullResolutionImage];
-        UIImage * image = [UIImage imageWithCGImage:imgRef
-                                              scale:assetRep.scale
-                                        orientation:(UIImageOrientation)assetRep.orientation];
-        UIImage * scaledImage = [self scaleImageWithImage:image toSize:CGSizeMake(960, 960)]; // 融云推荐使用的大图尺寸为：960 x 960 像素
-        
-        RCImageMessage *imageMessage = [RCImageMessage messageWithImage:scaledImage];
-        if(extra){
-            imageMessage.extra = extra;
-        }
-        [self sendMessage:type messageType:@"image" targetId:targetId content:imageMessage pushContent:pushContent resolve:resolve reject:reject];
-        
-    } failureBlock:^(NSError *error) {
-        reject(@"Could not find the image",@"Could not find the image",nil);
+    [RCTRongCloudMessage sendImageMessage:type targetId:targetId imageUrl:imageUrl pushContent:pushContent extra:extra success:^(NSString *messageId) {
+        resolve(messageId);
+    } error:^(RCErrorCode status, NSString *messageId) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
     }];
-    
-}
-
-//等比例缩小
--(UIImage *)scaleImageWithImage:(UIImage *)image toSize:(CGSize)size
-{
-    CGFloat width = CGImageGetWidth(image.CGImage);
-    CGFloat height = CGImageGetHeight(image.CGImage);
-    
-    if(width < size.width && height < size.height){
-        return image;
-    }
-    
-    float verticalRadio = height/size.height;
-    float horizontalRadio = width/size.width;
-    
-    float radio = verticalRadio > horizontalRadio ? verticalRadio : horizontalRadio;
-    
-    width = width/radio;
-    height = height/radio;
-    
-    // 创建一个bitmap的context
-    // 并把它设置成为当前正在使用的context
-    UIGraphicsBeginImageContext(CGSizeMake(width, height));
-    
-    // 绘制改变大小的图片
-    [image drawInRect:CGRectMake(0, 0, width, height)];
-    
-    // 从当前context中创建一个改变大小后的图片
-    UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
-    
-    // 使当前的context出堆栈
-    UIGraphicsEndImageContext();
-    
-    // 返回新的改变大小后的图片
-    return scaledImage;
 }
 
 #pragma mark  RongCloud  Send Voice Messages
@@ -530,90 +494,16 @@ RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
                   extra:(NSString *)extra
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
-    NSLog(@"开始录音");
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        
-        AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
-        if(authStatus == AVAuthorizationStatusDenied) {
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
-                if (!granted) {
-                    reject(@"permission_error",@"permission_error",nil);
-                }
-            }];
-        }
-        
-        AVAudioSession *session =[AVAudioSession sharedInstance];
-        NSError *sessionError;
-        [session setCategory:AVAudioSessionCategoryPlayAndRecord error:&sessionError];
-        
-        if (session == nil) {
-            NSLog(@"Error creating session: %@",[sessionError description]);
-        }else{
-            [session setActive:YES error:nil];
-        }
-        
-        self.session = session;
-        
-        //1.获取沙盒地址
-        NSString * filePath = [self getSandboxFilePath];
-        
-        //2.获取文件路径
-        self.recordFileUrl = [NSURL fileURLWithPath:filePath];
-        
-        //设置参数
-        //    NSDictionary *recordSetting = [[NSDictionary alloc] initWithObjectsAndKeys:
-        //                                   //采样率  8000/11025/22050/44100/96000（影响音频的质量）
-        //                                   [NSNumber numberWithFloat: 8000.0],AVSampleRateKey,
-        //                                   // 音频格式
-        //                                   [NSNumber numberWithInt: kAudioFormatLinearPCM],AVFormatIDKey,
-        //                                   //采样位数  8、16、24、32 默认为16
-        //                                   [NSNumber numberWithInt:16],AVLinearPCMBitDepthKey,
-        //                                   // 音频通道数 1 或 2
-        //                                   [NSNumber numberWithInt: 1], AVNumberOfChannelsKey,
-        //                                   //录音质量
-        //                                   [NSNumber numberWithInt:AVAudioQualityHigh],AVEncoderAudioQualityKey,
-        //                                   nil];
-        NSDictionary * recordSetting = @{AVFormatIDKey: @(kAudioFormatLinearPCM),
-                                         AVSampleRateKey: @8000.00f,
-                                         AVNumberOfChannelsKey: @1,
-                                         AVLinearPCMBitDepthKey: @16,
-                                         AVLinearPCMIsNonInterleaved: @NO,
-                                         AVLinearPCMIsFloatKey: @NO,
-                                         AVLinearPCMIsBigEndianKey: @NO};   //RongCloud 推荐参数
-        
-        
-        _recorder = [[AVAudioRecorder alloc] initWithURL:self.recordFileUrl settings:recordSetting error:nil];
-        
-        if (_recorder) {
-            
-            @try{
-                
-                _startDate = [NSDate date];
-                
-                _recorder.meteringEnabled = YES;
-                [_recorder prepareToRecord];
-                [_recorder record];
-                
-                _isSend = NO;
-                _duration = 0;
-                
-                _longTimer = [NSTimer scheduledTimerWithTimeInterval:59.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
-                    if(!_isSend){
-                        [self stopRecord:type targetId:targetId pushContent:pushContent extra:extra resolve:resolve reject:reject];
-                    }
-                }];
-            }
-            @catch(NSException *exception) {
-                NSLog(@"exception:%@", exception);
-            }
-            @finally {
-                
-            }
-        }else{
-            NSLog(@"音频格式和文件存储格式不匹配,无法初始化Recorder");
-        }
-    });
+    RCTRongCloudMessage * RCMessage = [RCTRongCloudMessage shareMessage];
+    
+    [RCMessage voiceBtnPressIn:type targetId:targetId pushContent:pushContent extra:extra];
+    RCMessage.successBlock = ^(NSString *message) {
+        resolve(message);
+    };
+    RCMessage.errorBlock = ^(RCErrorCode nErrorCode, NSString *message) {
+        reject(message,message,nil);
+    };
 }
 
 /**
@@ -623,21 +513,14 @@ RCT_EXPORT_METHOD(voiceBtnPressCancel:(int)type
                   targetId:(NSString *)targetId
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        
-        [self removeTimer];
-        NSLog(@"取消录音");
-        
-        _isSend = NO;
-        if ([self.recorder isRecording]) {
-            [self.recorder stop];
-            self.recorder = nil;
-            
-            resolve(@"已取消");
-        }else{
-            reject(@"没有正在录音的资源",@"没有正在录音的资源",nil);
-        }
-    });
+    
+    RCTRongCloudMessage * RCMessage = [RCTRongCloudMessage shareMessage];
+    
+    [RCMessage voiceBtnPressCancel:type targetId:targetId success:^(NSString *message) {
+        resolve(message);
+    } error:^(NSString *message) {
+        reject(message, message, nil);
+    }];
 }
 
 /**
@@ -649,104 +532,14 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
                   extra:(NSString *)extra
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        
-        if(!_isSend){
-            [self stopRecord:type targetId:targetId pushContent:pushContent extra:extra resolve:resolve reject:reject];
-        }
-    });
-}
-
-- (void)stopRecord:(int)type
-          targetId:(NSString *)targetId
-       pushContent:(NSString *)pushContent
-             extra:(NSString *)extra
-           resolve:(RCTPromiseResolveBlock)resolve
-            reject:(RCTPromiseRejectBlock)reject{
     
-    [self removeTimer];
-    NSLog(@"停止录音");
+    RCTRongCloudMessage * RCMessage = [RCTRongCloudMessage shareMessage];
     
-    if ([self.recorder isRecording]) {
-        [self.recorder stop];
-        self.recorder = nil;
-    }
-    
-    _isSend = YES;
-    
-    _endDate = [NSDate date];
-    
-    NSTimeInterval dataLong = [_endDate timeIntervalSinceDate:_startDate];
-    
-    if(dataLong < 1.0){
-        reject(@"-500",@"-500",nil);
-    }else{
-        
-        _duration = (NSInteger)roundf(dataLong);
-        
-        NSData * audioData = [NSData dataWithContentsOfURL:self.recordFileUrl];
-        [self sendVoiceMessage:type targetId:targetId content:audioData duration:_duration pushContent:pushContent extra:extra resolve:resolve reject:reject];
-        
-        //发送完录音后，删除本地录音（融云会自动保存录音）
-        NSString * filePath = self.recordFileUrl.absoluteString;
-        NSFileManager * fileManager = [NSFileManager defaultManager];
-        
-        if(![fileManager fileExistsAtPath:filePath]){
-            
-            [fileManager removeItemAtPath:filePath error:nil];
-        }
-    }
-}
-
-- (NSString *)getSandboxFilePath{
-    
-    NSFileManager * fileManager = [NSFileManager defaultManager];
-    
-    NSString * documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
-    
-    NSString * directoryPath = [documentPath stringByAppendingString:@"/ChatMessage"];
-    
-    if(![fileManager fileExistsAtPath:directoryPath]){
-        
-        [fileManager createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:nil];
-    }
-    
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyyMMddHHmmss"];
-    NSString * timeString = [dateFormatter stringFromDate:[NSDate date]];
-    
-    NSString * filePath = [directoryPath stringByAppendingString:[NSString stringWithFormat:@"/%@.wav",timeString]];
-    
-    [fileManager createFileAtPath:filePath contents:nil attributes:nil];
-    
-    return filePath;
-}
-
-
-// 移除定时器
-- (void)removeTimer
-{
-    if(_longTimer){
-        [_longTimer invalidate];
-        _longTimer = nil;
-    }
-}
-
-- (void)sendVoiceMessage:(int)type
-                targetId:(NSString *)targetId
-                 content:(NSData *)voiceData
-                duration:(NSInteger )duration
-             pushContent:(NSString *)pushContent
-                   extra:(NSString *)extra
-                 resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject {
-    
-    RCVoiceMessage *rcVoiceMessage = [RCVoiceMessage messageWithAudio:voiceData duration:duration];
-    if (extra){
-        rcVoiceMessage.extra = extra;
-    }
-    [self sendMessage:type messageType:@"voice" targetId:targetId content:rcVoiceMessage pushContent:pushContent resolve:resolve reject:reject];
-    
+    [RCMessage voiceBtnPressOut:type targetId:targetId pushContent:pushContent extra:extra success:^(NSString *message) {
+        resolve(message);
+    } error:^(RCErrorCode nErrorCode, NSString *message) {
+        reject(message, message, nil);
+    }];
 }
 
 #pragma mark  RongCloud  Play Voice Messages
@@ -755,43 +548,27 @@ RCT_EXPORT_METHOD(audioPlayStart:(NSString *)filePath
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject){
     
-    self.session =[AVAudioSession sharedInstance];
-    NSError *sessionError;
-    [self.session setCategory:AVAudioSessionCategoryPlayback error:&sessionError];
-    [self.session setActive:YES error:nil];
+    RCTRongCloudMessage * RCMessage = [RCTRongCloudMessage shareMessage];
     
-    if(_player){
-        [_player stop];
-        _player = nil;
-    }
-    
-    NSURL *audioUrl = [NSURL fileURLWithPath:filePath];
-    NSError *playerError;
-    _player = [[AVAudioPlayer alloc] initWithContentsOfURL:audioUrl error:&playerError];
-    
-    if (_player == nil)
-    {
-        NSLog(@"fail to play audio :(");
-        reject(@"播放失败，请重试！",@"播放失败，请重试！",nil);
-        return;
-    }
-    
-    [_player setNumberOfLoops:0];
-    [_player prepareToPlay];
-    [_player play];
-    resolve(@"正在播放");
+    [RCMessage audioPlayStart:filePath success:^(NSString *message) {
+        resolve(message);
+    } error:^(NSString *Code) {
+        reject(@"", @"", nil);
+    }];
 }
 
 
 RCT_REMAP_METHOD(audioPlayStop,
                  resolve:(RCTPromiseResolveBlock)resolve
                  rejecte:(RCTPromiseRejectBlock)reject){
-    if(_player && [_player isPlaying]){
-        [_player stop];
-        resolve(@"已停止");
-    }else{
-        reject(@"没有播放的资源",@"没有播放的资源",nil);
-    }
+    
+    RCTRongCloudMessage * RCMessage = [RCTRongCloudMessage shareMessage];
+    
+    [RCMessage audioPlayStop:^(NSString *message) {
+        resolve(message);
+    } error:^(NSString *Code) {
+        reject(@"", @"", nil);
+    }];
 }
 
 #pragma mark  RongCloud PushNotification Settting
@@ -810,12 +587,9 @@ RCT_EXPORT_METHOD(setConversationNotificationStatus:(int)type
         resolve(@(RCConversationNotificationStatus));
     };
     
-    void (^errorBlock)(RCErrorCode nErrorCode);
-    errorBlock = ^(RCErrorCode nErrorCode) {
-        reject(@"设置失败", @"设置失败", nil);
-    };
-    
-    [[self getClient] setConversationNotificationStatus:conversationType targetId:targetId isBlocked:isBlocked success:successBlock error:errorBlock];
+    [[self getClient] setConversationNotificationStatus:conversationType targetId:targetId isBlocked:isBlocked success:successBlock error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
     
 }
 
@@ -832,12 +606,9 @@ RCT_EXPORT_METHOD(getConversationNotificationStatus:(int)type
         resolve(@(RCConversationNotificationStatus));
     };
     
-    void (^errorBlock)(RCErrorCode nErrorCode);
-    errorBlock = ^(RCErrorCode nErrorCode) {
-        reject(@"获取失败", @"获取失败", nil);
-    };
-    
-    [[self getClient] getConversationNotificationStatus:conversationType targetId:targetId success:successBlock error:errorBlock];
+    [[self getClient] getConversationNotificationStatus:conversationType targetId:targetId success:successBlock error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
 }
 
 
@@ -851,12 +622,9 @@ RCT_REMAP_METHOD(screenGlobalNotification,
         resolve(@"success");
     };
     
-    void (^errorBlock)(RCErrorCode nErrorCode);
-    errorBlock = ^(RCErrorCode nErrorCode) {
-        reject(@"设置失败", @"设置失败", nil);
-    };
-    
-    [[self getClient] setNotificationQuietHours:@"00:00:00" spanMins:1439 success:successBlock error:errorBlock];
+    [[self getClient] setNotificationQuietHours:@"00:00:00" spanMins:1439 success:successBlock error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
 }
 
 RCT_REMAP_METHOD(removeScreenOfGlobalNotification,
@@ -868,12 +636,9 @@ RCT_REMAP_METHOD(removeScreenOfGlobalNotification,
         resolve(@"success");
     };
     
-    void (^errorBlock)(RCErrorCode nErrorCode);
-    errorBlock = ^(RCErrorCode nErrorCode) {
-        reject(@"设置失败", @"设置失败", nil);
-    };
-    
-    [[self getClient] removeNotificationQuietHours:successBlock error:errorBlock];
+    [[self getClient] removeNotificationQuietHours:successBlock error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
 }
 
 RCT_REMAP_METHOD(getGlobalNotificationStatus,
@@ -890,12 +655,9 @@ RCT_REMAP_METHOD(getGlobalNotificationStatus,
         }
     };
     
-    void (^errorBlock)(RCErrorCode nErrorCode);
-    errorBlock = ^(RCErrorCode nErrorCode) {
-        reject(@"获取失败", @"获取失败", nil);
-    };
-    
-    [[self getClient] getNotificationQuietHours:successBlock error:errorBlock];
+    [[self getClient] getNotificationQuietHours:successBlock error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
 }
 
 #pragma mark  RongCloud  GetSDKVersion  and   Disconnect
@@ -915,51 +677,8 @@ RCT_EXPORT_METHOD(logout) {
     [[self getClient] logout];
 }
 
-#pragma mark  RongCloud  SDK methods
 
--(RCIMClient *) getClient {
-    return [RCIMClient sharedRCIMClient];
-}
-
-- (NSUInteger)getConversationType:(int)type{
-    switch (type) {
-        case 1:
-            return ConversationType_PRIVATE;
-        case 3:
-            return ConversationType_GROUP;
-        default:
-            return ConversationType_PRIVATE;
-    }
-}
-
--(void)sendMessage:(int)type
-       messageType:(NSString *)messageType
-          targetId:(NSString *)targetId
-           content:(RCMessageContent *)content
-       pushContent:(NSString *) pushContent
-           resolve:(RCTPromiseResolveBlock)resolve
-            reject:(RCTPromiseRejectBlock)reject {
-    
-    RCConversationType conversationType = [self getConversationType:type];
-    
-    void (^successBlock)(long messageId);
-    successBlock = ^(long messageId) {
-        NSString* messageid = [NSString stringWithFormat:@"%ld",messageId];
-        resolve(messageid);
-    };
-    
-    void (^errorBlock)(RCErrorCode nErrorCode , long messageId);
-    errorBlock = ^(RCErrorCode nErrorCode , long messageId) {
-        reject(@"发送失败", @"发送失败", nil);
-    };
-    
-    if ([messageType isEqualToString:@"image"]){  //图片和文件消息使用sendMediaMessage方法（此方法会将图片上传至融云服务器）
-        [[self getClient] sendMediaMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:nil progress:nil success:successBlock error:errorBlock cancel:nil];
-    }else{  //文本和语音使用sendMessage方法（若使用本方法发送图片消息，则需要上传图片到自己的服务器后把图片地址放到图片消息内）
-        [[self getClient] sendMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:nil success:successBlock error:errorBlock];
-    }
-    
-}
+#pragma mark RongCloud OnReceived New Message
 
 -(void)onReceived:(RCMessage *)message
              left:(int)nLeft
@@ -1010,10 +729,119 @@ RCT_EXPORT_METHOD(logout) {
     [self sendEventWithName:@"onRongMessageReceived" body:body];
 }
 
+#pragma mark  RongCloud  SDK methods
+
+-(RCIMClient *) getClient {
+    return [RCIMClient sharedRCIMClient];
+}
+
+- (NSUInteger)getConversationType:(int)type{
+    switch (type) {
+        case 1:
+            return ConversationType_PRIVATE;
+        case 3:
+            return ConversationType_GROUP;
+        default:
+            return ConversationType_PRIVATE;
+    }
+}
+
 -(NSMutableDictionary *)getEmptyBody {
     NSMutableDictionary *body = @{}.mutableCopy;
     return body;
 }
 
+- (NSString *)getRCConnectErrorCode:(RCConnectErrorCode)code{
+    NSString *errcode;
+    switch (code) {
+        case RC_CONN_ID_REJECT:
+            errcode = @"RC_CONN_ID_REJECT";
+            break;
+        case RC_CONN_TOKEN_INCORRECT:
+            errcode = @"RC_CONN_TOKEN_INCORRECT";
+            break;
+        case RC_CONN_NOT_AUTHRORIZED:
+            errcode = @"RC_CONN_NOT_AUTHRORIZED";
+            break;
+        case RC_CONN_PACKAGE_NAME_INVALID:
+            errcode = @"RC_CONN_PACKAGE_NAME_INVALID";
+            break;
+        case RC_CONN_APP_BLOCKED_OR_DELETED:
+            errcode = @"RC_CONN_APP_BLOCKED_OR_DELETED";
+            break;
+        case RC_DISCONN_KICK:
+            errcode = @"RC_DISCONN_KICK";
+            break;
+        case RC_CLIENT_NOT_INIT:
+            errcode = @"RC_CLIENT_NOT_INIT";
+            break;
+        case RC_INVALID_PARAMETER:
+            errcode = @"RC_INVALID_PARAMETER";
+            break;
+        case RC_INVALID_ARGUMENT:
+            errcode = @"RC_INVALID_ARGUMENT";
+            break;
+            
+        default:
+            errcode = @"OTHER";
+            break;
+    }
+    return errcode;
+}
+
+- (NSString *)getRCErrorCode:(RCErrorCode)code{
+    NSString *errcode;
+    switch (code) {
+        case ERRORCODE_UNKNOWN:
+            errcode = @"ERRORCODE_UNKNOWN";
+            break;
+        case REJECTED_BY_BLACKLIST:
+            errcode = @"REJECTED_BY_BLACKLIST";
+            break;
+        case ERRORCODE_TIMEOUT:
+            errcode = @"ERRORCODE_TIMEOUT";
+            break;
+        case SEND_MSG_FREQUENCY_OVERRUN:
+            errcode = @"SEND_MSG_FREQUENCY_OVERRUN";
+            break;
+        case NOT_IN_DISCUSSION:
+            errcode = @"NOT_IN_DISCUSSION";
+            break;
+        case NOT_IN_GROUP:
+            errcode = @"NOT_IN_GROUP";
+            break;
+        case FORBIDDEN_IN_GROUP:
+            errcode = @"FORBIDDEN_IN_GROUP";
+            break;
+        case RC_CHANNEL_INVALID:
+            errcode = @"RC_CHANNEL_INVALID";
+            break;
+        case RC_NETWORK_UNAVAILABLE:
+            errcode = @"RC_NETWORK_UNAVAILABLE";
+            break;
+        case RC_MSG_RESPONSE_TIMEOUT:
+            errcode = @"RC_MSG_RESPONSE_TIMEOUT";
+            break;
+        case DATABASE_ERROR:
+            errcode = @"DATABASE_ERROR";
+            break;
+        case RC_MSG_SIZE_OUT_OF_LIMIT:
+            errcode = @"RC_MSG_SIZE_OUT_OF_LIMIT";
+            break;
+        case RC_PUSHSETTING_PARAMETER_INVALID:
+            errcode = @"RC_PUSHSETTING_PARAMETER_INVALID";
+            break;
+        case RC_OPERATION_BLOCKED:
+            errcode = @"RC_OPERATION_BLOCKED";
+            break;
+        case RC_OPERATION_NOT_SUPPORT:
+            errcode = @"RC_OPERATION_NOT_SUPPORT";
+            break;
+        default:
+            errcode = @"OTHER";
+            break;
+    }
+    return errcode;
+}
 
 @end
