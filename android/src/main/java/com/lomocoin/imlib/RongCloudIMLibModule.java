@@ -667,17 +667,17 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         return msg;
     }
 
-    protected Conversation.ConversationType ConversationType(String type) {
-        Conversation.ConversationType conversationType;
-        if (type == "PRIVATE") {
-            conversationType = Conversation.ConversationType.PRIVATE;
-        } else if (type == "DISCUSSION") {
-            conversationType = Conversation.ConversationType.DISCUSSION;
-        } else {
-            conversationType = Conversation.ConversationType.SYSTEM;
-        }
-        return conversationType;
-    }
+//    protected Conversation.ConversationType ConversationType(String type) {
+//        Conversation.ConversationType conversationType;
+//        if (type == "PRIVATE") {
+//            conversationType = Conversation.ConversationType.PRIVATE;
+//        } else if (type == "DISCUSSION") {
+//            conversationType = Conversation.ConversationType.DISCUSSION;
+//        } else {
+//            conversationType = Conversation.ConversationType.SYSTEM;
+//        }
+//        return conversationType;
+//    }
 
     protected void sendMessage(ConversationType type, String targetId, MessageContent content, String pushContent, final Promise promise) {
         String pushData = "";
@@ -1197,10 +1197,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         switch (type) {
             case 1:
                 return ConversationType.PRIVATE;
+            case 2:
+                return ConversationType.DISCUSSION;
             case 3:
                 return ConversationType.GROUP;
             default:
-                return ConversationType.GROUP;
+                return ConversationType.PRIVATE;
         }
     }
 
