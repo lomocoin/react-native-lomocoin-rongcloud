@@ -47,10 +47,12 @@ static RCTRongCloudMessage * _message = nil;
     return [RCIMClient sharedRCIMClient];
 }
 
-+ (NSUInteger)getConversationType:(int)type{
++ (RCConversationType)getConversationType:(int)type{
     switch (type) {
         case 1:
             return ConversationType_PRIVATE;
+        case 2:
+            return ConversationType_DISCUSSION;
         case 3:
             return ConversationType_GROUP;
         default:
@@ -79,7 +81,7 @@ static RCTRongCloudMessage * _message = nil;
 
 + (void)sendImageMessage:(int)type
                 targetId:(NSString *)targetId
-                 imageUrl:(NSString *)imageUrl
+                imageUrl:(NSString *)imageUrl
              pushContent:(NSString *)pushContent
                    extra:(NSString *)extra
                  success:(void (^)(NSString *messageId))successBlock

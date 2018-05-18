@@ -383,7 +383,7 @@ RCT_REMAP_METHOD(getBaseOnSentTimeHistoryMessages,
     }
     
     
-    NSString * filePath = [directoryPath stringByAppendingString:[NSString stringWithFormat:@"/%ld.wav",msgId]];
+    NSString * filePath = [directoryPath stringByAppendingString:[NSString stringWithFormat:@"/%ld.wav",(long)msgId]];
     
     [fileManager createFileAtPath:filePath contents:data attributes:nil];
     
@@ -735,10 +735,12 @@ RCT_EXPORT_METHOD(logout) {
     return [RCIMClient sharedRCIMClient];
 }
 
-- (NSUInteger)getConversationType:(int)type{
+- (RCConversationType)getConversationType:(int)type{
     switch (type) {
         case 1:
             return ConversationType_PRIVATE;
+        case 2:
+            return ConversationType_DISCUSSION;
         case 3:
             return ConversationType_GROUP;
         default:
