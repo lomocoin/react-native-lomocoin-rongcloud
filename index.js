@@ -89,8 +89,8 @@ export default {
     getDiscussion(discussionId){
         return RongCloudIMLib.getDiscussion(discussionId);
     },
-    setDiscussionName(discussionId, neme){
-        return RongCloudIMLib.setDiscussionName(discussionId, neme);
+    setDiscussionName(discussionId, name){
+        return RongCloudIMLib.setDiscussionName(discussionId, name);
     },
     //注：isOpen type int,value CLOSED(1),OPENED(0);
     setDiscussionInviteStatus(discussionId, isOpen){

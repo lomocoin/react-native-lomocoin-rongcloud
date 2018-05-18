@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A48B177820AD8324001B38A2 /* RCTRongCloudDiscussion.m in Sources */ = {isa = PBXBuildFile; fileRef = A48B177420AD8323001B38A2 /* RCTRongCloudDiscussion.m */; };
+		A48B177920AD8324001B38A2 /* RCTRongCloudMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A48B177720AD8324001B38A2 /* RCTRongCloudMessage.m */; };
 		A4FDDBA91FE7B7D9008557F1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FDDBA81FE7B7D9008557F1 /* UIKit.framework */; };
 		A4FDDBAB1FE7B802008557F1 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FDDBAA1FE7B802008557F1 /* SystemConfiguration.framework */; };
 		A4FDDBAD1FE7B819008557F1 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FDDBAC1FE7B819008557F1 /* QuartzCore.framework */; };
@@ -43,6 +45,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A48B177420AD8323001B38A2 /* RCTRongCloudDiscussion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTRongCloudDiscussion.m; sourceTree = "<group>"; };
+		A48B177520AD8324001B38A2 /* RCTRongCloudDiscussion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTRongCloudDiscussion.h; sourceTree = "<group>"; };
+		A48B177620AD8324001B38A2 /* RCTRongCloudMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTRongCloudMessage.h; sourceTree = "<group>"; };
+		A48B177720AD8324001B38A2 /* RCTRongCloudMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTRongCloudMessage.m; sourceTree = "<group>"; };
 		A4FDDBA81FE7B7D9008557F1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		A4FDDBAA1FE7B802008557F1 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		A4FDDBAC1FE7B819008557F1 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -142,6 +148,10 @@
 			children = (
 				EF631A961CC22A4600AC9715 /* RCTRongCloudIMLib.h */,
 				EF631A981CC22A4600AC9715 /* RCTRongCloudIMLib.m */,
+				A48B177520AD8324001B38A2 /* RCTRongCloudDiscussion.h */,
+				A48B177420AD8323001B38A2 /* RCTRongCloudDiscussion.m */,
+				A48B177620AD8324001B38A2 /* RCTRongCloudMessage.h */,
+				A48B177720AD8324001B38A2 /* RCTRongCloudMessage.m */,
 			);
 			path = RCTRongCloudIMLib;
 			sourceTree = "<group>";
@@ -203,6 +213,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF631A991CC22A4600AC9715 /* RCTRongCloudIMLib.m in Sources */,
+				A48B177820AD8324001B38A2 /* RCTRongCloudDiscussion.m in Sources */,
+				A48B177920AD8324001B38A2 /* RCTRongCloudMessage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
