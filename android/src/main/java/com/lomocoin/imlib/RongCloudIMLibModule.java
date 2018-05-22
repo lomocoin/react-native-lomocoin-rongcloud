@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.Nullable;
 
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
@@ -986,14 +987,21 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
      * @param promise    创建讨论组成功后的回调。
      */
     @ReactMethod
-    public void createDiscussion(String name, String[] userIdList, final Promise promise) {
+    public void createDiscussion(String name, ReadableArray userIdList, final Promise promise) {
         try {
             String newName = name.length() > 40 ? name.substring(0, 40) : name;
-            List<String> userList = Arrays.asList(userIdList);
+
+            List<String> userList = new ArrayList<>();
+            for (int i = 0; i < userIdList.size(); i++) {
+                userList.add(userIdList.getString(i));
+            }
+
             RongIMClient.getInstance().createDiscussion(newName, userList, new RongIMClient.CreateDiscussionCallback() {
                 @Override
                 public void onSuccess(String s) {
-                    promise.resolve(s);
+                    WritableMap map = Arguments.createMap();
+                    map.putString("discussionId", s);
+                    promise.resolve(map);
                 }
 
                 @Override
@@ -1014,9 +1022,13 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
      * @param promise      执行操作的回调。
      */
     @ReactMethod
-    public void addMemberToDiscussion(String discussionId, String[] userIdList, final Promise promise) {
+    public void addMemberToDiscussion(String discussionId, ReadableArray userIdList, final Promise promise) {
         try {
-            List<String> userList = Arrays.asList(userIdList);
+            List<String> userList = new ArrayList<>();
+            for (int i = 0; i < userIdList.size(); i++) {
+                userList.add(userIdList.getString(i));
+            }
+
             RongIMClient.getInstance().addMemberToDiscussion(discussionId, userList, new RongIMClient.OperationCallback() {
                 @Override
                 public void onSuccess() {
