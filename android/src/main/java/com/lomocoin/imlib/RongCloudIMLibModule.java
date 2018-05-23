@@ -929,12 +929,11 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     // 获取某些会话类型（conversationTypes为数组）的未读消息数
     @ReactMethod
-    public void getConversationsUnreadCount(int[] conversationTypes, final Promise promise) {
+    public void getConversationsUnreadCount(ReadableArray conversationTypes, final Promise promise) {
         try {
             List<ConversationType> lists = new ArrayList<>();
-            for (int t : conversationTypes) {
-                ConversationType type = formatConversationType(t);
-                lists.add(type);
+            for (int i = 0; i < conversationTypes.size(); i++) {
+                lists.add(formatConversationType(conversationTypes.getInt(i)));
             }
             ConversationType[] types = (ConversationType[]) lists.toArray(new ConversationType[lists.size()]);
 
