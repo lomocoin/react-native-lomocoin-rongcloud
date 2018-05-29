@@ -44,7 +44,7 @@ export default {
     connectWithToken(token) {
         return RongCloudIMLib.connectWithToken(token);
     },
-    // 未读消息
+    // 未读消息数
     getTotalUnreadCount() {
         // 获取全部未读消息数量（此消息数量为SDK本地查询到的未读消息数（有可能包含已退出群组的消息数量））
         return RongCloudIMLib.getTotalUnreadCount();
@@ -61,9 +61,6 @@ export default {
         return RongCloudIMLib.clearUnreadMessage(conversationType, targetId);
     },
     // Conversations
-    deleteTargetMessages(conversationType, targetId) {
-        return RongCloudIMLib.deleteTargetMessages(conversationType, targetId);
-    },
     searchConversations(keyword) {
         return RongCloudIMLib.searchConversations(keyword);
     },
@@ -97,7 +94,7 @@ export default {
         // 设置讨论组是否开放加人权限,讨论组默认开放加人权限，即所有成员都可以加人。如果关闭加人权限之后，只有讨论组的创建者有加人权限。
         return RongCloudIMLib.setDiscussionInviteStatus(discussionId, isOpen);
     },
-    // Messages
+    // Message Operation
     getLatestMessages(type, targetId, count) {
         return RongCloudIMLib.getLatestMessages(type, targetId, count);
     },
@@ -113,18 +110,24 @@ export default {
     getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after) {
         return RongCloudIMLib.getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after);
     },
+    deleteTargetMessages(conversationType, targetId) {
+        return RongCloudIMLib.deleteTargetMessages(conversationType, targetId);
+    },
+    deleteMessages(messageIds) {
+        return RongCloudIMLib.deleteMessages(messageIds);
+    },
     // Send Message
-    sendTextMessage(conversationType, targetId, content, pushContent, extra) {
-        return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, pushContent, extra);
+    sendTextMessage(conversationType, targetId, content, pushContent, pushData, extra) {
+        return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, pushContent, pushData, extra);
     },
-    sendImageMessage(conversationType, targetId, imageUrl, pushContent, extra) {
-        return RongCloudIMLib.sendImageMessage(conversationType, targetId, imageUrl, pushContent, extra);
+    sendImageMessage(conversationType, targetId, imageUrl, pushContent, pushData, extra) {
+        return RongCloudIMLib.sendImageMessage(conversationType, targetId, imageUrl, pushContent, pushData, extra);
     },
-    voiceBtnPressIn(conversationType, targetId, pushContent, extra) {
-        return RongCloudIMLib.voiceBtnPressIn(conversationType, targetId, pushContent, extra);
+    voiceBtnPressIn(conversationType, targetId, pushContent, pushData, extra) {
+        return RongCloudIMLib.voiceBtnPressIn(conversationType, targetId, pushContent, pushData, extra);
     },
-    voiceBtnPressOut(conversationType, targetId, pushContent, extra) {
-        return RongCloudIMLib.voiceBtnPressOut(conversationType, targetId, pushContent, extra);
+    voiceBtnPressOut(conversationType, targetId, pushContent, pushData, extra) {
+        return RongCloudIMLib.voiceBtnPressOut(conversationType, targetId, pushContent, pushData, extra);
     },
     voiceBtnPressCancel(conversationType, targetId) {
         return RongCloudIMLib.voiceBtnPressCancel(conversationType, targetId);
@@ -155,6 +158,19 @@ export default {
     getGlobalNotificationStatus() {
         //获取全局新消息提醒状态 （ return  0:（屏蔽） 1:（新消息提醒））
         return RongCloudIMLib.getGlobalNotificationStatus();
+    },
+    // Black List
+    addToBlacklist(userId) {
+        return RongCloudIMLib.addToBlacklist(userId);
+    },
+    removeFromBlacklist(userId) {
+        return RongCloudIMLib.removeFromBlacklist(userId);
+    },
+    getBlacklistStatus(userId) {
+        return RongCloudIMLib.getBlacklistStatus(userId);
+    },
+    getBlacklist() {
+        return RongCloudIMLib.getBlacklist();
     },
     //isReceivePush-true 开启后台推送 false-关闭后台推送
     disconnect(isReceivePush) {
