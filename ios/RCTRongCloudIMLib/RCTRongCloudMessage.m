@@ -25,6 +25,7 @@
 @property (nonatomic, assign) int type;
 @property (nonatomic, copy) NSString *targetId;
 @property (nonatomic, copy) NSString *pushContent;
+@property (nonatomic, copy) NSString *pushData;
 @property (nonatomic, copy) NSString *extra;
 
 @end
@@ -60,12 +61,299 @@ static RCTRongCloudMessage * _message = nil;
     }
 }
 
+#pragma mark Messages
+
+/*!
+ 获取会话列表
+ 
+ @param conversationTypeList 会话类型的数组(需要将RCConversationType转为NSNumber构建Array)
+ */
++ (void)getConversationList:(void (^)(NSArray *array))successBlock error:(void (^)())errorBlock{
+    NSArray *conversationList = [[self getClient] getConversationList:@[@(ConversationType_PRIVATE),@(ConversationType_GROUP)]];
+    if(conversationList.count > 0){
+        NSMutableArray * array = [NSMutableArray new];
+        for  (RCConversation * conversation in conversationList) {
+            NSMutableDictionary * dict = [NSMutableDictionary new];
+            dict[@"conversationType"] = @((unsigned long)conversation.conversationType);
+            dict[@"targetId"] = conversation.targetId;
+            dict[@"conversationTitle"] = conversation.conversationTitle;
+            dict[@"unreadMessageCount"] = @(conversation.unreadMessageCount);
+            dict[@"receivedTime"] = @((long long)conversation.receivedTime);
+            dict[@"sentTime"] = @((long long)conversation.sentTime);
+            dict[@"senderUserId"] = conversation.senderUserId;
+            dict[@"lastestMessageId"] = @(conversation.lastestMessageId);
+            dict[@"lastestMessageDirection"] = @(conversation.lastestMessageDirection);
+            dict[@"jsonDict"] = conversation.jsonDict;
+            if ([conversation.lastestMessage isKindOfClass:[RCTextMessage class]]) {
+                RCTextMessage *textMsg = (RCTextMessage *)conversation.lastestMessage;
+                dict[@"msgType"] = @"text";
+                dict[@"lastestMessage"] = textMsg.content;
+            } else if ([conversation.lastestMessage isKindOfClass:[RCImageMessage class]]) {
+                dict[@"msgType"] = @"image";
+            } else if ([conversation.lastestMessage isKindOfClass:[RCVoiceMessage class]]) {
+                dict[@"msgType"] = @"voice";
+            }
+            
+            [array addObject:dict];
+        }
+        successBlock(array);
+    } else {
+        errorBlock();
+    }
+}
+
+/*!
+ 根据关键字搜索会话
+ 
+ @param keyword              关键字
+ */
++ (void)searchConversations:(NSString *)keyword
+                    success:(void (^)(NSArray *array))successBlock
+                      error:(void (^)())errorBlock{
+    
+    NSArray *SearchResult = [[self getClient] searchConversations:@[@(ConversationType_PRIVATE),@(ConversationType_GROUP)] messageType:@[[RCTextMessage getObjectName]] keyword:keyword];
+    
+    if(SearchResult.count > 0){
+        NSMutableArray * array = [NSMutableArray new];
+        for  (RCSearchConversationResult * result in SearchResult) {
+            NSMutableDictionary * dict = [NSMutableDictionary new];
+            dict[@"conversationType"] = @((unsigned long)result.conversation.conversationType);
+            dict[@"targetId"] = result.conversation.targetId;
+            dict[@"conversationTitle"] = result.conversation.conversationTitle;
+            dict[@"unreadMessageCount"] = @(result.conversation.unreadMessageCount);
+            dict[@"receivedTime"] = @((long long)result.conversation.receivedTime);
+            dict[@"sentTime"] = @((long long)result.conversation.sentTime);
+            dict[@"senderUserId"] = result.conversation.senderUserId;
+            dict[@"lastestMessageId"] = @(result.conversation.lastestMessageId);
+            dict[@"lastestMessageDirection"] = @(result.conversation.lastestMessageDirection);
+            dict[@"jsonDict"] = result.conversation.jsonDict;
+            if ([result.conversation.lastestMessage isKindOfClass:[RCTextMessage class]]) {
+                RCTextMessage *textMsg = (RCTextMessage *)result.conversation.lastestMessage;
+                dict[@"msgType"] = @"text";
+                dict[@"lastestMessage"] = textMsg.content;
+            } else if ([result.conversation.lastestMessage isKindOfClass:[RCImageMessage class]]) {
+                dict[@"msgType"] = @"image";
+            } else if ([result.conversation.lastestMessage isKindOfClass:[RCVoiceMessage class]]) {
+                dict[@"msgType"] = @"voice";
+            }
+            
+            [array addObject:dict];
+        }
+        NSLog(@"SearchResultList === %@",array);
+        successBlock(array);
+    }else{
+        errorBlock();
+    }
+}
+
+
+
++ (NSMutableArray *)getMessageList:(NSArray *)messageList{
+    NSMutableArray * array = [NSMutableArray new];
+    for (RCMessage * message in messageList) {
+        NSMutableDictionary * dict = [NSMutableDictionary new];
+        dict[@"conversationType"] = @((unsigned long)message.conversationType);
+        dict[@"targetId"] = message.targetId;
+        dict[@"messageId"] = @(message.messageId);
+        dict[@"receivedTime"] = @((long long)message.receivedTime);
+        dict[@"sentTime"] = @((long long)message.sentTime);
+        dict[@"senderUserId"] = message.senderUserId;
+        dict[@"messageUId"] = message.messageUId;
+        dict[@"messageDirection"] = @(message.messageDirection);
+        
+        if([message.content isKindOfClass:[RCTextMessage class]]){
+            RCTextMessage *textMsg = (RCTextMessage *)message.content;
+            dict[@"type"] = @"text";
+            dict[@"content"] = textMsg.content;
+            dict[@"extra"] = textMsg.extra;
+        }
+        else if ([message.content isKindOfClass:[RCImageMessage class]]){
+            RCImageMessage *imageMsg = (RCImageMessage *)message.content;
+            dict[@"type"] = @"image";
+            dict[@"imageUrl"] = imageMsg.imageUrl;
+            dict[@"extra"] = imageMsg.extra;
+        }
+        else if ([message.content isKindOfClass:[RCVoiceMessage class]]){
+            RCVoiceMessage *voiceMsg = (RCVoiceMessage *)message.content;
+            dict[@"type"] = @"voice";
+            dict[@"wavAudioData"] = [self saveWavAudioDataToSandbox:voiceMsg.wavAudioData messageId:message.messageId];
+            dict[@"duration"] = @(voiceMsg.duration);
+            dict[@"extra"] = voiceMsg.extra;
+        }
+        [array addObject:dict];
+    }
+    return array;
+}
+
++ (NSString *)saveWavAudioDataToSandbox:(NSData *)data messageId:(NSInteger)msgId{
+    
+    NSFileManager * fileManager = [NSFileManager defaultManager];
+    
+    NSString * documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    
+    NSString * directoryPath = [documentPath stringByAppendingString:@"/ChatMessage"];
+    
+    if(![fileManager fileExistsAtPath:directoryPath]){
+        
+        [fileManager createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    
+    
+    NSString * filePath = [directoryPath stringByAppendingString:[NSString stringWithFormat:@"/%ld.wav",(long)msgId]];
+    
+    [fileManager createFileAtPath:filePath contents:data attributes:nil];
+    
+    return filePath;
+}
+
+
+/*!
+ 获取某个会话中指定数量的最新消息实体
+ 
+ @param conversationType    会话类型
+ @param targetId            目标会话ID
+ @param count               需要获取的消息数量
+ */
++ (void)getLatestMessages:(int)type
+                 targetId:(NSString *)targetId
+                    count:(int)count
+                  success:(void (^)(NSArray *array))successBlock
+                    error:(void (^)())errorBlock{
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    NSArray * messageList = [[self getClient] getLatestMessages:conversationType targetId:targetId count:count];
+    if(messageList){
+        NSLog(@"MessagesList === %@",messageList);
+        successBlock([self getMessageList:messageList]);
+    }
+    else{
+        errorBlock();
+    }
+}
+
+/*!
+ 获取会话中，从指定消息之前、指定数量的最新消息实体
+ 
+ @param conversationType    会话类型
+ @param targetId            目标会话ID
+ @param oldestMessageId     截止的消息ID
+ @param count               需要获取的消息数量
+ */
++ (void)getHistoryMessages:(int)type
+                  targetId:(NSString *)targetId
+           oldestMessageId:(int)oldestMessageId
+                     count:(int)count
+                   success:(void (^)(NSArray *array))successBlock
+                     error:(void (^)())errorBlock{
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId oldestMessageId:oldestMessageId count:count];
+    if(messageList){
+        successBlock([self getMessageList:messageList]);
+    }
+    else{
+        errorBlock();
+    }
+}
+
+/*!
+ 获取会话中，从指定消息之前、指定数量的、指定消息类型的最新消息实体
+ 
+ @param conversationType    会话类型
+ @param targetId            目标会话ID
+ @param objectName          消息内容的类型名，如果想取全部类型的消息请传 nil
+ @param oldestMessageId     截止的消息ID
+ @param count               需要获取的消息数量
+ */
++ (void)getDesignatedTypeHistoryMessages:(int)type
+                                targetId:(NSString *)targetId
+                              objectName:(NSString *)objectName
+                         oldestMessageId:(int)oldestMessageId
+                                   count:(int)count
+                                 success:(void (^)(NSArray *array))successBlock
+                                   error:(void (^)())errorBlock{
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId objectName:objectName oldestMessageId:oldestMessageId count:count];
+    if(messageList){
+        successBlock([self getMessageList:messageList]);
+    }
+    else{
+        errorBlock();
+    }
+}
+
+/*!
+ 获取会话中，指定消息、指定数量、指定消息类型、向前或向后查找的消息实体列表
+ 
+ @param conversationType    会话类型
+ @param targetId            目标会话ID
+ @param objectName          消息内容的类型名，如果想取全部类型的消息请传 nil
+ @param baseMessageId       当前的消息ID
+ @param isForward           查询方向 true为向前，false为向后
+ @param count               需要获取的消息数量
+ */
++ (void)getDesignatedDirectionypeHistoryMessages:(int)type
+                                        targetId:(NSString *)targetId
+                                      objectName:(NSString *)objectName
+                                   baseMessageId:(int)baseMessageId
+                                           count:(int)count
+                                       direction:(BOOL)direction
+                                         success:(void (^)(NSArray *array))successBlock
+                                           error:(void (^)())errorBlock{
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId objectName:objectName baseMessageId:baseMessageId isForward:direction count:count];
+    if(messageList){
+        successBlock([self getMessageList:messageList]);
+    }
+    else{
+        errorBlock();
+    }
+}
+
+/*!
+ 在会话中搜索指定消息的前 beforeCount 数量和后 afterCount
+ 数量的消息。返回的消息列表中会包含指定的消息。消息列表时间顺序从旧到新。
+ 
+ @param conversationType    会话类型
+ @param targetId            目标会话ID
+ @param sentTime            消息的发送时间
+ @param beforeCount         指定消息的前部分消息数量
+ @param afterCount          指定消息的后部分消息数量
+ */
++ (void)getBaseOnSentTimeHistoryMessages:(int)type
+                                targetId:(NSString *)targetId
+                                sentTime:(long long)sentTime
+                                  before:(int)before
+                                   after:(int)after
+                                 success:(void (^)(NSArray *array))successBlock
+                                   error:(void (^)())errorBlock{
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    NSArray * messageList = [[self getClient] getHistoryMessages:conversationType targetId:targetId sentTime:sentTime beforeCount:before afterCount:after];
+    if(messageList){
+        successBlock([self getMessageList:messageList]);
+    }
+    else{
+        errorBlock();
+    }
+}
+
+#pragma mark Send Message
+
 #pragma mark Text Message
 
 + (void)sendTextMessage:(int)type
                targetId:(NSString *)targetId
                 content:(NSString *)content
             pushContent:(NSString *)pushContent
+               pushData:(NSString *)pushData
                   extra:(NSString *)extra
                 success:(void (^)(NSString *messageId))successBlock
                   error:(void (^)(RCErrorCode status, NSString *messageId))errorBlock{
@@ -74,7 +362,7 @@ static RCTRongCloudMessage * _message = nil;
     if(extra){
         messageContent.extra = extra;
     }
-    [self sendMessage:type messageType:@"text" targetId:targetId content:messageContent pushContent:pushContent success:successBlock error:errorBlock];
+    [self sendMessage:type messageType:@"text" targetId:targetId content:messageContent pushContent:pushContent pushData:pushData success:successBlock error:errorBlock];
 }
 
 #pragma mark Image Message
@@ -83,6 +371,7 @@ static RCTRongCloudMessage * _message = nil;
                 targetId:(NSString *)targetId
                 imageUrl:(NSString *)imageUrl
              pushContent:(NSString *)pushContent
+                pushData:(NSString *)pushData
                    extra:(NSString *)extra
                  success:(void (^)(NSString *messageId))successBlock
                    error:(void (^)(RCErrorCode status, NSString *messageId))errorBlock{
@@ -92,14 +381,14 @@ static RCTRongCloudMessage * _message = nil;
         if(extra){
             imageMessage.extra = extra;
         }
-        [self sendMessage:type messageType:@"image" targetId:targetId content:imageMessage pushContent:pushContent success:successBlock error:errorBlock];
+        [self sendMessage:type messageType:@"image" targetId:targetId content:imageMessage pushContent:pushContent pushData:pushData success:successBlock error:errorBlock];
     }
     else{
-        [self sendImageMessageWithType:type targetId:targetId ImageUrl:imageUrl pushContent:pushContent extra:extra success:successBlock error:errorBlock];
+        [self sendImageMessageWithType:type targetId:targetId ImageUrl:imageUrl pushContent:pushContent pushData:pushData extra:extra success:successBlock error:errorBlock];
     }
 }
 
-+ (void)sendImageMessageWithType:(int)type targetId:(NSString *)targetId ImageUrl:(NSString *)imageUrl  pushContent:(NSString *)pushContent extra:(NSString *)extra success:(void (^)(NSString *messageId))successBlock error:(void (^)(RCErrorCode nErrorCode, NSString *messageId))errorBlock{
++ (void)sendImageMessageWithType:(int)type targetId:(NSString *)targetId ImageUrl:(NSString *)imageUrl  pushContent:(NSString *)pushContent pushData:(NSString *)pushData extra:(NSString *)extra success:(void (^)(NSString *messageId))successBlock error:(void (^)(RCErrorCode nErrorCode, NSString *messageId))errorBlock{
     
     ALAssetsLibrary   *lib = [[ALAssetsLibrary alloc] init];
     
@@ -116,7 +405,7 @@ static RCTRongCloudMessage * _message = nil;
         if(extra){
             imageMessage.extra = extra;
         }
-        [self sendMessage:type messageType:@"image" targetId:targetId content:imageMessage pushContent:pushContent success:successBlock error:errorBlock];
+        [self sendMessage:type messageType:@"image" targetId:targetId content:imageMessage pushContent:pushContent pushData:pushData success:successBlock error:errorBlock];
         
     } failureBlock:^(NSError *error) {
         errorBlock(ERRORCODE_UNKNOWN, 0);
@@ -165,6 +454,7 @@ static RCTRongCloudMessage * _message = nil;
 - (void)voiceBtnPressIn:(int)type
                targetId:(NSString *)targetId
             pushContent:(NSString *)pushContent
+               pushData:(NSString *)pushData
                   extra:(NSString *)extra{
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -172,6 +462,7 @@ static RCTRongCloudMessage * _message = nil;
         self.type = type;
         self.targetId = targetId;
         self.pushContent = pushContent;
+        self.pushData = pushData;
         self.extra = extra;
         
         AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
@@ -259,6 +550,7 @@ static RCTRongCloudMessage * _message = nil;
 - (void)voiceBtnPressOut:(int)type
                 targetId:(NSString *)targetId
              pushContent:(NSString *)pushContent
+                pushData:(NSString *)pushData
                    extra:(NSString *)extra
                  success:(void (^)(NSString *message))successBlock
                    error:(void (^)(RCErrorCode status, NSString *message))errorBlock{
@@ -267,6 +559,7 @@ static RCTRongCloudMessage * _message = nil;
         self.type = type;
         self.targetId = targetId;
         self.pushContent = pushContent;
+        self.pushData = pushData;
         self.extra = extra;
         
         if(!self.isSend){
@@ -281,6 +574,11 @@ static RCTRongCloudMessage * _message = nil;
                       error:(void (^)(NSString *Code))errorBlock{
     
     dispatch_async(dispatch_get_main_queue(), ^{
+        self.type = 1;
+        self.targetId = @"";
+        self.pushContent = @"";
+        self.pushData = @"";
+        self.extra = @"";
         
         [self removeTimer];
         
@@ -333,7 +631,7 @@ static RCTRongCloudMessage * _message = nil;
         self.duration = (NSInteger)roundf(dataLong);
         
         NSData * audioData = [NSData dataWithContentsOfURL:self.recordFileUrl];
-        [self sendVoiceMessage:self.type targetId:self.targetId content:audioData duration:self.duration pushContent:self.pushContent extra:self.extra success:successBlock error:errorBlock];
+        [self sendVoiceMessage:self.type targetId:self.targetId content:audioData duration:self.duration pushContent:self.pushContent pushData:self.pushData extra:self.extra success:successBlock error:errorBlock];
         
         //发送完录音后，删除本地录音（融云会自动保存录音）
         NSString * filePath = self.recordFileUrl.absoluteString;
@@ -385,6 +683,7 @@ static RCTRongCloudMessage * _message = nil;
                  content:(NSData *)voiceData
                 duration:(NSInteger )duration
              pushContent:(NSString *)pushContent
+                pushData:(NSString *)pushData
                    extra:(NSString *)extra
                  success:(void (^)(NSString *message))successBlock
                    error:(void (^)(RCErrorCode status, NSString *message))errorBlock {
@@ -394,7 +693,7 @@ static RCTRongCloudMessage * _message = nil;
         rcVoiceMessage.extra = extra;
     }
     
-    [RCTRongCloudMessage sendMessage:type messageType:@"voice" targetId:targetId content:rcVoiceMessage pushContent:pushContent success:successBlock error:errorBlock];
+    [RCTRongCloudMessage sendMessage:type messageType:@"voice" targetId:targetId content:rcVoiceMessage pushContent:pushContent pushData:pushData success:successBlock error:errorBlock];
     
 }
 
@@ -447,6 +746,7 @@ static RCTRongCloudMessage * _message = nil;
            targetId:(NSString *)targetId
             content:(RCMessageContent *)content
         pushContent:(NSString *) pushContent
+           pushData:(NSString *)pushData
             success:(void (^)(NSString *messageId))successBlock
               error:(void (^)(RCErrorCode status, NSString *messageId))errorBlock {
     
@@ -454,7 +754,7 @@ static RCTRongCloudMessage * _message = nil;
     
     if ([messageType isEqualToString:@"image"]) {
         //图片和文件消息使用sendMediaMessage方法（此方法会将图片上传至融云服务器）
-        [[self getClient] sendMediaMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:nil progress:nil success:^(long messageId) {
+        [[self getClient] sendMediaMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:pushData progress:nil success:^(long messageId) {
             NSString * message = [NSString stringWithFormat:@"%ld",messageId];
             successBlock(message);
         } error:^(RCErrorCode nErrorCode, long messageId) {
@@ -463,7 +763,7 @@ static RCTRongCloudMessage * _message = nil;
         } cancel:nil];
     } else {
         //文本和语音使用sendMessage方法（若使用本方法发送图片消息，则需要上传图片到自己的服务器后把图片地址放到图片消息内）
-        [[self getClient] sendMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:nil success:^(long messageId) {
+        [[self getClient] sendMessage:conversationType targetId:targetId content:content pushContent:pushContent pushData:pushData success:^(long messageId) {
             NSString * message = [NSString stringWithFormat:@"%ld",messageId];
             successBlock(message);
         } error:^(RCErrorCode nErrorCode, long messageId) {
