@@ -1280,7 +1280,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             RongIMClient.getInstance().getBlacklistStatus(id, new ResultCallback<RongIMClient.BlacklistStatus>() {
                 @Override
                 public void onSuccess(RongIMClient.BlacklistStatus blacklistStatus) {
-                    promise.resolve(blacklistStatus.getValue());
+                    promise.resolve(blacklistStatus.getValue() == 0);
                 }
 
                 @Override
