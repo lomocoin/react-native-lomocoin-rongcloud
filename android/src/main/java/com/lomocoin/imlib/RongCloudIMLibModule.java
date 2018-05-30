@@ -66,6 +66,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     private AudioRecoderUtils recoderUtils;
     private String AtargId = "";
     private String aPushContent = "";
+    private String aPushData = "";
     private Promise Apromise = null;
     private int Atype = 0;
     private String extra = "";
@@ -101,7 +102,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 Apromise.reject("-500", "-500");
             } else {
                 int duration = (int) Math.ceil(time / 1000);
-                sendVoiceMessage(Atype, AtargId, filePath, duration, aPushContent, extra, Apromise);
+                sendVoiceMessage(Atype, AtargId, filePath, duration, aPushContent, aPushData, extra, Apromise);
             }
         } catch (Exception e) {
         }
@@ -487,11 +488,10 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sendTextMessage(int mType, String targetId, String content, String pushContent, String extra, final Promise promise) {
+    public void sendTextMessage(int mType, String targetId, String content, String pushContent, String pushData, String extra, final Promise promise) {
         TextMessage textMessage = TextMessage.obtain(content);
         textMessage.setExtra(extra);
         ConversationType type = formatConversationType(mType);
-        String pushData = "";
         RongIMClient.getInstance().sendMessage(type, targetId, textMessage, pushContent, pushData, new IRongCallback.ISendMessageCallback() {
             @Override
             public void onAttached(Message message) {
@@ -511,7 +511,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent, String extra, final Promise promise) {
+    public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent, String pushData, String extra, final Promise promise) {
 
         imageUrl = ImgCompressUtils.compress(context, imageUrl);//压缩图片处理
 //        Log.e("isme","inthis: "+imageUrl);
@@ -526,7 +526,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         Uri uri = Uri.parse(imageUrl);
         ImageMessage imageMessage = ImageMessage.obtain(uri, uri, true);
         imageMessage.setExtra(extra);
-        RongIMClient.getInstance().sendImageMessage(type, targetId, imageMessage, null, null, new RongIMClient.SendImageMessageCallback() {
+        RongIMClient.getInstance().sendImageMessage(type, targetId, imageMessage, pushContent, pushData, new RongIMClient.SendImageMessageCallback() {
             @Override
             public void onAttached(Message message) {
 
@@ -551,11 +551,10 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void sendVoiceMessage(int mType, String targetId, String voiceData, int duration, String pushContent, String extra, final Promise promise) {
+    public void sendVoiceMessage(int mType, String targetId, String voiceData, int duration, String pushContent, String pushData, String extra, final Promise promise) {
         VoiceMessage voiceMessage = VoiceMessage.obtain(Uri.parse(voiceData), duration);
         voiceMessage.setExtra(extra);
         ConversationType type = formatConversationType(mType);
-        String pushData = "";
         RongIMClient.getInstance().sendMessage(type, targetId, voiceMessage, pushContent, pushData, new IRongCallback.ISendMessageCallback() {
             @Override
             public void onAttached(Message message) {
@@ -701,7 +700,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void voiceBtnPressIn(int mType, String targetId, String pushContent, String extra, final Promise promise) {
+    public void voiceBtnPressIn(int mType, String targetId, String pushContent, String pushData, String extra, final Promise promise) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 int state = context.checkSelfPermission(Manifest.permission.RECORD_AUDIO);
@@ -719,6 +718,10 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             if (pushContent != null && pushContent.length() > 0) {
                 this.aPushContent = pushContent;
             }
+            if (pushData != null && pushData.length() > 0) {
+                this.aPushData = pushData;
+            }
+
             if (extra != null && extra.length() > 0) {
                 this.extra = extra;
             }
@@ -732,7 +735,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void voiceBtnPressOut(int mType, String targetId, String pushContent, String extra, final Promise promise) {
+    public void voiceBtnPressOut(int mType, String targetId, String pushContent, String pushData, String extra, final Promise promise) {
         try {
             if (mType >= 0) {
                 this.Atype = mType;
@@ -742,6 +745,9 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             }
             if (pushContent != null && pushContent.length() > 0) {
                 this.aPushContent = pushContent;
+            }
+            if (pushData != null && pushData.length() > 0) {
+                this.aPushData = pushData;
             }
             if (extra != null && extra.length() > 0) {
                 this.extra = extra;
@@ -1196,6 +1202,123 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     // Discussion end
+
+    /**
+     * 删除消息
+     *
+     * @param messageIds 消息id
+     * @param promise
+     */
+    @ReactMethod
+    public void deleteMessages(ReadableArray messageIds, final Promise promise) {
+        try {
+            int[] ids = new int[messageIds.size()];
+            for (int i = 0; i < messageIds.size(); i++) {
+                ids[i] = messageIds.getInt(i);
+            }
+
+            RongIMClient.getInstance().deleteMessages(ids, new ResultCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean aBoolean) {
+                    promise.resolve(aBoolean);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+
+    // Black List
+
+    @ReactMethod
+    public void addToBlacklist(String id, final Promise promise) {
+        try {
+            RongIMClient.getInstance().addToBlacklist(id, new RongIMClient.OperationCallback() {
+                @Override
+                public void onSuccess() {
+                    promise.resolve("success");
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    @ReactMethod
+    public void removeFromBlacklist(String id, final Promise promise) {
+        try {
+            RongIMClient.getInstance().removeFromBlacklist(id, new RongIMClient.OperationCallback() {
+                @Override
+                public void onSuccess() {
+                    promise.resolve("success");
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    @ReactMethod
+    public void getBlacklistStatus(String id, final Promise promise) {
+        try {
+            RongIMClient.getInstance().getBlacklistStatus(id, new ResultCallback<RongIMClient.BlacklistStatus>() {
+                @Override
+                public void onSuccess(RongIMClient.BlacklistStatus blacklistStatus) {
+                    promise.resolve(blacklistStatus.getValue());
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    @ReactMethod
+    public void getBlacklist(final Promise promise) {
+        try {
+            RongIMClient.getInstance().getBlacklist(new RongIMClient.GetBlacklistCallback() {
+                @Override
+                public void onSuccess(String[] strings) {
+                    WritableArray array = Arguments.createArray();
+                    for (String id : strings) {
+                        array.pushString(id);
+                    }
+                    promise.resolve(array);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(String.valueOf(errorCode.getValue()), errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+//    getBlacklist() {
+//        return RongCloudIMLib.getBlacklist();
+//    },
 
 
     protected void sendEvent(String eventName, @Nullable WritableMap params) {
