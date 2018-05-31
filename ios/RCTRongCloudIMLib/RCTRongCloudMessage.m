@@ -377,7 +377,17 @@ static RCTRongCloudMessage * _message = nil;
                    error:(void (^)(RCErrorCode status, NSString *messageId))errorBlock{
     
     if([imageUrl rangeOfString:@"assets-library"].location == NSNotFound){
-        RCImageMessage *imageMessage = [RCImageMessage messageWithImageURI:imageUrl];
+        UIImage * image = nil;
+        if([imageUrl rangeOfString:@"file://"].location != NSNotFound){
+            NSData *data = [NSData dataWithContentsOfURL:[NSURL  URLWithString:imageUrl]];
+            //转换为图片保存到以上的沙盒路径中
+            image = [UIImage imageWithData:data];
+        } else {
+            image = [[UIImage alloc] initWithContentsOfFile:imageUrl];
+        }
+        // 融云推荐使用的大图尺寸为：960 x 960 像素
+        UIImage * scaledImage = [self scaleImageWithImage:image toSize:CGSizeMake(960, 960)];
+        RCImageMessage *imageMessage = [RCImageMessage messageWithImage:scaledImage];
         if(extra){
             imageMessage.extra = extra;
         }
@@ -399,7 +409,8 @@ static RCTRongCloudMessage * _message = nil;
         UIImage * image = [UIImage imageWithCGImage:imgRef
                                               scale:assetRep.scale
                                         orientation:(UIImageOrientation)assetRep.orientation];
-        UIImage * scaledImage = [self scaleImageWithImage:image toSize:CGSizeMake(960, 960)]; // 融云推荐使用的大图尺寸为：960 x 960 像素
+        // 融云推荐使用的大图尺寸为：960 x 960 像素
+        UIImage * scaledImage = [self scaleImageWithImage:image toSize:CGSizeMake(960, 960)];
         
         RCImageMessage *imageMessage = [RCImageMessage messageWithImage:scaledImage];
         if(extra){
