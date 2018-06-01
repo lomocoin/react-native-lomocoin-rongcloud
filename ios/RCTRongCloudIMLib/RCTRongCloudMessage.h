@@ -12,8 +12,8 @@
 
 @interface RCTRongCloudMessage : NSObject
 
-@property(nonatomic, copy) void (^successBlock)(NSString *message);
-@property(nonatomic, copy) void (^errorBlock)(RCErrorCode status, NSString *message);
+@property(nonatomic, copy) void (^successBlock)(NSString *messageId);
+@property(nonatomic, copy) void (^errorBlock)(RCErrorCode status, NSString *messageId);
 
 + (instancetype)shareMessage;
 
@@ -157,8 +157,8 @@
              pushContent:(NSString *)pushContent
                 pushData:(NSString *)pushData
                    extra:(NSString *)extra
-                 success:(void (^)(NSString *message))successBlock
-                   error:(void (^)(RCErrorCode status, NSString *message))errorBlock;
+                 success:(void (^)(NSString *messageId))successBlock
+                   error:(void (^)(RCErrorCode status, NSString *messageId))errorBlock;
 
 - (void)voiceBtnPressCancel:(int)type
                    targetId:(NSString *)targetId

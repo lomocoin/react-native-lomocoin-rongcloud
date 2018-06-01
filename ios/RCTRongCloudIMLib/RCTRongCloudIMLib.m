@@ -339,7 +339,7 @@ RCT_EXPORT_METHOD(sendTextMessage:(int)type
     [RCTRongCloudMessage sendTextMessage:type targetId:targetId content:content pushContent:pushContent pushData:pushData extra:extra success:^(NSString *messageId) {
         resolve(messageId);
     } error:^(RCErrorCode status, NSString *messageId) {
-        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+        reject([self getRCErrorCode:status],messageId,nil);
     }];
 }
 
@@ -355,7 +355,7 @@ RCT_EXPORT_METHOD(sendImageMessage:(int)type
     [RCTRongCloudMessage sendImageMessage:type targetId:targetId imageUrl:imageUrl pushContent:pushContent pushData:pushData extra:extra success:^(NSString *messageId) {
         resolve(messageId);
     } error:^(RCErrorCode status, NSString *messageId) {
-        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+        reject([self getRCErrorCode:status],messageId,nil);
     }];
 }
 
@@ -373,11 +373,11 @@ RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
     RCTRongCloudMessage * RCMessage = [RCTRongCloudMessage shareMessage];
     
     [RCMessage voiceBtnPressIn:type targetId:targetId pushContent:pushContent pushData:pushData extra:extra];
-    RCMessage.successBlock = ^(NSString *message) {
-        resolve(message);
+    RCMessage.successBlock = ^(NSString *messageId) {
+        resolve(messageId);
     };
-    RCMessage.errorBlock = ^(RCErrorCode nErrorCode, NSString *message) {
-        reject(message,message,nil);
+    RCMessage.errorBlock = ^(RCErrorCode status, NSString *messageId) {
+        reject([self getRCErrorCode:status],messageId,nil);
     };
 }
 
@@ -411,10 +411,10 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
     
     RCTRongCloudMessage * RCMessage = [RCTRongCloudMessage shareMessage];
     
-    [RCMessage voiceBtnPressOut:type targetId:targetId pushContent:pushContent pushData:pushData extra:extra success:^(NSString *message) {
-        resolve(message);
-    } error:^(RCErrorCode nErrorCode, NSString *message) {
-        reject(message, message, nil);
+    [RCMessage voiceBtnPressOut:type targetId:targetId pushContent:pushContent pushData:pushData extra:extra success:^(NSString *messageId) {
+        resolve(messageId);
+    } error:^(RCErrorCode status, NSString *messageId) {
+        reject([self getRCErrorCode:status],messageId,nil);
     }];
 }
 
