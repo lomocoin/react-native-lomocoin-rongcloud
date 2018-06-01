@@ -339,7 +339,7 @@ RCT_EXPORT_METHOD(sendTextMessage:(int)type
     [RCTRongCloudMessage sendTextMessage:type targetId:targetId content:content pushContent:pushContent pushData:pushData extra:extra success:^(NSString *messageId) {
         resolve(messageId);
     } error:^(RCErrorCode status, NSString *messageId) {
-        reject([self getRCErrorCode:status],messageId,nil);
+        reject(messageId,[self getRCErrorCode:status],nil);
     }];
 }
 
@@ -355,7 +355,7 @@ RCT_EXPORT_METHOD(sendImageMessage:(int)type
     [RCTRongCloudMessage sendImageMessage:type targetId:targetId imageUrl:imageUrl pushContent:pushContent pushData:pushData extra:extra success:^(NSString *messageId) {
         resolve(messageId);
     } error:^(RCErrorCode status, NSString *messageId) {
-        reject([self getRCErrorCode:status],messageId,nil);
+        reject(messageId,[self getRCErrorCode:status],nil);
     }];
 }
 
@@ -377,7 +377,7 @@ RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
         resolve(messageId);
     };
     RCMessage.errorBlock = ^(RCErrorCode status, NSString *messageId) {
-        reject([self getRCErrorCode:status],messageId,nil);
+        reject(messageId,[self getRCErrorCode:status],nil);
     };
 }
 
@@ -414,7 +414,7 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
     [RCMessage voiceBtnPressOut:type targetId:targetId pushContent:pushContent pushData:pushData extra:extra success:^(NSString *messageId) {
         resolve(messageId);
     } error:^(RCErrorCode status, NSString *messageId) {
-        reject([self getRCErrorCode:status],messageId,nil);
+        reject(messageId,[self getRCErrorCode:status],nil);
     }];
 }
 
