@@ -228,11 +228,10 @@ public class BitmapUtils {
                 Bitmap b2 = Bitmap.createBitmap(b, 0, 0, b.getWidth(),
                         b.getHeight(), m, true);
                 if (b != b2) {
-                    b.recycle(); // Android开发网再次提示Bitmap操作完应该显示的释放
+                    b.recycle();
                     b = b2;
                 }
             } catch (OutOfMemoryError ex) {
-                // Android123建议大家如何出现了内存不足异常，最好return 原始的bitmap对象。.
                 return b;
             }
         }

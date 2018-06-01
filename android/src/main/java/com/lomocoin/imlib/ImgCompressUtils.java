@@ -38,6 +38,8 @@ public class ImgCompressUtils {
 //                Log.e("isme","图片uri无效");
                 return imgPath;
             }
+            //获取图片旋转角度
+            int degree = BitmapUtils.readPictureDegree(imgPath);
 
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
@@ -52,6 +54,8 @@ public class ImgCompressUtils {
             }
 
             Bitmap bitmap = BitmapUtils.getSmallBitmap(imgPath,IMG_W,IMG_H);
+            //根据上面获取的旋转角度，旋转bitmap
+            bitmap = BitmapUtils.rotate(bitmap,degree);
 
 //            Log.e("isme","处理之后： w:"+bitmap.getWidth()+"  h:"+bitmap.getHeight());
             String newImgPath = BitmapUtils.onSaveBitmap(bitmap,context);

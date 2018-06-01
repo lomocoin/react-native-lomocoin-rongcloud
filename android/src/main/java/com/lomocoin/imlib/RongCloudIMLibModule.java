@@ -506,44 +506,43 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void sendImageMessage(int mType, String targetId, String imageUrl, String pushContent, String pushData, String extra, final Promise promise) {
+        try {
+            // 图片处理 容易出现异常闪退
+            imageUrl = ImgCompressUtils.compress(context, imageUrl);//压缩图片处理
+            if (imageUrl.startsWith("content")) {
+                imageUrl = "file://" + BitmapUtils.getRealFilePath(context, Uri.parse(imageUrl));
+            } else {
+                imageUrl = "file://" + imageUrl;
+            }
+            ConversationType type = formatConversationType(mType);
 
-        imageUrl = ImgCompressUtils.compress(context, imageUrl);//压缩图片处理
-//        Log.e("isme","inthis: "+imageUrl);
-        if (imageUrl.startsWith("content")) {
-            imageUrl = "file://" + BitmapUtils.getRealFilePath(context, Uri.parse(imageUrl));
-        } else {
-            imageUrl = "file://" + imageUrl;
+            Uri uri = Uri.parse(imageUrl);
+            ImageMessage imageMessage = ImageMessage.obtain(uri, uri, true);
+            imageMessage.setExtra(extra);
+            RongIMClient.getInstance().sendImageMessage(type, targetId, imageMessage, pushContent, pushData, new RongIMClient.SendImageMessageCallback() {
+                @Override
+                public void onAttached(Message message) {
+
+                }
+
+                @Override
+                public void onError(Message message, RongIMClient.ErrorCode errorCode) {
+                    promise.reject(errorCode.getValue() + "", message.getMessageId() + "");
+                }
+
+                @Override
+                public void onSuccess(Message message) {
+                    promise.resolve(message.getMessageId() + "");
+                }
+
+                @Override
+                public void onProgress(Message message, int i) {
+
+                }
+            });
+        }catch (Exception e){
+            promise.reject("error","error");
         }
-
-
-//        Log.e("isme","path:  "+imageUrl);
-        ConversationType type = formatConversationType(mType);
-
-        Uri uri = Uri.parse(imageUrl);
-        ImageMessage imageMessage = ImageMessage.obtain(uri, uri, true);
-        imageMessage.setExtra(extra);
-        RongIMClient.getInstance().sendImageMessage(type, targetId, imageMessage, pushContent, pushData, new RongIMClient.SendImageMessageCallback() {
-            @Override
-            public void onAttached(Message message) {
-
-            }
-
-            @Override
-            public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                promise.reject(errorCode.getValue() + "", message.getMessageId() + "");
-            }
-
-            @Override
-            public void onSuccess(Message message) {
-//                Log.e("isme","发送成功");
-                promise.resolve(message.getMessageId() + "");
-            }
-
-            @Override
-            public void onProgress(Message message, int i) {
-
-            }
-        });
     }
 
     @ReactMethod
