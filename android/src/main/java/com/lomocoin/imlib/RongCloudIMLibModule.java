@@ -212,6 +212,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
              */
             @Override
             public void onTokenIncorrect() {
+                Log.e("isme", "rong connect onTokenIncorrect");
                 promise.reject("-1", "tokenIncorrect");
             }
 
@@ -221,7 +222,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
              */
             @Override
             public void onSuccess(String userid) {
-                Log.e("isme", "连接融云成功");
+                Log.e("isme", "rong connect onSuccess");
                 WritableMap map = Arguments.createMap();
                 map.putString("userid", userid);
                 promise.resolve(map);
@@ -233,7 +234,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
              */
             @Override
             public void onError(RongIMClient.ErrorCode errorCode) {
-                Log.e("isme", "rong 连接融云失败 code:" + errorCode.getValue());
+                Log.e("isme", "连接融云失败 code:" + errorCode.getValue());
                 promise.reject(errorCode.getValue() + "", errorCode.getMessage());
             }
         });
@@ -1213,7 +1214,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         try {
             int[] ids = new int[messageIds.size()];
             for (int i = 0; i < messageIds.size(); i++) {
-                ids[i] = messageIds.getInt(i);
+                ids[i] = Integer.valueOf(messageIds.getString(i));
             }
 
             RongIMClient.getInstance().deleteMessages(ids, new ResultCallback<Boolean>() {
