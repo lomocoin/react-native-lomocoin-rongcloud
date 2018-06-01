@@ -563,8 +563,8 @@ static RCTRongCloudMessage * _message = nil;
              pushContent:(NSString *)pushContent
                 pushData:(NSString *)pushData
                    extra:(NSString *)extra
-                 success:(void (^)(NSString *message))successBlock
-                   error:(void (^)(RCErrorCode status, NSString *message))errorBlock{
+                 success:(void (^)(NSString *messageId))successBlock
+                   error:(void (^)(RCErrorCode status, NSString *messageId))errorBlock{
     
     dispatch_async(dispatch_get_main_queue(), ^{
         self.type = type;
@@ -607,19 +607,19 @@ static RCTRongCloudMessage * _message = nil;
 
 - (void)timerFired:(NSTimer *)timer{
     
-    [self stopRecord:^(NSString *message) {
+    [self stopRecord:^(NSString *messageId) {
         if(self.successBlock) {
-            self.successBlock(message);
+            self.successBlock(messageId);
         }
-    } error:^(RCErrorCode nErrorCode, NSString *message) {
+    } error:^(RCErrorCode status, NSString *messageId) {
         if(self.errorBlock) {
-            self.errorBlock(nErrorCode, message);
+            self.errorBlock(status, messageId);
         }
     }];
 }
 
-- (void)stopRecord:(void (^)(NSString *message))successBlock
-             error:(void (^)(RCErrorCode status, NSString *message))errorBlock{
+- (void)stopRecord:(void (^)(NSString *messageId))successBlock
+             error:(void (^)(RCErrorCode status, NSString *messageId))errorBlock{
     
     [self removeTimer];
     NSLog(@"停止录音");
@@ -696,8 +696,8 @@ static RCTRongCloudMessage * _message = nil;
              pushContent:(NSString *)pushContent
                 pushData:(NSString *)pushData
                    extra:(NSString *)extra
-                 success:(void (^)(NSString *message))successBlock
-                   error:(void (^)(RCErrorCode status, NSString *message))errorBlock {
+                 success:(void (^)(NSString *messageId))successBlock
+                   error:(void (^)(RCErrorCode status, NSString *messageId))errorBlock {
     
     RCVoiceMessage *rcVoiceMessage = [RCVoiceMessage messageWithAudio:voiceData duration:duration];
     if (extra){
