@@ -499,7 +499,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                promise.reject(errorCode.getValue() + "", message.getMessageId() + "");
+                promise.reject(message.getMessageId() + "",errorCode.getValue() + "");
             }
         });
     }
@@ -527,7 +527,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
                 @Override
                 public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                    promise.reject(errorCode.getValue() + "", message.getMessageId() + "");
+                    promise.reject( message.getMessageId() + "",errorCode.getValue() + "");
                 }
 
                 @Override
@@ -563,7 +563,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                promise.reject(errorCode.getValue() + "", message.getMessageId() + "");
+                promise.reject(message.getMessageId() + "",errorCode.getValue() + "");
             }
         });
     }
@@ -689,7 +689,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                promise.reject(errorCode.getValue() + "", message.getMessageId() + "");
+                promise.reject(message.getMessageId() + "",errorCode.getValue() + "");
             }
         });
     }
