@@ -1316,6 +1316,73 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
 
+    /**
+     * 消息置顶
+     * @param mType
+     * @param targetId
+     * @param isTop
+     * @param promise
+     */
+    @ReactMethod
+    public void setConversationToTop(int mType,String targetId,boolean isTop,final Promise promise) {
+        try {
+            ConversationType type = formatConversationType(mType);
+            RongIMClient.getInstance().setConversationToTop(type, targetId, isTop, new ResultCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean aBoolean) {
+                    promise.resolve(aBoolean);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(errorCode.getValue() + "", errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    @ReactMethod
+    public void removeConversation(int mType,String targetId,final Promise promise) {
+        try {
+            ConversationType type = formatConversationType(mType);
+            RongIMClient.getInstance().removeConversation(type, targetId, new ResultCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean aBoolean) {
+                    promise.resolve(aBoolean);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(errorCode.getValue() + "", errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    @ReactMethod
+    public void clearTargetMessages(int mType,String targetId,final Promise promise) {
+        try {
+            ConversationType type = formatConversationType(mType);
+            RongIMClient.getInstance().clearMessages(type, targetId, new ResultCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean aBoolean) {
+                    promise.resolve(aBoolean);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(errorCode.getValue() + "", errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
     protected void sendEvent(String eventName, @Nullable WritableMap params) {
         context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(eventName, params);
