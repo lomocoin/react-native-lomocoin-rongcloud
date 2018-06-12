@@ -19,6 +19,8 @@
 
 #pragma mark Messages Operation
 
++ (NSMutableArray *)getConversation:(NSArray *)conversationList;
+
 /*!
  获取会话列表
  

@@ -110,6 +110,18 @@ export default {
     getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after) {
         return RongCloudIMLib.getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after);
     },
+    setConversationToTop(conversationType, targetId, isTop) {
+        return RongCloudIMLib.setConversationToTop(conversationType, targetId, isTop);
+    },
+    getTopConversationList(conversationTypeList) {
+        return RongCloudIMLib.getTopConversationList(conversationTypeList);
+    },
+    removeConversation(conversationType, targetId) {
+        return RongCloudIMLib.removeConversation(conversationType, targetId);
+    },
+    clearTargetMessages(conversationType, targetId) {
+        return RongCloudIMLib.clearTargetMessages(conversationType, targetId);
+    },
     deleteTargetMessages(conversationType, targetId) {
         return RongCloudIMLib.deleteTargetMessages(conversationType, targetId);
     },
