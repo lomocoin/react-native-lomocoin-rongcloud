@@ -294,7 +294,52 @@ RCT_REMAP_METHOD(getBaseOnSentTimeHistoryMessages,
     }];
 }
 
-#pragma mark  RongCloud  DeleteMessages
+#pragma mark  RongCloud  Top Conversation List
+
+RCT_EXPORT_METHOD(setConversationToTop:(int)type
+                  targetId:(NSString *)targetId
+                  isTop:(BOOL)isTop
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    BOOL isSuccess = [[self getClient] setConversationToTop:conversationType targetId:targetId isTop:isTop];
+    resolve(@(isSuccess));
+}
+
+RCT_EXPORT_METHOD(getTopConversationList:(NSArray *)conversationTypeList
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    NSArray * conversations = [[self getClient] getTopConversationList:conversationTypeList];
+    
+    resolve([RCTRongCloudMessage getConversation:conversations]);
+}
+
+#pragma mark  RongCloud  Delete Messages
+
+RCT_EXPORT_METHOD(removeConversation:(int)type
+                  targetId:(NSString *)targetId
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    BOOL isSuccess = [[self getClient] removeConversation:conversationType targetId:targetId];
+    resolve(@(isSuccess));
+}
+
+RCT_EXPORT_METHOD(clearTargetMessages:(int)type
+                  targetId:(NSString *)targetId
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    BOOL isSuccess = [[self getClient] clearMessages:conversationType targetId:targetId];
+    resolve(@(isSuccess));
+}
 
 RCT_EXPORT_METHOD(deleteTargetMessages:(int)type
                   targetId:(NSString *)targetId
@@ -305,7 +350,7 @@ RCT_EXPORT_METHOD(deleteTargetMessages:(int)type
     
     void (^successBlock)(void);
     successBlock = ^() {
-        resolve(@"删除成功");
+        resolve(@"success");
     };
     
     [[self getClient] deleteMessages:conversationType targetId:targetId success:successBlock error:^(RCErrorCode status) {
@@ -318,11 +363,7 @@ RCT_EXPORT_METHOD(deleteMessages:(NSArray *)messageIds
                   rejecter:(RCTPromiseRejectBlock)reject) {
     
     BOOL delete = [[self getClient] deleteMessages:messageIds];
-    if (delete) {
-        resolve(@(delete));
-    } else {
-        reject(@"error", @"error", nil);
-    }
+    resolve(@(delete));
 }
 
 #pragma mark  RongCloud  Send Text / Image / Voice  Messages
@@ -339,7 +380,7 @@ RCT_EXPORT_METHOD(sendTextMessage:(int)type
     [RCTRongCloudMessage sendTextMessage:type targetId:targetId content:content pushContent:pushContent pushData:pushData extra:extra success:^(NSString *messageId) {
         resolve(messageId);
     } error:^(RCErrorCode status, NSString *messageId) {
-        reject([self getRCErrorCode:status],messageId,nil);
+        reject(messageId,[self getRCErrorCode:status],nil);
     }];
 }
 
@@ -355,7 +396,7 @@ RCT_EXPORT_METHOD(sendImageMessage:(int)type
     [RCTRongCloudMessage sendImageMessage:type targetId:targetId imageUrl:imageUrl pushContent:pushContent pushData:pushData extra:extra success:^(NSString *messageId) {
         resolve(messageId);
     } error:^(RCErrorCode status, NSString *messageId) {
-        reject([self getRCErrorCode:status],messageId,nil);
+        reject(messageId,[self getRCErrorCode:status],nil);
     }];
 }
 
@@ -377,7 +418,7 @@ RCT_EXPORT_METHOD(voiceBtnPressIn:(int)type
         resolve(messageId);
     };
     RCMessage.errorBlock = ^(RCErrorCode status, NSString *messageId) {
-        reject([self getRCErrorCode:status],messageId,nil);
+        reject(messageId,[self getRCErrorCode:status],nil);
     };
 }
 
@@ -414,7 +455,7 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
     [RCMessage voiceBtnPressOut:type targetId:targetId pushContent:pushContent pushData:pushData extra:extra success:^(NSString *messageId) {
         resolve(messageId);
     } error:^(RCErrorCode status, NSString *messageId) {
-        reject([self getRCErrorCode:status],messageId,nil);
+        reject(messageId,[self getRCErrorCode:status],nil);
     }];
 }
 

@@ -63,6 +63,35 @@ static RCTRongCloudMessage * _message = nil;
 
 #pragma mark Messages
 
++ (NSMutableArray *)getConversation:(NSArray *)conversationList{
+    NSMutableArray * array = [NSMutableArray new];
+    for  (RCConversation * conversation in conversationList) {
+        NSMutableDictionary * dict = [NSMutableDictionary new];
+        dict[@"conversationType"] = @((unsigned long)conversation.conversationType);
+        dict[@"targetId"] = conversation.targetId;
+        dict[@"conversationTitle"] = conversation.conversationTitle;
+        dict[@"unreadMessageCount"] = @(conversation.unreadMessageCount);
+        dict[@"receivedTime"] = @((long long)conversation.receivedTime);
+        dict[@"sentTime"] = @((long long)conversation.sentTime);
+        dict[@"senderUserId"] = conversation.senderUserId;
+        dict[@"lastestMessageId"] = @(conversation.lastestMessageId);
+        dict[@"lastestMessageDirection"] = @(conversation.lastestMessageDirection);
+        dict[@"jsonDict"] = conversation.jsonDict;
+        if ([conversation.lastestMessage isKindOfClass:[RCTextMessage class]]) {
+            RCTextMessage *textMsg = (RCTextMessage *)conversation.lastestMessage;
+            dict[@"msgType"] = @"text";
+            dict[@"lastestMessage"] = textMsg.content;
+        } else if ([conversation.lastestMessage isKindOfClass:[RCImageMessage class]]) {
+            dict[@"msgType"] = @"image";
+        } else if ([conversation.lastestMessage isKindOfClass:[RCVoiceMessage class]]) {
+            dict[@"msgType"] = @"voice";
+        }
+        
+        [array addObject:dict];
+    }
+    return array;
+}
+
 /*!
  获取会话列表
  
@@ -71,32 +100,7 @@ static RCTRongCloudMessage * _message = nil;
 + (void)getConversationList:(void (^)(NSArray *array))successBlock error:(void (^)())errorBlock{
     NSArray *conversationList = [[self getClient] getConversationList:@[@(ConversationType_PRIVATE),@(ConversationType_GROUP)]];
     if(conversationList.count > 0){
-        NSMutableArray * array = [NSMutableArray new];
-        for  (RCConversation * conversation in conversationList) {
-            NSMutableDictionary * dict = [NSMutableDictionary new];
-            dict[@"conversationType"] = @((unsigned long)conversation.conversationType);
-            dict[@"targetId"] = conversation.targetId;
-            dict[@"conversationTitle"] = conversation.conversationTitle;
-            dict[@"unreadMessageCount"] = @(conversation.unreadMessageCount);
-            dict[@"receivedTime"] = @((long long)conversation.receivedTime);
-            dict[@"sentTime"] = @((long long)conversation.sentTime);
-            dict[@"senderUserId"] = conversation.senderUserId;
-            dict[@"lastestMessageId"] = @(conversation.lastestMessageId);
-            dict[@"lastestMessageDirection"] = @(conversation.lastestMessageDirection);
-            dict[@"jsonDict"] = conversation.jsonDict;
-            if ([conversation.lastestMessage isKindOfClass:[RCTextMessage class]]) {
-                RCTextMessage *textMsg = (RCTextMessage *)conversation.lastestMessage;
-                dict[@"msgType"] = @"text";
-                dict[@"lastestMessage"] = textMsg.content;
-            } else if ([conversation.lastestMessage isKindOfClass:[RCImageMessage class]]) {
-                dict[@"msgType"] = @"image";
-            } else if ([conversation.lastestMessage isKindOfClass:[RCVoiceMessage class]]) {
-                dict[@"msgType"] = @"voice";
-            }
-            
-            [array addObject:dict];
-        }
-        successBlock(array);
+        successBlock([self getConversation:conversationList]);
     } else {
         errorBlock();
     }
