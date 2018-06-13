@@ -35,6 +35,11 @@ const ConversationType = {
 
 export default {
     ConversationType: ConversationType,
+    /**
+      * SDK Init           初始化
+      * Connect and Logout 连接与断开服务器
+      * Received Message   接受新消息
+      */
     onReceived(callback) {
         _onRongCloudMessageReceived = callback;
     },
@@ -44,7 +49,25 @@ export default {
     connectWithToken(token) {
         return RongCloudIMLib.connectWithToken(token);
     },
-    // 未读消息数
+    //isReceivePush-true 开启后台推送 false-关闭后台推送
+    disconnect(isReceivePush) {
+        return RongCloudIMLib.disconnect(isReceivePush);
+    },
+    logout() {
+        return RongCloudIMLib.logout();
+    },
+    getFCMToken() {
+        if (Platform.OS === 'android') {
+            return RongCloudIMLib.getFCMToken();
+        } else {
+            return '';
+        }
+    },
+
+
+    /**
+      * Unread Message 未读消息数
+      */
     getTotalUnreadCount() {
         // 获取全部未读消息数量（此消息数量为SDK本地查询到的未读消息数（有可能包含已退出群组的消息数量））
         return RongCloudIMLib.getTotalUnreadCount();
@@ -60,75 +83,11 @@ export default {
     clearUnreadMessage(conversationType, targetId) {
         return RongCloudIMLib.clearUnreadMessage(conversationType, targetId);
     },
-    // Conversations
-    searchConversations(keyword) {
-        return RongCloudIMLib.searchConversations(keyword);
-    },
-    getConversationList() {
-        return RongCloudIMLib.getConversationList();
-    },
-    // Discussion
-    createDiscussion(name, userIdList){
-        // 设置的讨论组名称长度不能超过40个字符，否则将会截断为前40个字符。
-        return RongCloudIMLib.createDiscussion(name, userIdList);
-    },
-    addMemberToDiscussion(discussionId, userIdList){
-        return RongCloudIMLib.addMemberToDiscussion(discussionId, userIdList);
-    },
-    removeMemberFromDiscussion(discussionId, userId){
-        // 如果当前登陆用户不是此讨论组的创建者并且此讨论组没有开放加人权限，则会返回错误。
-        // 不能使用此接口将自己移除，否则会返回错误。 如果您需要退出该讨论组，可以使用quitDiscussion方法。
-        return RongCloudIMLib.removeMemberFromDiscussion(discussionId, userId);
-    },
-    quitDiscussion(discussionId){
-        return RongCloudIMLib.quitDiscussion(discussionId);
-    },
-    getDiscussion(discussionId){
-        return RongCloudIMLib.getDiscussion(discussionId);
-    },
-    setDiscussionName(discussionId, name){
-        return RongCloudIMLib.setDiscussionName(discussionId, name);
-    },
-    //注：isOpen type int,value CLOSED(1),OPENED(0);
-    setDiscussionInviteStatus(discussionId, isOpen){
-        // 设置讨论组是否开放加人权限,讨论组默认开放加人权限，即所有成员都可以加人。如果关闭加人权限之后，只有讨论组的创建者有加人权限。
-        return RongCloudIMLib.setDiscussionInviteStatus(discussionId, isOpen);
-    },
-    // Message Operation
-    getLatestMessages(type, targetId, count) {
-        return RongCloudIMLib.getLatestMessages(type, targetId, count);
-    },
-    getHistoryMessages(type, targetId, oldestMessageId, count) {
-        return RongCloudIMLib.getHistoryMessages(type, targetId, oldestMessageId, count);
-    },
-    getDesignatedTypeHistoryMessages(type, targetId, objectName, oldestMessageId, count) {
-        return RongCloudIMLib.getDesignatedTypeHistoryMessages(type, targetId, objectName, oldestMessageId, count);
-    },
-    getDesignatedDirectionypeHistoryMessages(type, targetId, objectName, baseMessageId, count, direction) {
-        return RongCloudIMLib.getDesignatedDirectionypeHistoryMessages(type, targetId, objectName, baseMessageId, count, direction);
-    },
-    getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after) {
-        return RongCloudIMLib.getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after);
-    },
-    setConversationToTop(conversationType, targetId, isTop) {
-        return RongCloudIMLib.setConversationToTop(conversationType, targetId, isTop);
-    },
-    getTopConversationList(conversationTypeList) {
-        return RongCloudIMLib.getTopConversationList(conversationTypeList);
-    },
-    removeConversation(conversationType, targetId) {
-        return RongCloudIMLib.removeConversation(conversationType, targetId);
-    },
-    clearTargetMessages(conversationType, targetId) {
-        return RongCloudIMLib.clearTargetMessages(conversationType, targetId);
-    },
-    deleteTargetMessages(conversationType, targetId) {
-        return RongCloudIMLib.deleteTargetMessages(conversationType, targetId);
-    },
-    deleteMessages(messageIds) {
-        return RongCloudIMLib.deleteMessages(messageIds);
-    },
-    // Send Message
+
+
+    /**
+      * Send Message 消息发送
+      */
     sendTextMessage(conversationType, targetId, content, pushContent, pushData, extra) {
         return RongCloudIMLib.sendTextMessage(conversationType, targetId, content, pushContent, pushData, extra);
     },
@@ -150,7 +109,86 @@ export default {
     audioPlayStop() {
         return RongCloudIMLib.audioPlayStop();
     },
-    // Push Notification
+
+    /**
+      * Recall Message 消息撤回
+      */
+    recallMessageWithPush(message, push) {
+        return RongCloudIMLib.recallMessageWithPush(message, push);
+    },
+    recallMessage(message) {
+        return RongCloudIMLib.recallMessage(message);
+    },
+
+
+    /**
+      * Message Operation 消息操作
+      */
+    getLatestMessages(type, targetId, count) {
+        return RongCloudIMLib.getLatestMessages(type, targetId, count);
+    },
+    getHistoryMessages(type, targetId, oldestMessageId, count) {
+        return RongCloudIMLib.getHistoryMessages(type, targetId, oldestMessageId, count);
+    },
+    getDesignatedTypeHistoryMessages(type, targetId, objectName, oldestMessageId, count) {
+        return RongCloudIMLib.getDesignatedTypeHistoryMessages(type, targetId, objectName, oldestMessageId, count);
+    },
+    getDesignatedDirectionypeHistoryMessages(type, targetId, objectName, baseMessageId, count, direction) {
+        return RongCloudIMLib.getDesignatedDirectionypeHistoryMessages(type, targetId, objectName, baseMessageId, count, direction);
+    },
+    getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after) {
+        return RongCloudIMLib.getBaseOnSentTimeHistoryMessages(type, targetId, sentTime, before, after);
+    },
+
+    /**
+      * Conversation List Operation 会话列表操作
+      */
+    getConversationList() {
+        return RongCloudIMLib.getConversationList();
+    },
+    setConversationToTop(conversationType, targetId, isTop) {
+        return RongCloudIMLib.setConversationToTop(conversationType, targetId, isTop);
+    },
+    getTopConversationList(conversationTypeList) {
+        return RongCloudIMLib.getTopConversationList(conversationTypeList);
+    },
+    searchConversations(keyword) {
+        return RongCloudIMLib.searchConversations(keyword);
+    },
+
+    /**
+      * Conversation Draft 会话草稿操作
+      */
+    getTextMessageDraft(conversationType, targetId) {
+        return RongCloudIMLib.getTextMessageDraft(conversationType, targetId);
+    },
+    saveTextMessageDraft(conversationType, targetId, content) {
+        return RongCloudIMLib.saveTextMessageDraft(conversationType, targetId, content);
+    },
+    clearTextMessageDraft(conversationType, targetId) {
+        return RongCloudIMLib.clearTextMessageDraft(conversationType, targetId);
+    },
+    
+    /**
+      * Delete Messages 删除消息
+      */ 
+    removeConversation(conversationType, targetId) {
+        return RongCloudIMLib.removeConversation(conversationType, targetId);
+    },
+    clearTargetMessages(conversationType, targetId) {
+        return RongCloudIMLib.clearTargetMessages(conversationType, targetId);
+    },
+    deleteTargetMessages(conversationType, targetId) {
+        return RongCloudIMLib.deleteTargetMessages(conversationType, targetId);
+    },
+    deleteMessages(messageIds) {
+        return RongCloudIMLib.deleteMessages(messageIds);
+    },
+
+
+    /**
+      * Conversation Push Notification 会话消息提醒
+      */
     setConversationNotificationStatus(conversationType, targetId, isBlocked) {
         //设置会话消息提醒 isBlocked（true 屏蔽  false 新消息提醒）  （return  0:（屏蔽） 1:（新消息提醒））
         return RongCloudIMLib.setConversationNotificationStatus(conversationType, targetId, isBlocked);
@@ -159,6 +197,10 @@ export default {
         //获取会话消息提醒状态  （return  0:（屏蔽） 1:（新消息提醒））
         return RongCloudIMLib.getConversationNotificationStatus(conversationType, targetId);
     },
+
+    /**
+      * Global Push Notification 全局消息提醒
+      */
     screenGlobalNotification() {
         //屏蔽全局新消息提醒
         return RongCloudIMLib.screenGlobalNotification();
@@ -171,7 +213,42 @@ export default {
         //获取全局新消息提醒状态 （ return  0:（屏蔽） 1:（新消息提醒））
         return RongCloudIMLib.getGlobalNotificationStatus();
     },
-    // Black List
+    
+
+    /**
+      * Discussion 讨论组
+      */
+    createDiscussion(name, userIdList) {
+        // 设置的讨论组名称长度不能超过40个字符，否则将会截断为前40个字符。
+        return RongCloudIMLib.createDiscussion(name, userIdList);
+    },
+    addMemberToDiscussion(discussionId, userIdList) {
+        return RongCloudIMLib.addMemberToDiscussion(discussionId, userIdList);
+    },
+    removeMemberFromDiscussion(discussionId, userId) {
+        // 如果当前登陆用户不是此讨论组的创建者并且此讨论组没有开放加人权限，则会返回错误。
+        // 不能使用此接口将自己移除，否则会返回错误。 如果您需要退出该讨论组，可以使用quitDiscussion方法。
+        return RongCloudIMLib.removeMemberFromDiscussion(discussionId, userId);
+    },
+    quitDiscussion(discussionId) {
+        return RongCloudIMLib.quitDiscussion(discussionId);
+    },
+    getDiscussion(discussionId) {
+        return RongCloudIMLib.getDiscussion(discussionId);
+    },
+    setDiscussionName(discussionId, name) {
+        return RongCloudIMLib.setDiscussionName(discussionId, name);
+    },
+    //注：isOpen type int,value CLOSED(1),OPENED(0);
+    setDiscussionInviteStatus(discussionId, isOpen) {
+        // 设置讨论组是否开放加人权限,讨论组默认开放加人权限，即所有成员都可以加人。如果关闭加人权限之后，只有讨论组的创建者有加人权限。
+        return RongCloudIMLib.setDiscussionInviteStatus(discussionId, isOpen);
+    },
+
+    
+    /**
+      * Black List 黑名单
+      */
     addToBlacklist(userId) {
         return RongCloudIMLib.addToBlacklist(userId);
     },
@@ -183,19 +260,5 @@ export default {
     },
     getBlacklist() {
         return RongCloudIMLib.getBlacklist();
-    },
-    //isReceivePush-true 开启后台推送 false-关闭后台推送
-    disconnect(isReceivePush) {
-        return RongCloudIMLib.disconnect(isReceivePush);
-    },
-    logout() {
-        return RongCloudIMLib.logout();
-    },
-    getFCMToken() {
-        if (Platform.OS === 'android') {
-            return RongCloudIMLib.getFCMToken();
-        } else {
-            return '';
-        }
     },
 };
