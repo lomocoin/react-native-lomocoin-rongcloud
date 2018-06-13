@@ -175,4 +175,9 @@
 - (void)audioPlayStop:(void (^)(NSString *message))successBlock
                 error:(void (^)(NSString *Code))errorBlock;
 
++ (void)recallMessage:(NSDictionary *)message
+                 push:(NSString *)push
+              success:(void (^)(NSString *messageId))successBlock
+                error:(void (^)(RCErrorCode status))errorBlock;
+
 @end

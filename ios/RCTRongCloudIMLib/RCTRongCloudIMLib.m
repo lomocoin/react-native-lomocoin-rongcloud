@@ -20,7 +20,7 @@ RCT_EXPORT_MODULE(RongCloudIMLibModule)
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"onRongMessageReceived"];
+    return @[@"onRongMessageReceived", @"onMessageRecalled"];
 }
 
 #pragma mark RongCloud Init
@@ -32,7 +32,14 @@ RCT_EXPORT_METHOD(initWithAppKey:(NSString *)appkey) {
     [[self getClient] setReceiveMessageDelegate:self object:nil];
 }
 
-#pragma mark RongCloud Connect
+#pragma mark RongCloud Connect And Disconnect
+
+RCT_REMAP_METHOD(getSDKVersion,
+                 versionResolver:(RCTPromiseResolveBlock)resolve
+                 versionRejecter:(RCTPromiseRejectBlock)reject) {
+    NSString* version = [[self getClient] getSDKVersion];
+    resolve(version);
+}
 
 RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
                   resolver:(RCTPromiseResolveBlock)resolve
@@ -59,7 +66,16 @@ RCT_EXPORT_METHOD(connectWithToken:(NSString *) token
     
 }
 
-#pragma mark RongCloud  Unread Message
+RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
+    [[self getClient] disconnect:isReceivePush];
+}
+
+RCT_EXPORT_METHOD(logout) {
+    [[self getClient] logout];
+}
+
+
+#pragma mark RongCloud  Unread Message  未读消息
 
 RCT_REMAP_METHOD(getTotalUnreadCount,
                  resolve:(RCTPromiseResolveBlock)resolve
@@ -106,267 +122,8 @@ RCT_EXPORT_METHOD(clearUnreadMessage:(int)type
     [[self getClient] clearMessagesUnreadStatus:conversationType targetId:targetId];
 }
 
-#pragma mark  RongCloud  Discussion
 
-RCT_EXPORT_METHOD(createDiscussion:(NSString *)name
-                  userIdList:(NSArray *)userIdList
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudDiscussion createDiscussion:name userIdList:userIdList success:^(NSDictionary *discussionDic) {
-        resolve(discussionDic);
-    } error:^(RCErrorCode status) {
-        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
-    }];
-}
-
-RCT_EXPORT_METHOD(addMemberToDiscussion:(NSString *)discussionId
-                  userIdList:(NSArray *)userIdList
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudDiscussion addMemberToDiscussion:discussionId userIdList:userIdList success:^(NSDictionary *discussionDic) {
-        resolve(discussionDic);
-    } error:^(RCErrorCode status) {
-        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
-    }];
-}
-
-RCT_EXPORT_METHOD(removeMemberFromDiscussion:(NSString *)discussionId
-                  userId:(NSString *)userId
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudDiscussion removeMemberFromDiscussion:discussionId userId:userId success:^(NSDictionary *discussionDic) {
-        resolve(discussionDic);
-    } error:^(RCErrorCode status) {
-        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
-    }];
-}
-
-RCT_EXPORT_METHOD(quitDiscussion:(NSString *)discussionId
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudDiscussion quitDiscussion:discussionId success:^(NSDictionary *discussionDic) {
-        resolve(discussionDic);
-    } error:^(RCErrorCode status) {
-        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
-    }];
-}
-
-RCT_EXPORT_METHOD(getDiscussion:(NSString *)discussionId
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudDiscussion getDiscussion:discussionId success:^(NSDictionary *discussionDic) {
-        resolve(discussionDic);
-    } error:^(RCErrorCode status) {
-        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
-    }];
-}
-
-RCT_EXPORT_METHOD(setDiscussionName:(NSString *)discussionId
-                  name:(NSString *)name
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudDiscussion setDiscussionName:discussionId name:name success:^(BOOL success) {
-        resolve(@(success));
-    } error:^(RCErrorCode status) {
-        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
-    }];
-}
-
-RCT_EXPORT_METHOD(setDiscussionInviteStatus:(NSString *)discussionId
-                  isOpen:(BOOL)isOpen
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudDiscussion setDiscussionInviteStatus:discussionId isOpen:isOpen success:^(BOOL success) {
-        resolve(@(success));
-    } error:^(RCErrorCode status) {
-        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
-    }];
-}
-
-
-#pragma mark  RongCloud  Messages Operation
-
-RCT_REMAP_METHOD(getConversationList,
-                 resolve:(RCTPromiseResolveBlock)resolve
-                 reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudMessage getConversationList:^(NSArray *array) {
-        resolve(array);
-    } error:^{
-        reject(@"读取失败", @"读取失败", nil);
-    }];
-}
-
-RCT_REMAP_METHOD(searchConversations,
-                 keyword:(NSString *)keyword
-                 resolve:(RCTPromiseResolveBlock)resolve
-                 reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudMessage searchConversations:keyword success:^(NSArray *array) {
-        resolve(array);
-    } error:^{
-        reject(@"读取失败", @"读取失败", nil);
-    }];
-}
-
-RCT_REMAP_METHOD(getLatestMessages,
-                 type:(int)type
-                 targetId:(NSString *)targetId
-                 count:(int)count
-                 resolve:(RCTPromiseResolveBlock)resolve
-                 reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudMessage getLatestMessages:type targetId:targetId count:count success:^(NSArray *array) {
-        resolve(array);
-    } error:^{
-        reject(@"读取失败", @"读取失败", nil);
-    }];
-}
-
-RCT_REMAP_METHOD(getHistoryMessages,
-                 type:(int)type
-                 targetId:(NSString *)targetId
-                 oldestMessageId:(int)oldestMessageId
-                 count:(int)count
-                 resolve:(RCTPromiseResolveBlock)resolve
-                 reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudMessage getHistoryMessages:type targetId:targetId oldestMessageId:oldestMessageId count:count success:^(NSArray *array) {
-        resolve(array);
-    } error:^{
-        reject(@"读取失败", @"读取失败", nil);
-    }];
-}
-
-RCT_REMAP_METHOD(getDesignatedTypeHistoryMessages,
-                 type:(int)type
-                 targetId:(NSString *)targetId
-                 objectName:(NSString *)objectName
-                 oldestMessageId:(int)oldestMessageId
-                 count:(int)count
-                 resolve:(RCTPromiseResolveBlock)resolve
-                 reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudMessage getDesignatedTypeHistoryMessages:type targetId:targetId objectName:objectName oldestMessageId:oldestMessageId count:count success:^(NSArray *array) {
-        resolve(array);
-    } error:^{
-        reject(@"读取失败", @"读取失败", nil);
-    }];
-}
-
-RCT_REMAP_METHOD(getDesignatedDirectionypeHistoryMessages,
-                 type:(int)type
-                 targetId:(NSString *)targetId
-                 objectName:(NSString *)objectName
-                 baseMessageId:(int)baseMessageId
-                 count:(int)count
-                 direction:(BOOL)direction
-                 resolve:(RCTPromiseResolveBlock)resolve
-                 reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudMessage getDesignatedDirectionypeHistoryMessages:type targetId:targetId objectName:objectName baseMessageId:baseMessageId count:count direction:direction success:^(NSArray *array) {
-        resolve(array);
-    } error:^{
-        reject(@"读取失败", @"读取失败", nil);
-    }];
-}
-
-RCT_REMAP_METHOD(getBaseOnSentTimeHistoryMessages,
-                 type:(int)type
-                 targetId:(NSString *)targetId
-                 sentTime:(long long)sentTime
-                 before:(int)before
-                 after:(int)after
-                 resolve:(RCTPromiseResolveBlock)resolve
-                 reject:(RCTPromiseRejectBlock)reject) {
-    
-    [RCTRongCloudMessage getBaseOnSentTimeHistoryMessages:type targetId:targetId sentTime:sentTime before:before after:after success:^(NSArray *array) {
-        resolve(array);
-    } error:^{
-        reject(@"读取失败", @"读取失败", nil);
-    }];
-}
-
-#pragma mark  RongCloud  Top Conversation List
-
-RCT_EXPORT_METHOD(setConversationToTop:(int)type
-                  targetId:(NSString *)targetId
-                  isTop:(BOOL)isTop
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
-    
-    RCConversationType conversationType = [self getConversationType:type];
-    
-    BOOL isSuccess = [[self getClient] setConversationToTop:conversationType targetId:targetId isTop:isTop];
-    resolve(@(isSuccess));
-}
-
-RCT_EXPORT_METHOD(getTopConversationList:(NSArray *)conversationTypeList
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
-    
-    NSArray * conversations = [[self getClient] getTopConversationList:conversationTypeList];
-    
-    resolve([RCTRongCloudMessage getConversation:conversations]);
-}
-
-#pragma mark  RongCloud  Delete Messages
-
-RCT_EXPORT_METHOD(removeConversation:(int)type
-                  targetId:(NSString *)targetId
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
-    
-    RCConversationType conversationType = [self getConversationType:type];
-    
-    BOOL isSuccess = [[self getClient] removeConversation:conversationType targetId:targetId];
-    resolve(@(isSuccess));
-}
-
-RCT_EXPORT_METHOD(clearTargetMessages:(int)type
-                  targetId:(NSString *)targetId
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
-    
-    RCConversationType conversationType = [self getConversationType:type];
-    
-    BOOL isSuccess = [[self getClient] clearMessages:conversationType targetId:targetId];
-    resolve(@(isSuccess));
-}
-
-RCT_EXPORT_METHOD(deleteTargetMessages:(int)type
-                  targetId:(NSString *)targetId
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
-    
-    RCConversationType conversationType = [self getConversationType:type];
-    
-    void (^successBlock)(void);
-    successBlock = ^() {
-        resolve(@"success");
-    };
-    
-    [[self getClient] deleteMessages:conversationType targetId:targetId success:successBlock error:^(RCErrorCode status) {
-        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
-    }];
-}
-
-RCT_EXPORT_METHOD(deleteMessages:(NSArray *)messageIds
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject) {
-    
-    BOOL delete = [[self getClient] deleteMessages:messageIds];
-    resolve(@(delete));
-}
-
-#pragma mark  RongCloud  Send Text / Image / Voice  Messages
+#pragma mark  RongCloud  Send Messages    消息发送
 
 RCT_EXPORT_METHOD(sendTextMessage:(int)type
                   targetId:(NSString *)targetId
@@ -459,7 +216,7 @@ RCT_EXPORT_METHOD(voiceBtnPressOut:(int)type
     }];
 }
 
-#pragma mark  RongCloud  Play Voice Messages
+#pragma mark  RongCloud  Play Voice Messages 播放语音消息
 
 RCT_EXPORT_METHOD(audioPlayStart:(NSString *)filePath
                   resolve:(RCTPromiseResolveBlock)resolve
@@ -474,7 +231,6 @@ RCT_EXPORT_METHOD(audioPlayStart:(NSString *)filePath
     }];
 }
 
-
 RCT_REMAP_METHOD(audioPlayStop,
                  resolve:(RCTPromiseResolveBlock)resolve
                  rejecte:(RCTPromiseRejectBlock)reject){
@@ -488,7 +244,236 @@ RCT_REMAP_METHOD(audioPlayStop,
     }];
 }
 
-#pragma mark  RongCloud PushNotification Settting
+#pragma mark  RongCloud  Recall Messages    撤回消息
+
+RCT_EXPORT_METHOD(recallMessage:(NSDictionary *)message
+                  push:(NSString *)push
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudMessage recallMessage:message push:push success:^(NSString *messageId) {
+        resolve(messageId);
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+#pragma mark  RongCloud  Messages Operation 消息操作
+
+RCT_REMAP_METHOD(getLatestMessages,
+                 type:(int)type
+                 targetId:(NSString *)targetId
+                 count:(int)count
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudMessage getLatestMessages:type targetId:targetId count:count success:^(NSArray *array) {
+        resolve(array);
+    } error:^{
+        reject(@"读取失败", @"读取失败", nil);
+    }];
+}
+
+RCT_REMAP_METHOD(getHistoryMessages,
+                 type:(int)type
+                 targetId:(NSString *)targetId
+                 oldestMessageId:(int)oldestMessageId
+                 count:(int)count
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudMessage getHistoryMessages:type targetId:targetId oldestMessageId:oldestMessageId count:count success:^(NSArray *array) {
+        resolve(array);
+    } error:^{
+        reject(@"读取失败", @"读取失败", nil);
+    }];
+}
+
+RCT_REMAP_METHOD(getDesignatedTypeHistoryMessages,
+                 type:(int)type
+                 targetId:(NSString *)targetId
+                 objectName:(NSString *)objectName
+                 oldestMessageId:(int)oldestMessageId
+                 count:(int)count
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudMessage getDesignatedTypeHistoryMessages:type targetId:targetId objectName:objectName oldestMessageId:oldestMessageId count:count success:^(NSArray *array) {
+        resolve(array);
+    } error:^{
+        reject(@"读取失败", @"读取失败", nil);
+    }];
+}
+
+RCT_REMAP_METHOD(getDesignatedDirectionypeHistoryMessages,
+                 type:(int)type
+                 targetId:(NSString *)targetId
+                 objectName:(NSString *)objectName
+                 baseMessageId:(int)baseMessageId
+                 count:(int)count
+                 direction:(BOOL)direction
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudMessage getDesignatedDirectionypeHistoryMessages:type targetId:targetId objectName:objectName baseMessageId:baseMessageId count:count direction:direction success:^(NSArray *array) {
+        resolve(array);
+    } error:^{
+        reject(@"读取失败", @"读取失败", nil);
+    }];
+}
+
+RCT_REMAP_METHOD(getBaseOnSentTimeHistoryMessages,
+                 type:(int)type
+                 targetId:(NSString *)targetId
+                 sentTime:(long long)sentTime
+                 before:(int)before
+                 after:(int)after
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudMessage getBaseOnSentTimeHistoryMessages:type targetId:targetId sentTime:sentTime before:before after:after success:^(NSArray *array) {
+        resolve(array);
+    } error:^{
+        reject(@"读取失败", @"读取失败", nil);
+    }];
+}
+
+
+#pragma mark  RongCloud  Conversation List Operation 会话列表操作
+
+RCT_REMAP_METHOD(getConversationList,
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudMessage getConversationList:^(NSArray *array) {
+        resolve(array);
+    } error:^{
+        reject(@"读取失败", @"读取失败", nil);
+    }];
+}
+
+RCT_REMAP_METHOD(searchConversations,
+                 keyword:(NSString *)keyword
+                 resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudMessage searchConversations:keyword success:^(NSArray *array) {
+        resolve(array);
+    } error:^{
+        reject(@"读取失败", @"读取失败", nil);
+    }];
+}
+
+#pragma mark  RongCloud  Top Conversation List 置顶会话
+
+RCT_EXPORT_METHOD(setConversationToTop:(int)type
+                  targetId:(NSString *)targetId
+                  isTop:(BOOL)isTop
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    BOOL isSuccess = [[self getClient] setConversationToTop:conversationType targetId:targetId isTop:isTop];
+    resolve(@(isSuccess));
+}
+
+RCT_EXPORT_METHOD(getTopConversationList:(NSArray *)conversationTypeList
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    NSArray * conversations = [[self getClient] getTopConversationList:conversationTypeList];
+    
+    resolve([RCTRongCloudMessage getConversation:conversations]);
+}
+
+#pragma mark  RongCloud  Conversation Draft 会话草稿操作
+
+RCT_EXPORT_METHOD(getTextMessageDraft:(int)type
+                  targetId:(NSString *)targetId
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    NSString * draft = [[self getClient] getTextMessageDraft:conversationType targetId:targetId];
+    resolve(draft);
+}
+
+RCT_EXPORT_METHOD(saveTextMessageDraft:(int)type
+                  targetId:(NSString *)targetId
+                  content:(NSString *)content
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    BOOL isSuccess = [[self getClient] saveTextMessageDraft:conversationType targetId:targetId content:content];
+    resolve(@(isSuccess));
+}
+
+RCT_EXPORT_METHOD(clearTextMessageDraft:(int)type
+                  targetId:(NSString *)targetId
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    BOOL isSuccess = [[self getClient] clearMessages:conversationType targetId:targetId];
+    resolve(@(isSuccess));
+}
+
+#pragma mark  RongCloud  Delete Messages    删除消息
+
+RCT_EXPORT_METHOD(removeConversation:(int)type
+                  targetId:(NSString *)targetId
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    BOOL isSuccess = [[self getClient] removeConversation:conversationType targetId:targetId];
+    resolve(@(isSuccess));
+}
+
+RCT_EXPORT_METHOD(clearTargetMessages:(int)type
+                  targetId:(NSString *)targetId
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    BOOL isSuccess = [[self getClient] clearMessages:conversationType targetId:targetId];
+    resolve(@(isSuccess));
+}
+
+RCT_EXPORT_METHOD(deleteTargetMessages:(int)type
+                  targetId:(NSString *)targetId
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    RCConversationType conversationType = [self getConversationType:type];
+    
+    void (^successBlock)(void);
+    successBlock = ^() {
+        resolve(@"success");
+    };
+    
+    [[self getClient] deleteMessages:conversationType targetId:targetId success:successBlock error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(deleteMessages:(NSArray *)messageIds
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    BOOL delete = [[self getClient] deleteMessages:messageIds];
+    resolve(@(delete));
+}
+
+
+#pragma mark  RongCloud Conversation Push Notification 会话消息提醒
 
 RCT_EXPORT_METHOD(setConversationNotificationStatus:(int)type
                   targetId:(NSString *)targetId
@@ -528,7 +513,7 @@ RCT_EXPORT_METHOD(getConversationNotificationStatus:(int)type
     }];
 }
 
-
+#pragma mark  RongCloud Global Push Notification 全局消息提醒
 
 RCT_REMAP_METHOD(screenGlobalNotification,
                  resolver:(RCTPromiseResolveBlock)resolve
@@ -577,7 +562,93 @@ RCT_REMAP_METHOD(getGlobalNotificationStatus,
     }];
 }
 
-#pragma mark  Blacklist
+
+#pragma mark  RongCloud  Discussion  讨论组
+
+RCT_EXPORT_METHOD(createDiscussion:(NSString *)name
+                  userIdList:(NSArray *)userIdList
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion createDiscussion:name userIdList:userIdList success:^(NSDictionary *discussionDic) {
+        resolve(discussionDic);
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(addMemberToDiscussion:(NSString *)discussionId
+                  userIdList:(NSArray *)userIdList
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion addMemberToDiscussion:discussionId userIdList:userIdList success:^(NSDictionary *discussionDic) {
+        resolve(discussionDic);
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(removeMemberFromDiscussion:(NSString *)discussionId
+                  userId:(NSString *)userId
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion removeMemberFromDiscussion:discussionId userId:userId success:^(NSDictionary *discussionDic) {
+        resolve(discussionDic);
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(quitDiscussion:(NSString *)discussionId
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion quitDiscussion:discussionId success:^(NSDictionary *discussionDic) {
+        resolve(discussionDic);
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(getDiscussion:(NSString *)discussionId
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion getDiscussion:discussionId success:^(NSDictionary *discussionDic) {
+        resolve(discussionDic);
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(setDiscussionName:(NSString *)discussionId
+                  name:(NSString *)name
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion setDiscussionName:discussionId name:name success:^(BOOL success) {
+        resolve(@(success));
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(setDiscussionInviteStatus:(NSString *)discussionId
+                  isOpen:(BOOL)isOpen
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject) {
+    
+    [RCTRongCloudDiscussion setDiscussionInviteStatus:discussionId isOpen:isOpen success:^(BOOL success) {
+        resolve(@(success));
+    } error:^(RCErrorCode status) {
+        reject([self getRCErrorCode:status],[self getRCErrorCode:status],nil);
+    }];
+}
+
+
+#pragma mark  RongCloud  Blacklist  黑名单
 
 RCT_EXPORT_METHOD(addToBlacklist:(NSString *)userId
                   resolve:(RCTPromiseResolveBlock)resolve
@@ -639,53 +710,46 @@ RCT_REMAP_METHOD(getBlacklist,
     }];
 }
 
-
-
-#pragma mark  RongCloud  GetSDKVersion  and   Disconnect
-
-RCT_REMAP_METHOD(getSDKVersion,
-                 versionResolver:(RCTPromiseResolveBlock)resolve
-                 versionRejecter:(RCTPromiseRejectBlock)reject) {
-    NSString* version = [[self getClient] getSDKVersion];
-    resolve(version);
-}
-
-RCT_EXPORT_METHOD(disconnect:(BOOL)isReceivePush) {
-    [[self getClient] disconnect:isReceivePush];
-}
-
-RCT_EXPORT_METHOD(logout) {
-    [[self getClient] logout];
-}
-
-
 #pragma mark RongCloud OnReceived New Message
 
--(void)onReceived:(RCMessage *)message
-             left:(int)nLeft
-           object:(id)object {
+- (void)onMessageRecalled:(long)messageId{
+    NSMutableDictionary *body = [self getEmptyBody];
+    body[@"messageId"] = @(messageId);
+    [self sendEventWithName:@"onMessageRecalled" body:body];
+}
+
+- (void)onReceived:(RCMessage *)message
+              left:(int)nLeft
+            object:(id)object {
     
     NSLog(@"onRongCloudMessageReceived");
     
     NSMutableDictionary *body = [self getEmptyBody];
     NSMutableDictionary *_message = [self getEmptyBody];
     
-    _message[@"targetId"] = message.targetId;
-    _message[@"senderUserId"] = message.senderUserId;
-    _message[@"messageId"] = [NSString stringWithFormat:@"%ld",message.messageId];
-    _message[@"sentTime"] = @((long long)message.sentTime);
-    _message[@"receivedTime"] = @((long long)message.receivedTime);
-    _message[@"senderUserId"] = message.senderUserId;
     _message[@"conversationType"] = @((unsigned long)message.conversationType);
-    _message[@"messageDirection"] = @(message.messageDirection);
+    _message[@"targetId"] = message.targetId;
+    _message[@"messageId"] = @(message.messageId);
+    _message[@"receivedTime"] = @((long long)message.receivedTime);
+    _message[@"sentTime"] = @((long long)message.sentTime);
+    _message[@"receivedStatus"] = @((unsigned long)message.receivedStatus);
+    _message[@"sentStatus"] = @((unsigned long)message.sentStatus);
     _message[@"objectName"] = message.objectName;
-    _message[@"extra"] = message.extra;
+    _message[@"senderUserId"] = message.senderUserId;
+    _message[@"messageUId"] = message.messageUId;
+    _message[@"messageDirection"] = @(message.messageDirection);
     
     if ([message.content isMemberOfClass:[RCTextMessage class]]) {
         RCTextMessage *textMessage = (RCTextMessage *)message.content;
         _message[@"type"] = @"text";
         _message[@"content"] = textMessage.content;
         _message[@"extra"] = textMessage.extra;
+        if (textMessage.mentionedInfo) {
+            _message[@"mentionedType"] = @(textMessage.mentionedInfo.type);
+            _message[@"userIdList"] = textMessage.mentionedInfo.userIdList;
+            _message[@"mentionedContent"] = textMessage.mentionedInfo.mentionedContent;
+            _message[@"isMentionedMe"] = @(textMessage.mentionedInfo.isMentionedMe);
+        }
     }
     else if([message.content isMemberOfClass:[RCImageMessage class]]) {
         RCImageMessage *imageMessage = (RCImageMessage *)message.content;
@@ -701,6 +765,13 @@ RCT_EXPORT_METHOD(logout) {
         _message[@"duration"] = @(voiceMessage.duration);
         _message[@"extra"] = voiceMessage.extra;
     }
+    else if ([message.content isKindOfClass:[RCRecallNotificationMessage class]]){
+        RCRecallNotificationMessage *recallMsg = (RCRecallNotificationMessage *)message.content;
+        _message[@"type"] = @"recall";
+        _message[@"operatorId"] = recallMsg.operatorId;
+        _message[@"recallTime"] = @(recallMsg.recallTime);
+        _message[@"originalObjectName"] = recallMsg.originalObjectName;
+    }
     
     
     body[@"left"] = [NSString stringWithFormat:@"%d",nLeft];
@@ -712,7 +783,7 @@ RCT_EXPORT_METHOD(logout) {
 
 #pragma mark  RongCloud  SDK methods
 
--(RCIMClient *) getClient {
+- (RCIMClient *) getClient {
     return [RCIMClient sharedRCIMClient];
 }
 
@@ -729,7 +800,7 @@ RCT_EXPORT_METHOD(logout) {
     }
 }
 
--(NSMutableDictionary *)getEmptyBody {
+- (NSMutableDictionary *)getEmptyBody {
     NSMutableDictionary *body = @{}.mutableCopy;
     return body;
 }
