@@ -113,9 +113,9 @@ export default {
     setConversationToTop(conversationType, targetId, isTop) {
         return RongCloudIMLib.setConversationToTop(conversationType, targetId, isTop);
     },
-    // getTopConversationList(conversationTypeList) {
-    //     return RongCloudIMLib.getTopConversationList(conversationTypeList);
-    // },
+    getTopConversationList(conversationTypeList) {
+        return RongCloudIMLib.getTopConversationList(conversationTypeList);
+    },
     removeConversation(conversationType, targetId) {
         return RongCloudIMLib.removeConversation(conversationType, targetId);
     },

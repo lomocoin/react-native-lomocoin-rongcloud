@@ -1,5 +1,6 @@
 package com.lomocoin.imlib;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -499,7 +500,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                promise.reject(message.getMessageId() + "",errorCode.getValue() + "");
+                promise.reject(message.getMessageId() + "", errorCode.getValue() + "");
             }
         });
     }
@@ -527,7 +528,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
                 @Override
                 public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                    promise.reject( message.getMessageId() + "",errorCode.getValue() + "");
+                    promise.reject(message.getMessageId() + "", errorCode.getValue() + "");
                 }
 
                 @Override
@@ -540,8 +541,8 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
                 }
             });
-        }catch (Exception e){
-            promise.reject("error","error");
+        } catch (Exception e) {
+            promise.reject("error", "error");
         }
     }
 
@@ -563,7 +564,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                promise.reject(message.getMessageId() + "",errorCode.getValue() + "");
+                promise.reject(message.getMessageId() + "", errorCode.getValue() + "");
             }
         });
     }
@@ -689,7 +690,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                promise.reject(message.getMessageId() + "",errorCode.getValue() + "");
+                promise.reject(message.getMessageId() + "", errorCode.getValue() + "");
             }
         });
     }
@@ -1318,13 +1319,14 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
 
     /**
      * 消息置顶
+     *
      * @param mType
      * @param targetId
      * @param isTop
      * @param promise
      */
     @ReactMethod
-    public void setConversationToTop(int mType,String targetId,boolean isTop,final Promise promise) {
+    public void setConversationToTop(int mType, String targetId, boolean isTop, final Promise promise) {
         try {
             ConversationType type = formatConversationType(mType);
             RongIMClient.getInstance().setConversationToTop(type, targetId, isTop, new ResultCallback<Boolean>() {
@@ -1344,7 +1346,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void removeConversation(int mType,String targetId,final Promise promise) {
+    public void removeConversation(int mType, String targetId, final Promise promise) {
         try {
             ConversationType type = formatConversationType(mType);
             RongIMClient.getInstance().removeConversation(type, targetId, new ResultCallback<Boolean>() {
@@ -1364,7 +1366,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void clearTargetMessages(int mType,String targetId,final Promise promise) {
+    public void clearTargetMessages(int mType, String targetId, final Promise promise) {
         try {
             ConversationType type = formatConversationType(mType);
             RongIMClient.getInstance().clearMessages(type, targetId, new ResultCallback<Boolean>() {
@@ -1382,6 +1384,59 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             promise.reject("error", "error");
         }
     }
+
+    @ReactMethod
+    public void getTopConversationList(ReadableArray conversationTypes, final Promise promise) {
+        try {
+            List<ConversationType> lists = new ArrayList<>();
+            for (int i = 0; i < conversationTypes.size(); i++) {
+                lists.add(formatConversationType(conversationTypes.getInt(i)));
+            }
+            ConversationType[] types = (ConversationType[]) lists.toArray(new ConversationType[lists.size()]);
+
+            RongIMClient.getInstance().getConversationList(new ResultCallback<List<Conversation>>() {
+                @Override
+                public void onSuccess(List<Conversation> conversations) {
+                    WritableArray array = Arguments.createArray();
+                    for (Conversation item : conversations) {
+                        if(item.isTop()){
+                            WritableMap msg = Arguments.createMap();
+                            msg.putInt("conversationType", item.getConversationType().getValue());
+                            msg.putString("targetId", item.getTargetId());
+                            msg.putString("conversationTitle", item.getConversationTitle());
+                            msg.putInt("unreadMessageCount", item.getUnreadMessageCount());
+                            msg.putString("receivedTime", item.getReceivedTime() + "");
+                            msg.putString("sentTime", item.getSentTime() + "");
+                            msg.putString("senderUserId", item.getSenderUserId());
+                            msg.putInt("lastestMessageId", item.getLatestMessageId());
+                            msg.putInt("lastestMessageId", item.getLatestMessageId());
+                            msg.putString("lastestMessageDirection", "");
+                            MessageContent message = item.getLatestMessage();
+                            if (message instanceof TextMessage) {
+                                TextMessage textMessage = (TextMessage) message;
+                                msg.putString("lastestMessage", textMessage.getContent());
+                                msg.putString("msgType", "text");
+                            } else if (message instanceof RichContentMessage || message instanceof ImageMessage) {
+                                msg.putString("msgType", "image");
+                            } else if (message instanceof VoiceMessage) {
+                                msg.putString("msgType", "voice");
+                            }
+                            array.pushMap(msg);
+                        }
+                    }
+                    promise.resolve(array);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(errorCode.getValue() + "", errorCode.getMessage());
+                }
+            }, types);
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
 
     protected void sendEvent(String eventName, @Nullable WritableMap params) {
         context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
