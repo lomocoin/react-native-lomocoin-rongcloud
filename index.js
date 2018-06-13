@@ -37,7 +37,7 @@ export default {
     ConversationType: ConversationType,
     /**
       * SDK Init           初始化
-      * Connect and Logout 连接与断开服务器
+      * Connect and Disconnect 连接与断开服务器
       * Received Message   接受新消息
       */
     onReceived(callback) {
@@ -66,7 +66,7 @@ export default {
 
 
     /**
-      * Unread Message 未读消息数
+      * Unread Message 未读消息
       */
     getTotalUnreadCount() {
         // 获取全部未读消息数量（此消息数量为SDK本地查询到的未读消息数（有可能包含已退出群组的消息数量））
@@ -113,11 +113,8 @@ export default {
     /**
       * Recall Message 消息撤回
       */
-    recallMessageWithPush(message, push) {
-        return RongCloudIMLib.recallMessageWithPush(message, push);
-    },
-    recallMessage(message) {
-        return RongCloudIMLib.recallMessage(message);
+     recallMessage(message, push) {
+        return RongCloudIMLib.recallMessage(message, push);
     },
 
 

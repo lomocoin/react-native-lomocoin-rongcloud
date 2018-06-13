@@ -71,8 +71,14 @@ static RCTRongCloudMessage * _message = nil;
         dict[@"targetId"] = conversation.targetId;
         dict[@"conversationTitle"] = conversation.conversationTitle;
         dict[@"unreadMessageCount"] = @(conversation.unreadMessageCount);
+        dict[@"isTop"] = @(conversation.isTop);
+        dict[@"hasUnreadMentioned"] = @(conversation.hasUnreadMentioned);
+        dict[@"receivedStatus"] = @((unsigned long)conversation.receivedStatus);
+        dict[@"sentStatus"] = @((unsigned long)conversation.sentStatus);
         dict[@"receivedTime"] = @((long long)conversation.receivedTime);
         dict[@"sentTime"] = @((long long)conversation.sentTime);
+        dict[@"draft"] = conversation.draft;
+        dict[@"objectName"] = conversation.objectName;
         dict[@"senderUserId"] = conversation.senderUserId;
         dict[@"lastestMessageId"] = @(conversation.lastestMessageId);
         dict[@"lastestMessageDirection"] = @(conversation.lastestMessageDirection);
@@ -81,10 +87,29 @@ static RCTRongCloudMessage * _message = nil;
             RCTextMessage *textMsg = (RCTextMessage *)conversation.lastestMessage;
             dict[@"msgType"] = @"text";
             dict[@"lastestMessage"] = textMsg.content;
+            dict[@"extra"] = textMsg.extra;
+            if (textMsg.mentionedInfo) {
+                dict[@"mentionedType"] = @(textMsg.mentionedInfo.type);
+                dict[@"userIdList"] = textMsg.mentionedInfo.userIdList;
+                dict[@"mentionedContent"] = textMsg.mentionedInfo.mentionedContent;
+                dict[@"isMentionedMe"] = @(textMsg.mentionedInfo.isMentionedMe);
+            }
         } else if ([conversation.lastestMessage isKindOfClass:[RCImageMessage class]]) {
+            RCImageMessage *imageMsg = (RCImageMessage *)conversation.lastestMessage;
             dict[@"msgType"] = @"image";
+            dict[@"extra"] = imageMsg.extra;
+            dict[@"imageUrl"] = imageMsg.imageUrl;
         } else if ([conversation.lastestMessage isKindOfClass:[RCVoiceMessage class]]) {
+            RCVoiceMessage *voiceMsg = (RCVoiceMessage *)conversation.lastestMessage;
             dict[@"msgType"] = @"voice";
+            dict[@"extra"] = voiceMsg.extra;
+            dict[@"duration"] = @(voiceMsg.duration);
+        } else if ([conversation.lastestMessage isKindOfClass:[RCRecallNotificationMessage class]]) {
+            RCRecallNotificationMessage *recallMsg = (RCRecallNotificationMessage *)conversation.lastestMessage;
+            dict[@"type"] = @"recall";
+            dict[@"operatorId"] = recallMsg.operatorId;
+            dict[@"recallTime"] = @(recallMsg.recallTime);
+            dict[@"originalObjectName"] = recallMsg.originalObjectName;
         }
         
         [array addObject:dict];
@@ -125,8 +150,14 @@ static RCTRongCloudMessage * _message = nil;
             dict[@"targetId"] = result.conversation.targetId;
             dict[@"conversationTitle"] = result.conversation.conversationTitle;
             dict[@"unreadMessageCount"] = @(result.conversation.unreadMessageCount);
+            dict[@"isTop"] = @(result.conversation.isTop);
+            dict[@"hasUnreadMentioned"] = @(result.conversation.hasUnreadMentioned);
+            dict[@"receivedStatus"] = @((unsigned long)result.conversation.receivedStatus);
+            dict[@"sentStatus"] = @((unsigned long)result.conversation.sentStatus);
             dict[@"receivedTime"] = @((long long)result.conversation.receivedTime);
             dict[@"sentTime"] = @((long long)result.conversation.sentTime);
+            dict[@"draft"] = result.conversation.draft;
+            dict[@"objectName"] = result.conversation.objectName;
             dict[@"senderUserId"] = result.conversation.senderUserId;
             dict[@"lastestMessageId"] = @(result.conversation.lastestMessageId);
             dict[@"lastestMessageDirection"] = @(result.conversation.lastestMessageDirection);
@@ -135,10 +166,29 @@ static RCTRongCloudMessage * _message = nil;
                 RCTextMessage *textMsg = (RCTextMessage *)result.conversation.lastestMessage;
                 dict[@"msgType"] = @"text";
                 dict[@"lastestMessage"] = textMsg.content;
+                dict[@"extra"] = textMsg.extra;
+                if (textMsg.mentionedInfo) {
+                    dict[@"mentionedType"] = @(textMsg.mentionedInfo.type);
+                    dict[@"userIdList"] = textMsg.mentionedInfo.userIdList;
+                    dict[@"mentionedContent"] = textMsg.mentionedInfo.mentionedContent;
+                    dict[@"isMentionedMe"] = @(textMsg.mentionedInfo.isMentionedMe);
+                }
             } else if ([result.conversation.lastestMessage isKindOfClass:[RCImageMessage class]]) {
+                RCImageMessage *imageMsg = (RCImageMessage *)result.conversation.lastestMessage;
                 dict[@"msgType"] = @"image";
+                dict[@"extra"] = imageMsg.extra;
+                dict[@"imageUrl"] = imageMsg.imageUrl;
             } else if ([result.conversation.lastestMessage isKindOfClass:[RCVoiceMessage class]]) {
+                RCVoiceMessage *voiceMsg = (RCVoiceMessage *)result.conversation.lastestMessage;
                 dict[@"msgType"] = @"voice";
+                dict[@"extra"] = voiceMsg.extra;
+                dict[@"duration"] = @(voiceMsg.duration);
+            } else if ([result.conversation.lastestMessage isKindOfClass:[RCRecallNotificationMessage class]]) {
+                RCRecallNotificationMessage *recallMsg = (RCRecallNotificationMessage *)result.conversation.lastestMessage;
+                dict[@"type"] = @"recall";
+                dict[@"operatorId"] = recallMsg.operatorId;
+                dict[@"recallTime"] = @(recallMsg.recallTime);
+                dict[@"originalObjectName"] = recallMsg.originalObjectName;
             }
             
             [array addObject:dict];
@@ -161,15 +211,23 @@ static RCTRongCloudMessage * _message = nil;
         dict[@"messageId"] = @(message.messageId);
         dict[@"receivedTime"] = @((long long)message.receivedTime);
         dict[@"sentTime"] = @((long long)message.sentTime);
+        dict[@"receivedStatus"] = @((unsigned long)message.receivedStatus);
+        dict[@"sentStatus"] = @((unsigned long)message.sentStatus);
+        dict[@"objectName"] = message.objectName;
         dict[@"senderUserId"] = message.senderUserId;
         dict[@"messageUId"] = message.messageUId;
         dict[@"messageDirection"] = @(message.messageDirection);
-        
         if([message.content isKindOfClass:[RCTextMessage class]]){
             RCTextMessage *textMsg = (RCTextMessage *)message.content;
             dict[@"type"] = @"text";
             dict[@"content"] = textMsg.content;
             dict[@"extra"] = textMsg.extra;
+            if (textMsg.mentionedInfo) {
+                dict[@"mentionedType"] = @(textMsg.mentionedInfo.type);
+                dict[@"userIdList"] = textMsg.mentionedInfo.userIdList;
+                dict[@"mentionedContent"] = textMsg.mentionedInfo.mentionedContent;
+                dict[@"isMentionedMe"] = @(textMsg.mentionedInfo.isMentionedMe);
+            }
         }
         else if ([message.content isKindOfClass:[RCImageMessage class]]){
             RCImageMessage *imageMsg = (RCImageMessage *)message.content;
@@ -183,6 +241,13 @@ static RCTRongCloudMessage * _message = nil;
             dict[@"wavAudioData"] = [self saveWavAudioDataToSandbox:voiceMsg.wavAudioData messageId:message.messageId];
             dict[@"duration"] = @(voiceMsg.duration);
             dict[@"extra"] = voiceMsg.extra;
+        }
+        else if ([message.content isKindOfClass:[RCRecallNotificationMessage class]]){
+            RCRecallNotificationMessage *recallMsg = (RCRecallNotificationMessage *)message.content;
+            dict[@"type"] = @"recall";
+            dict[@"operatorId"] = recallMsg.operatorId;
+            dict[@"recallTime"] = @(recallMsg.recallTime);
+            dict[@"originalObjectName"] = recallMsg.originalObjectName;
         }
         [array addObject:dict];
     }
@@ -787,6 +852,34 @@ static RCTRongCloudMessage * _message = nil;
         }];
     }
     
+}
+
+#pragma mark Recall Message 撤回消息
+
++ (void)recallMessage:(NSDictionary *)message
+                 push:(NSString *)push
+              success:(void (^)(NSString *messageId))successBlock
+                error:(void (^)(RCErrorCode status))errorBlock{
+    
+    RCConversationType conversationType = [self getConversationType:[message[@"conversationType"] intValue]];
+    RCMessageDirection direction = [message[@"messageDirection"] intValue] == 1 ? MessageDirection_SEND : MessageDirection_RECEIVE;
+    
+    RCTextMessage * textMessage = [RCTextMessage messageWithContent:message[@"content"]];
+    textMessage.extra = message[@"extra"];
+    
+    RCMessage * recallMessage = [[RCMessage alloc] initWithType:conversationType targetId:[NSString stringWithFormat:@"%@",message[@"targetId"]] direction:direction messageId:[message[@"messageId"] longValue] content:textMessage];
+    recallMessage.objectName = message[@"objectName"];
+    recallMessage.senderUserId = [NSString stringWithFormat:@"%@",message[@"senderUserId"]];
+    recallMessage.messageUId = message[@"messageUId"];
+    recallMessage.sentTime = [message[@"sentTime"] longLongValue];
+    recallMessage.receivedTime = [message[@"receivedTime"] longLongValue];
+    
+    [[self getClient] recallMessage:recallMessage pushContent:push success:^(long messageId) {
+        NSString * message = [NSString stringWithFormat:@"%ld",messageId];
+        successBlock(message);
+    } error:^(RCErrorCode errorcode) {
+        errorBlock(errorcode);
+    }];
 }
 
 @end
