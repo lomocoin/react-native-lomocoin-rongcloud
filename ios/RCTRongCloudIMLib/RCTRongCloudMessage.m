@@ -864,10 +864,7 @@ static RCTRongCloudMessage * _message = nil;
     RCConversationType conversationType = [self getConversationType:[message[@"conversationType"] intValue]];
     RCMessageDirection direction = [message[@"messageDirection"] intValue] == 1 ? MessageDirection_SEND : MessageDirection_RECEIVE;
     
-    RCTextMessage * textMessage = [RCTextMessage messageWithContent:message[@"content"]];
-    textMessage.extra = message[@"extra"];
-    
-    RCMessage * recallMessage = [[RCMessage alloc] initWithType:conversationType targetId:[NSString stringWithFormat:@"%@",message[@"targetId"]] direction:direction messageId:[message[@"messageId"] longValue] content:textMessage];
+    RCMessage * recallMessage = [[RCMessage alloc] initWithType:conversationType targetId:[NSString stringWithFormat:@"%@",message[@"targetId"]] direction:direction messageId:[message[@"messageId"] longValue] content:[RCMessageContent new]];
     recallMessage.objectName = message[@"objectName"];
     recallMessage.senderUserId = [NSString stringWithFormat:@"%@",message[@"senderUserId"]];
     recallMessage.messageUId = message[@"messageUId"];
