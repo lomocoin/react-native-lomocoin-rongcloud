@@ -1,6 +1,5 @@
 package com.lomocoin.imlib;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +22,7 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
@@ -44,6 +44,7 @@ import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.SearchConversationResult;
 import io.rong.message.ImageMessage;
+import io.rong.message.RecallNotificationMessage;
 import io.rong.message.RichContentMessage;
 import io.rong.message.TextMessage;
 import io.rong.message.VoiceMessage;
@@ -386,6 +387,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     }
 
 
+    /**
+     * 搜索会话
+     *
+     * @param keyWord 关键词
+     * @param promise
+     */
     @ReactMethod
     public void searchConversations(String keyWord, final Promise promise) {
         ConversationType[] type = {formatConversationType(1), formatConversationType(3)};
@@ -420,7 +427,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                         msg.putInt("sentStatus", conversation.getSentStatus().getValue());
                         msg.putString("draft", conversation.getDraft());
                         msg.putString("objectName", conversation.getObjectName());
-                        msg.putBoolean("hasUnreadMentioned", conversation.getMentionedCount() > 0 );
+                        msg.putBoolean("hasUnreadMentioned", conversation.getMentionedCount() > 0);
 
                         MessageContent message = conversation.getLatestMessage();
                         if (message instanceof TextMessage) {
@@ -428,12 +435,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                             msg.putString("msgType", "text");
                             msg.putString("lastestMessage", mMsg.getContent());
                             msg.putString("extra", mMsg.getExtra());
-                        } else if (message instanceof RichContentMessage ){
+                        } else if (message instanceof RichContentMessage) {
                             RichContentMessage mMsg = (RichContentMessage) message;
                             msg.putString("msgType", "image");
                             msg.putString("extra", mMsg.getExtra());
                             msg.putString("imageUrl", mMsg.getImgUrl());
-                        } else if(message instanceof ImageMessage) {
+                        } else if (message instanceof ImageMessage) {
                             ImageMessage mMsg = (ImageMessage) message;
                             msg.putString("msgType", "image");
                             msg.putString("extra", mMsg.getExtra());
@@ -443,6 +450,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                             msg.putString("msgType", "voice");
                             msg.putString("extra", mMsg.getExtra());
                             msg.putInt("duration", mMsg.getDuration());
+                        } else if (message instanceof RecallNotificationMessage) {
+                            RecallNotificationMessage recallNotificationMessage = (RecallNotificationMessage) message;
+                            msg.putString("type", "recall");
+                            msg.putString("operatorId", recallNotificationMessage.getOperatorId());
+                            msg.putString("recallTime", recallNotificationMessage.getRecallTime() + "");
+                            msg.putString("originalObjectName", recallNotificationMessage.getOriginalObjectName());
                         }
                         data.pushMap(msg);
                     }
@@ -452,6 +465,11 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         });
     }
 
+    /**
+     * 获取会话列表
+     *
+     * @param promise
+     */
     @ReactMethod
     public void getConversationList(final Promise promise) {
         ConversationType[] type = {formatConversationType(1), formatConversationType(3)};
@@ -478,7 +496,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                         msg.putInt("sentStatus", conversation.getSentStatus().getValue());
                         msg.putString("draft", conversation.getDraft());
                         msg.putString("objectName", conversation.getObjectName());
-                        msg.putBoolean("hasUnreadMentioned", conversation.getMentionedCount() > 0 );
+                        msg.putBoolean("hasUnreadMentioned", conversation.getMentionedCount() > 0);
 
                         MessageContent message = conversation.getLatestMessage();
                         if (message instanceof TextMessage) {
@@ -486,12 +504,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                             msg.putString("msgType", "text");
                             msg.putString("lastestMessage", mMsg.getContent());
                             msg.putString("extra", mMsg.getExtra());
-                        } else if (message instanceof RichContentMessage ){
+                        } else if (message instanceof RichContentMessage) {
                             RichContentMessage mMsg = (RichContentMessage) message;
                             msg.putString("msgType", "image");
                             msg.putString("extra", mMsg.getExtra());
                             msg.putString("imageUrl", mMsg.getImgUrl());
-                        } else if(message instanceof ImageMessage) {
+                        } else if (message instanceof ImageMessage) {
                             ImageMessage mMsg = (ImageMessage) message;
                             msg.putString("msgType", "image");
                             msg.putString("extra", mMsg.getExtra());
@@ -501,6 +519,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                             msg.putString("msgType", "voice");
                             msg.putString("extra", mMsg.getExtra());
                             msg.putInt("duration", mMsg.getDuration());
+                        } else if (message instanceof RecallNotificationMessage) {
+                            RecallNotificationMessage recallNotificationMessage = (RecallNotificationMessage) message;
+                            msg.putString("type", "recall");
+                            msg.putString("operatorId", recallNotificationMessage.getOperatorId());
+                            msg.putString("recallTime", recallNotificationMessage.getRecallTime() + "");
+                            msg.putString("originalObjectName", recallNotificationMessage.getOriginalObjectName());
                         }
 
                         data.pushMap(msg);
@@ -516,6 +540,17 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         }, type);
     }
 
+    /**
+     * 发送文字消息
+     *
+     * @param mType       类型
+     * @param targetId    id
+     * @param content     内容
+     * @param pushContent 推送通知内容
+     * @param pushData    推送data
+     * @param extra       附加信息
+     * @param promise
+     */
     @ReactMethod
     public void sendTextMessage(int mType, String targetId, String content, String pushContent, String pushData, String extra, final Promise promise) {
         TextMessage textMessage = TextMessage.obtain(content);
@@ -672,12 +707,31 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         msg.putInt("sentStatus", message.getSentStatus().getValue());
         msg.putString("objectName", message.getObjectName());
 
-
         if (message.getContent() instanceof TextMessage) {
             TextMessage textMessage = (TextMessage) message.getContent();
             msg.putString("type", "text");
             msg.putString("content", textMessage.getContent());
             msg.putString("extra", textMessage.getExtra());
+            if (textMessage.getMentionedInfo() != null) {
+                msg.putString("mentionedContent", textMessage.getMentionedInfo().getMentionedContent());
+                WritableArray array = Arguments.createArray();
+                String currentId = RongIMClient.getInstance().getCurrentUserId();
+                boolean isMentionedMe = false;
+                if (textMessage.getMentionedInfo().getMentionedUserIdList() != null && textMessage.getMentionedInfo().getMentionedUserIdList().size() > 0) {
+                    for (String id : textMessage.getMentionedInfo().getMentionedUserIdList()) {
+                        array.pushString(id);
+                        if (id.equals(currentId)) {
+                            isMentionedMe = true;
+                        }
+                    }
+                } else {
+                    isMentionedMe = true;
+                }
+
+                msg.putArray("userIdList", array);
+                msg.putInt("mentionedType", textMessage.getMentionedInfo().getType().getValue());
+                msg.putBoolean("isMentionedMe", isMentionedMe);
+            }
         } else if (message.getContent() instanceof ImageMessage) {
             ImageMessage richContentMessage = (ImageMessage) message.getContent();
             msg.putString("type", "image");
@@ -697,6 +751,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             }
             msg.putString("duration", voiceMessage.getDuration() + "");
             msg.putString("extra", voiceMessage.getExtra());
+        } else if (message.getContent() instanceof RecallNotificationMessage) {
+            RecallNotificationMessage recallNotificationMessage = (RecallNotificationMessage) message.getContent();
+            msg.putString("type", "recall");
+            msg.putString("operatorId", recallNotificationMessage.getOperatorId());
+            msg.putString("recallTime", recallNotificationMessage.getRecallTime() + "");
+            msg.putString("originalObjectName", recallNotificationMessage.getOriginalObjectName());
         }
 
         return msg;
@@ -1393,6 +1453,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         }
     }
 
+
     @ReactMethod
     public void clearTargetMessages(int mType, String targetId, final Promise promise) {
         try {
@@ -1413,6 +1474,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         }
     }
 
+    /**
+     * 获取指定消息列表
+     *
+     * @param conversationTypes 类型 array
+     * @param promise
+     */
     @ReactMethod
     public void getTopConversationList(ReadableArray conversationTypes, final Promise promise) {
         try {
@@ -1427,7 +1494,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 public void onSuccess(List<Conversation> conversations) {
                     WritableArray array = Arguments.createArray();
                     for (Conversation conversation : conversations) {
-                        if(conversation.isTop()){
+                        if (conversation.isTop()) {
                             WritableMap msg = Arguments.createMap();
                             msg.putInt("conversationType", conversation.getConversationType().getValue());
                             msg.putString("targetId", conversation.getTargetId());
@@ -1444,7 +1511,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                             msg.putInt("sentStatus", conversation.getSentStatus().getValue());
                             msg.putString("draft", conversation.getDraft());
                             msg.putString("objectName", conversation.getObjectName());
-                            msg.putBoolean("hasUnreadMentioned", conversation.getMentionedCount() > 0 );
+                            msg.putBoolean("hasUnreadMentioned", conversation.getMentionedCount() > 0);
 
                             MessageContent message = conversation.getLatestMessage();
                             if (message instanceof TextMessage) {
@@ -1452,12 +1519,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                                 msg.putString("msgType", "text");
                                 msg.putString("lastestMessage", mMsg.getContent());
                                 msg.putString("extra", mMsg.getExtra());
-                            } else if (message instanceof RichContentMessage ){
+                            } else if (message instanceof RichContentMessage) {
                                 RichContentMessage mMsg = (RichContentMessage) message;
                                 msg.putString("msgType", "image");
                                 msg.putString("extra", mMsg.getExtra());
                                 msg.putString("imageUrl", mMsg.getImgUrl());
-                            } else if(message instanceof ImageMessage) {
+                            } else if (message instanceof ImageMessage) {
                                 ImageMessage mMsg = (ImageMessage) message;
                                 msg.putString("msgType", "image");
                                 msg.putString("extra", mMsg.getExtra());
@@ -1467,6 +1534,12 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                                 msg.putString("msgType", "voice");
                                 msg.putString("extra", mMsg.getExtra());
                                 msg.putInt("duration", mMsg.getDuration());
+                            } else if (message instanceof RecallNotificationMessage) {
+                                RecallNotificationMessage recallNotificationMessage = (RecallNotificationMessage) message;
+                                msg.putString("type", "recall");
+                                msg.putString("operatorId", recallNotificationMessage.getOperatorId());
+                                msg.putString("recallTime", recallNotificationMessage.getRecallTime() + "");
+                                msg.putString("originalObjectName", recallNotificationMessage.getOriginalObjectName());
                             }
                             array.pushMap(msg);
                         }
@@ -1479,6 +1552,125 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                     promise.reject(errorCode.getValue() + "", errorCode.getMessage());
                 }
             }, types);
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    /**
+     * 撤回消息
+     *
+     * @param msg     消息实体
+     * @param push    推送内容 可为空
+     * @param promise
+     */
+    @ReactMethod
+    public void recallMessage(final ReadableMap msg, String push, final Promise promise) {
+        try {
+            Message message = new Message();
+            message.setUId(msg.getString("messageUId"));
+            message.setConversationType(formatConversationType(msg.getInt("conversationType")));
+            message.setTargetId(msg.getString("targetId"));
+            message.setSentTime(Long.valueOf(msg.getString("sentTime")));
+            message.setMessageId(Integer.valueOf(msg.getString("messageId")));
+            message.setReceivedTime(Long.valueOf(msg.getString("receivedTime")));
+            message.setSenderUserId(msg.getString("senderUserId"));
+            message.setObjectName(msg.getString("objectName"));
+            message.setExtra(msg.getString("extra"));
+
+            RongIMClient.getInstance().recallMessage(message, push, new ResultCallback<RecallNotificationMessage>() {
+                @Override
+                public void onSuccess(RecallNotificationMessage recallNotificationMessage) {
+                    promise.resolve(msg.getString("messageId"));
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(errorCode.getValue() + "", errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    /**
+     * 获取会话草稿
+     *
+     * @param mType    类型
+     * @param targetId id
+     * @param promise
+     */
+    @ReactMethod
+    public void getTextMessageDraft(int mType, String targetId, final Promise promise) {
+        try {
+            ConversationType type = formatConversationType(mType);
+            RongIMClient.getInstance().getTextMessageDraft(type, targetId, new ResultCallback<String>() {
+                @Override
+                public void onSuccess(String s) {
+                    promise.resolve(s);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(errorCode.getValue() + "", errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    /**
+     * 保存消息草稿
+     *
+     * @param mType    类型
+     * @param targetId id
+     * @param content  内容
+     * @param promise
+     */
+    @ReactMethod
+    public void saveTextMessageDraft(int mType, String targetId, String content, final Promise promise) {
+        try {
+            ConversationType type = formatConversationType(mType);
+            RongIMClient.getInstance().saveTextMessageDraft(type, targetId, content, new ResultCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean aBoolean) {
+                    promise.resolve(aBoolean);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(errorCode.getValue() + "", errorCode.getMessage());
+                }
+            });
+        } catch (Exception e) {
+            promise.reject("error", "error");
+        }
+    }
+
+    /**
+     * 清除消息草稿
+     *
+     * @param mType    类型
+     * @param targetId id
+     * @param promise
+     */
+    @ReactMethod
+    public void clearTextMessageDraft(int mType, String targetId, final Promise promise) {
+        try {
+            ConversationType type = formatConversationType(mType);
+            RongIMClient.getInstance().clearTextMessageDraft(type, targetId, new ResultCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean aBoolean) {
+                    promise.resolve(aBoolean);
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+                    promise.reject(errorCode.getValue() + "", errorCode.getMessage());
+                }
+            });
         } catch (Exception e) {
             promise.reject("error", "error");
         }
