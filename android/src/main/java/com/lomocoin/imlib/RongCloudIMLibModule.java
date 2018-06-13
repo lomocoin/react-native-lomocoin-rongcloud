@@ -413,19 +413,36 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                         msg.putString("sentTime", conversation.getSentTime() + "");
                         msg.putString("senderUserId", conversation.getSenderUserId());
                         msg.putInt("lastestMessageId", conversation.getLatestMessageId());
-                        msg.putInt("lastestMessageId", conversation.getLatestMessageId());
                         msg.putString("lastestMessageDirection", "");
-                        // msg.putString("jsonDict", conversation.getLatestMessage().getJsonMentionInfo().toString());
-                        // msg.putString("lastestMessage", conversation.getLatestMessage().getMentionedInfo().getMentionedContent());
+
+                        msg.putBoolean("isTop", conversation.isTop());
+                        msg.putInt("receivedStatus", conversation.getReceivedStatus().getFlag());
+                        msg.putInt("sentStatus", conversation.getSentStatus().getValue());
+                        msg.putString("draft", conversation.getDraft());
+                        msg.putString("objectName", conversation.getObjectName());
+                        msg.putBoolean("hasUnreadMentioned", conversation.getMentionedCount() > 0 );
+
                         MessageContent message = conversation.getLatestMessage();
                         if (message instanceof TextMessage) {
-                            TextMessage textMessage = (TextMessage) message;
-                            msg.putString("lastestMessage", textMessage.getContent());
+                            TextMessage mMsg = (TextMessage) message;
                             msg.putString("msgType", "text");
-                        } else if (message instanceof RichContentMessage || message instanceof ImageMessage) {
+                            msg.putString("lastestMessage", mMsg.getContent());
+                            msg.putString("extra", mMsg.getExtra());
+                        } else if (message instanceof RichContentMessage ){
+                            RichContentMessage mMsg = (RichContentMessage) message;
                             msg.putString("msgType", "image");
+                            msg.putString("extra", mMsg.getExtra());
+                            msg.putString("imageUrl", mMsg.getImgUrl());
+                        } else if(message instanceof ImageMessage) {
+                            ImageMessage mMsg = (ImageMessage) message;
+                            msg.putString("msgType", "image");
+                            msg.putString("extra", mMsg.getExtra());
+                            msg.putString("imageUrl", mMsg.getRemoteUri().toString());
                         } else if (message instanceof VoiceMessage) {
+                            VoiceMessage mMsg = (VoiceMessage) message;
                             msg.putString("msgType", "voice");
+                            msg.putString("extra", mMsg.getExtra());
+                            msg.putInt("duration", mMsg.getDuration());
                         }
                         data.pushMap(msg);
                     }
@@ -444,29 +461,46 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 WritableArray data = Arguments.createArray();
                 if (conversations != null && !conversations.isEmpty()) {
                     for (int i = 0; i < conversations.size(); i++) {
-                        Conversation item = conversations.get(i);
+                        Conversation conversation = conversations.get(i);
                         WritableMap msg = Arguments.createMap();
-                        msg.putInt("conversationType", item.getConversationType().getValue());
-                        msg.putString("targetId", item.getTargetId());
-                        msg.putString("conversationTitle", item.getConversationTitle());
-                        msg.putInt("unreadMessageCount", item.getUnreadMessageCount());
-                        msg.putString("receivedTime", item.getReceivedTime() + "");
-                        msg.putString("sentTime", item.getSentTime() + "");
-                        msg.putString("senderUserId", item.getSenderUserId());
-                        msg.putInt("lastestMessageId", item.getLatestMessageId());
-                        msg.putInt("lastestMessageId", item.getLatestMessageId());
+                        msg.putInt("conversationType", conversation.getConversationType().getValue());
+                        msg.putString("targetId", conversation.getTargetId());
+                        msg.putString("conversationTitle", conversation.getConversationTitle());
+                        msg.putInt("unreadMessageCount", conversation.getUnreadMessageCount());
+                        msg.putString("receivedTime", conversation.getReceivedTime() + "");
+                        msg.putString("sentTime", conversation.getSentTime() + "");
+                        msg.putString("senderUserId", conversation.getSenderUserId());
+                        msg.putInt("lastestMessageId", conversation.getLatestMessageId());
                         msg.putString("lastestMessageDirection", "");
-                        // msg.putString("jsonDict", item.getLatestMessage().getJsonMentionInfo().toString());
-//                        type 是个字符串 'text'  'image'  'voice'
-                        MessageContent message = item.getLatestMessage();
+
+                        msg.putBoolean("isTop", conversation.isTop());
+                        msg.putInt("receivedStatus", conversation.getReceivedStatus().getFlag());
+                        msg.putInt("sentStatus", conversation.getSentStatus().getValue());
+                        msg.putString("draft", conversation.getDraft());
+                        msg.putString("objectName", conversation.getObjectName());
+                        msg.putBoolean("hasUnreadMentioned", conversation.getMentionedCount() > 0 );
+
+                        MessageContent message = conversation.getLatestMessage();
                         if (message instanceof TextMessage) {
-                            TextMessage textMessage = (TextMessage) message;
-                            msg.putString("lastestMessage", textMessage.getContent());
+                            TextMessage mMsg = (TextMessage) message;
                             msg.putString("msgType", "text");
-                        } else if (message instanceof RichContentMessage || message instanceof ImageMessage) {
+                            msg.putString("lastestMessage", mMsg.getContent());
+                            msg.putString("extra", mMsg.getExtra());
+                        } else if (message instanceof RichContentMessage ){
+                            RichContentMessage mMsg = (RichContentMessage) message;
                             msg.putString("msgType", "image");
+                            msg.putString("extra", mMsg.getExtra());
+                            msg.putString("imageUrl", mMsg.getImgUrl());
+                        } else if(message instanceof ImageMessage) {
+                            ImageMessage mMsg = (ImageMessage) message;
+                            msg.putString("msgType", "image");
+                            msg.putString("extra", mMsg.getExtra());
+                            msg.putString("imageUrl", mMsg.getRemoteUri().toString());
                         } else if (message instanceof VoiceMessage) {
+                            VoiceMessage mMsg = (VoiceMessage) message;
                             msg.putString("msgType", "voice");
+                            msg.putString("extra", mMsg.getExtra());
+                            msg.putInt("duration", mMsg.getDuration());
                         }
 
                         data.pushMap(msg);
@@ -634,6 +668,11 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         msg.putString("messageUId", message.getUId());
         msg.putInt("messageDirection", message.getMessageDirection().getValue());
 
+        msg.putInt("receivedStatus", message.getReceivedStatus().getFlag());
+        msg.putInt("sentStatus", message.getSentStatus().getValue());
+        msg.putString("objectName", message.getObjectName());
+
+
         if (message.getContent() instanceof TextMessage) {
             TextMessage textMessage = (TextMessage) message.getContent();
             msg.putString("type", "text");
@@ -663,17 +702,6 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
         return msg;
     }
 
-//    protected Conversation.ConversationType ConversationType(String type) {
-//        Conversation.ConversationType conversationType;
-//        if (type == "PRIVATE") {
-//            conversationType = Conversation.ConversationType.PRIVATE;
-//        } else if (type == "DISCUSSION") {
-//            conversationType = Conversation.ConversationType.DISCUSSION;
-//        } else {
-//            conversationType = Conversation.ConversationType.SYSTEM;
-//        }
-//        return conversationType;
-//    }
 
     protected void sendMessage(ConversationType type, String targetId, MessageContent content, String pushContent, final Promise promise) {
         String pushData = "";
@@ -1398,28 +1426,47 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                 @Override
                 public void onSuccess(List<Conversation> conversations) {
                     WritableArray array = Arguments.createArray();
-                    for (Conversation item : conversations) {
-                        if(item.isTop()){
+                    for (Conversation conversation : conversations) {
+                        if(conversation.isTop()){
                             WritableMap msg = Arguments.createMap();
-                            msg.putInt("conversationType", item.getConversationType().getValue());
-                            msg.putString("targetId", item.getTargetId());
-                            msg.putString("conversationTitle", item.getConversationTitle());
-                            msg.putInt("unreadMessageCount", item.getUnreadMessageCount());
-                            msg.putString("receivedTime", item.getReceivedTime() + "");
-                            msg.putString("sentTime", item.getSentTime() + "");
-                            msg.putString("senderUserId", item.getSenderUserId());
-                            msg.putInt("lastestMessageId", item.getLatestMessageId());
-                            msg.putInt("lastestMessageId", item.getLatestMessageId());
+                            msg.putInt("conversationType", conversation.getConversationType().getValue());
+                            msg.putString("targetId", conversation.getTargetId());
+                            msg.putString("conversationTitle", conversation.getConversationTitle());
+                            msg.putInt("unreadMessageCount", conversation.getUnreadMessageCount());
+                            msg.putString("receivedTime", conversation.getReceivedTime() + "");
+                            msg.putString("sentTime", conversation.getSentTime() + "");
+                            msg.putString("senderUserId", conversation.getSenderUserId());
+                            msg.putInt("lastestMessageId", conversation.getLatestMessageId());
                             msg.putString("lastestMessageDirection", "");
-                            MessageContent message = item.getLatestMessage();
+
+                            msg.putBoolean("isTop", conversation.isTop());
+                            msg.putInt("receivedStatus", conversation.getReceivedStatus().getFlag());
+                            msg.putInt("sentStatus", conversation.getSentStatus().getValue());
+                            msg.putString("draft", conversation.getDraft());
+                            msg.putString("objectName", conversation.getObjectName());
+                            msg.putBoolean("hasUnreadMentioned", conversation.getMentionedCount() > 0 );
+
+                            MessageContent message = conversation.getLatestMessage();
                             if (message instanceof TextMessage) {
-                                TextMessage textMessage = (TextMessage) message;
-                                msg.putString("lastestMessage", textMessage.getContent());
+                                TextMessage mMsg = (TextMessage) message;
                                 msg.putString("msgType", "text");
-                            } else if (message instanceof RichContentMessage || message instanceof ImageMessage) {
+                                msg.putString("lastestMessage", mMsg.getContent());
+                                msg.putString("extra", mMsg.getExtra());
+                            } else if (message instanceof RichContentMessage ){
+                                RichContentMessage mMsg = (RichContentMessage) message;
                                 msg.putString("msgType", "image");
+                                msg.putString("extra", mMsg.getExtra());
+                                msg.putString("imageUrl", mMsg.getImgUrl());
+                            } else if(message instanceof ImageMessage) {
+                                ImageMessage mMsg = (ImageMessage) message;
+                                msg.putString("msgType", "image");
+                                msg.putString("extra", mMsg.getExtra());
+                                msg.putString("imageUrl", mMsg.getRemoteUri().toString());
                             } else if (message instanceof VoiceMessage) {
+                                VoiceMessage mMsg = (VoiceMessage) message;
                                 msg.putString("msgType", "voice");
+                                msg.putString("extra", mMsg.getExtra());
+                                msg.putInt("duration", mMsg.getDuration());
                             }
                             array.pushMap(msg);
                         }
