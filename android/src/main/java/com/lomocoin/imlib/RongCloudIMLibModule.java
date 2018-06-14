@@ -162,14 +162,11 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             public boolean onMessageRecalled(Message message, RecallNotificationMessage recallNotificationMessage) {
                 try {
                     WritableMap map = Arguments.createMap();
-                    WritableMap msg = instance.formatMessage(message);
-
-                    map.putMap("message", msg);
-                    map.putString("left", "0");
-                    map.putString("errcode", "0");
+                    map.putInt("messageId", message.getMessageId());
                     instance.sendEvent("onMessageRecalled", map);
                     return true;
-                }catch (Exception e){}
+                } catch (Exception e) {
+                }
                 return false;
             }
         });
@@ -185,7 +182,8 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                     map.putString("errcode", "0");
                     instance.sendEvent("onRongMessageReceived", map);
                     return true;
-                }catch (Exception e){}
+                } catch (Exception e) {
+                }
 
 
                 //考虑是否需要发送推送到通知栏
