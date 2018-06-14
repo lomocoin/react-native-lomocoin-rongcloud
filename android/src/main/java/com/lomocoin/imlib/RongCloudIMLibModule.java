@@ -157,17 +157,34 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void connectWithToken(String token, final Promise promise) {
         final RongCloudIMLibModule instance = this;
+        RongIMClient.setOnRecallMessageListener(new RongIMClient.OnRecallMessageListener() {
+            @Override
+            public boolean onMessageRecalled(Message message, RecallNotificationMessage recallNotificationMessage) {
+                try {
+                    WritableMap map = Arguments.createMap();
+                    map.putInt("messageId", message.getMessageId());
+                    instance.sendEvent("onMessageRecalled", map);
+                    return true;
+                } catch (Exception e) {
+                }
+                return false;
+            }
+        });
         RongIMClient.setOnReceiveMessageListener(new RongIMClient.OnReceiveMessageListener() {
             @Override
             public boolean onReceived(final Message message, int i) {
+                try {
+                    WritableMap map = Arguments.createMap();
+                    WritableMap msg = instance.formatMessage(message);
 
-                WritableMap map = Arguments.createMap();
-                WritableMap msg = instance.formatMessage(message);
+                    map.putMap("message", msg);
+                    map.putString("left", "0");
+                    map.putString("errcode", "0");
+                    instance.sendEvent("onRongMessageReceived", map);
+                    return true;
+                } catch (Exception e) {
+                }
 
-                map.putMap("message", msg);
-                map.putString("left", "0");
-                map.putString("errcode", "0");
-                instance.sendEvent("onRongMessageReceived", map);
 
                 //考虑是否需要发送推送到通知栏
                 UiThreadUtil.runOnUiThread(new Runnable() {
@@ -202,9 +219,7 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                         }
                     }
                 });
-
-
-                return true;
+                return false;
             }
         });
 
