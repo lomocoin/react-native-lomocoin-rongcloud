@@ -13,16 +13,27 @@ var _onRongCloudMessageReceived = function (resp) {
     console.log("融云接受消息:" + JSON.stringify(resp));
 }
 
+var _onMessageRecalled = function (resp) {
+    console.log("融云收到撤回消息:" + JSON.stringify(resp));
+}
+
 // DeviceEventEmitter.addListener('onRongMessageReceived', (resp) => {
 //     typeof (_onRongCloudMessageReceived) === 'function' && _onRongCloudMessageReceived(resp);
 // });
 
 const RongCloudIMLibEmitter = new NativeEventEmitter(RongCloudIMLib);
 
-const subscription = RongCloudIMLibEmitter.addListener(
+const messageSubscription = RongCloudIMLibEmitter.addListener(
     'onRongMessageReceived',
     (resp) => {
         typeof (_onRongCloudMessageReceived) === 'function' && _onRongCloudMessageReceived(resp);
+    }
+);
+
+const recallMessageSubscription = RongCloudIMLibEmitter.addListener(
+    'onMessageRecalled',
+    (resp) => {
+        typeof (_onMessageRecalled) === 'function' && _onMessageRecalled(resp);
     }
 );
 
@@ -40,9 +51,6 @@ export default {
       * Connect and Disconnect 连接与断开服务器
       * Received Message   接受新消息
       */
-    onReceived(callback) {
-        _onRongCloudMessageReceived = callback;
-    },
     initWithAppKey(appKey) {
         return RongCloudIMLib.initWithAppKey(appKey);
     },
@@ -62,6 +70,12 @@ export default {
         } else {
             return '';
         }
+    },
+    onReceived(callback) {
+        _onRongCloudMessageReceived = callback;
+    },
+    onMessageRecalled(callback) {
+        _onMessageRecalled = callback;
     },
 
 
