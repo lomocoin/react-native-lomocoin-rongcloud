@@ -419,7 +419,7 @@ RCT_EXPORT_METHOD(clearTextMessageDraft:(int)type
     
     RCConversationType conversationType = [self getConversationType:type];
     
-    BOOL isSuccess = [[self getClient] clearMessages:conversationType targetId:targetId];
+    BOOL isSuccess = [[self getClient] clearTextMessageDraft:conversationType targetId:targetId];
     resolve(@(isSuccess));
 }
 
