@@ -459,7 +459,11 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                             ImageMessage mMsg = (ImageMessage) message;
                             msg.putString("msgType", "image");
                             msg.putString("extra", mMsg.getExtra());
-                            msg.putString("imageUrl", mMsg.getRemoteUri().toString());
+                            if (mMsg != null && mMsg.getRemoteUri() != null) {
+                                msg.putString("imageUrl", mMsg.getRemoteUri().toString());
+                            } else {
+                                msg.putString("imageUrl", "");
+                            }
                         } else if (message instanceof VoiceMessage) {
                             VoiceMessage mMsg = (VoiceMessage) message;
                             msg.putString("msgType", "voice");
@@ -528,7 +532,11 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                             ImageMessage mMsg = (ImageMessage) message;
                             msg.putString("msgType", "image");
                             msg.putString("extra", mMsg.getExtra());
-                            msg.putString("imageUrl", mMsg.getRemoteUri().toString());
+                            if (mMsg != null && mMsg.getRemoteUri() != null) {
+                                msg.putString("imageUrl", mMsg.getRemoteUri().toString());
+                            } else {
+                                msg.putString("imageUrl", "");
+                            }
                         } else if (message instanceof VoiceMessage) {
                             VoiceMessage mMsg = (VoiceMessage) message;
                             msg.putString("msgType", "voice");
@@ -1543,7 +1551,11 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
                                 ImageMessage mMsg = (ImageMessage) message;
                                 msg.putString("msgType", "image");
                                 msg.putString("extra", mMsg.getExtra());
-                                msg.putString("imageUrl", mMsg.getRemoteUri().toString());
+                                if (mMsg != null && mMsg.getRemoteUri() != null) {
+                                    msg.putString("imageUrl", mMsg.getRemoteUri().toString());
+                                } else {
+                                    msg.putString("imageUrl", "");
+                                }
                             } else if (message instanceof VoiceMessage) {
                                 VoiceMessage mMsg = (VoiceMessage) message;
                                 msg.putString("msgType", "voice");
