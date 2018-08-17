@@ -761,7 +761,7 @@ RCT_REMAP_METHOD(getBlacklist,
     else if ([message.content isMemberOfClass:[RCVoiceMessage class]]) {
         RCVoiceMessage *voiceMessage = (RCVoiceMessage *)message.content;
         _message[@"type"] = @"voice";
-        _message[@"wavAudioData"] = voiceMessage.wavAudioData;
+        _message[@"wavAudioData"] = [self saveWavAudioDataToSandbox:voiceMessage.wavAudioData messageId:message.messageId];
         _message[@"duration"] = @(voiceMessage.duration);
         _message[@"extra"] = voiceMessage.extra;
     }
@@ -896,6 +896,27 @@ RCT_REMAP_METHOD(getBlacklist,
             break;
     }
     return errcode;
+}
+
+- (NSString *)saveWavAudioDataToSandbox:(NSData *)data messageId:(NSInteger)msgId{
+    
+    NSFileManager * fileManager = [NSFileManager defaultManager];
+    
+    NSString * documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    
+    NSString * directoryPath = [documentPath stringByAppendingString:@"/ChatMessage"];
+    
+    if(![fileManager fileExistsAtPath:directoryPath]){
+        
+        [fileManager createDirectoryAtPath:directoryPath withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    
+    
+    NSString * filePath = [directoryPath stringByAppendingString:[NSString stringWithFormat:@"/%ld.wav",(long)msgId]];
+    
+    [fileManager createFileAtPath:filePath contents:data attributes:nil];
+    
+    return filePath;
 }
 
 @end
