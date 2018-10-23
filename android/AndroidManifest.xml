@@ -20,10 +20,11 @@
 
 
     <!-- GCM 配置开始 < -->
-    <permission
+     <!-- 在主工程 AndroidManifest 中添加以下配置 并更改为你的包名 -->
+    <!-- <permission  
         android:name="com.lomocoin.lomocoin.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
-    <uses-permission android:name="com.lomocoin.lomocoin.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.lomocoin.lomocoin.permission.C2D_MESSAGE" /> -->
     <!-- GCM 配置结束 < -->
 
     <application>
