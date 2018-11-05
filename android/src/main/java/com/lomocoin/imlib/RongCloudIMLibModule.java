@@ -30,6 +30,8 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -810,9 +812,13 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
     public void voiceBtnPressIn(int mType, String targetId, String pushContent, String pushData, String extra, final Promise promise) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                int state = context.checkSelfPermission(Manifest.permission.RECORD_AUDIO);
-                if (state != PackageManager.PERMISSION_GRANTED) {
+                String[] p = {Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                int state1 = ContextCompat.checkSelfPermission(context, p[0]);
+                int state2 = ContextCompat.checkSelfPermission(context, p[1]);
+                if (state1 != PackageManager.PERMISSION_GRANTED || state2 != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(getCurrentActivity(), p, 1);
                     promise.reject("permission_error", "error");
+                    return;
                 }
             }
 
@@ -841,6 +847,8 @@ public class RongCloudIMLibModule extends ReactContextBaseJavaModule {
             recoderUtils.startRecord();
 //            promise.resolve("success");
         } catch (Exception e) {
+            Log.e("isme", "inthis 2132");
+            e.printStackTrace();
             promise.reject("permission_error", "error");
         }
     }
