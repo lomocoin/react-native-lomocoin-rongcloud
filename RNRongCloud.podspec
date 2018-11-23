@@ -16,4 +16,5 @@ Pod::Spec.new do |spec|
   spec.source_files = "ios/**/*.{h,m}"
 
   spec.dependency   "React"
+  spec.dependency   "RongCloudIM/IMLib"
 end
