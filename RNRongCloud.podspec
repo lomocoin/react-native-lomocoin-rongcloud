@@ -3,18 +3,20 @@ require 'json'
 package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 
 Pod::Spec.new do |spec|
-  spec.name         = "RNRongCloud"
-  spec.summary      = package["description"]
-  spec.version      = package['version']
+spec.name         = 'RNRongCloud'
+spec.summary      = package['description']
+spec.version      = package['version']
 
-  spec.authors      = package["author"]
-  spec.homepage     = package["homepage"]
-  spec.license      = "MIT"
-  spec.platform     = :ios, "8.0"
+spec.authors      = package['author']
+spec.homepage     = package['homepage']
+spec.license      = 'MIT'
+spec.platform     = :ios, '8.0'
 
-  spec.source       = { :git => "https://github.com/lomocoin/react-native-lomocoin-rongcloud.git" }
-  spec.source_files = "ios/**/*.{h,m}"
+spec.source       = { :git => 'https://github.com/lomocoin/react-native-lomocoin-rongcloud.git' }
+spec.source_files = 'ios/**/*.{h,m}'
 
-  spec.dependency   "React"
-  spec.dependency   "RongCloudIM/IMLib"
+spec.dependency   'React'
+spec.vendored_libraries = 'ios/lib/libopencore-amrnb.a'
+spec.vendored_frameworks = 'ios/lib/RongIMLib.framework'
 end
+
